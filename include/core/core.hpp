@@ -6,18 +6,10 @@
 #define BIT(n) (1 << n)
 
 #ifdef BM_PLATFORM_WINDOWS
-	#ifdef BM_BUILD_DLL
-		#define BM_API __declspec(dllexport)
-	#else
-		#define BM_API __declspec(dllimport)
-	#endif
 	#define BM_API
 #else
 	#define BM_API
-	//#error Bridge Maker only support Windows!
 #endif
-
-
 
 #if defined(DEBUG) || defined(_DEBUG)
 	#define BM_DEBUG_CODE(...)  __VA_ARGS__
@@ -26,4 +18,13 @@
 	#define BM_DEBUG_CODE(...)
 	#define BM_CORE_ASSERT(x, msg, ...)
 #endif
+
+#define BM_INHERIT_APP public ::BM::Application
+
+#define BM_APP_INITIALIZE(YourApplication) \
+int main(int argc, char** argv) \
+{ \
+	YourApplication app; \
+	return app.run(argc, argv); \
+}
 

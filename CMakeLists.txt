@@ -4,14 +4,18 @@ project(BridgeMaker LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(PCH_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/src/pch.hpp)
+set(PCH_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/include/pch.hpp)
 
 file(GLOB_RECURSE BM_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 file(GLOB_RECURSE BM_HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/core/*.hpp
 )
+
+list(LENGTH BM_HEADERS BM_HEADERS_LENGTH)
+
+message(${BM_HEADERS})
 
 add_library(BridgeMaker ${BM_SRC} ${BM_HEADERS})
 
@@ -24,8 +28,9 @@ endif()
 add_subdirectory(deps/spdlog)
 
 target_include_directories(BridgeMaker
-    PRIVATE
+    PUBLIC
         deps/spdlog/include 
+    PRIVATE
 	include/
 )
 target_link_libraries(BridgeMaker

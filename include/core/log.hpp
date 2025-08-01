@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Core.hpp"
+#include "core/core.hpp"
 
 #define FMT_UNICODE 0
-#include "spdlog/spdlog.hpp"
-#include "spdlog/sinks/stdout_color_sinks.hpp"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 BM_START
 
