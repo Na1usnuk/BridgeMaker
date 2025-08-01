@@ -6,11 +6,12 @@
 #define BIT(n) (1 << n)
 
 #ifdef BM_PLATFORM_WINDOWS
-//	#ifdef BM_BUILD_DLL
-//		#define BM_API __declspec(dllexport)
-//	#else
-//		#define BM_API __declspec(dllimport)
-//	#endif
+	#ifdef BM_BUILD_DLL
+		#define BM_API __declspec(dllexport)
+	#else
+		#define BM_API __declspec(dllimport)
+	#endif
+	#define BM_API
 #else
 	#define BM_API
 	//#error Bridge Maker only support Windows!
