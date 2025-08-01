@@ -26,15 +26,18 @@ if(WIN32)
 endif()
 
 add_subdirectory(deps/spdlog)
+add_subdirectory(deps/glfw)
 
 target_include_directories(BridgeMaker
     PUBLIC
         deps/spdlog/include 
+	deps/glfw/include
     PRIVATE
 	include/
 )
 target_link_libraries(BridgeMaker
     PRIVATE
 	spdlog
+	glfw
 )
 
