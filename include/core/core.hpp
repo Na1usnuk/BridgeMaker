@@ -7,6 +7,10 @@
 
 #ifdef BM_PLATFORM_WINDOWS
 	#define BM_API
+	//#include "platform/windows/windows_window.hpp"
+	BM_START
+	//using Window = WindowsWindow;
+	BM_END
 #else
 	#define BM_API
 #endif
@@ -20,6 +24,8 @@
 #endif
 
 #define BM_INHERIT_APP public ::BM::Application
+
+#define BM_APP ::BM::Application
 
 #define BM_APP_INITIALIZE(YourApplication) \
 int main(int argc, char** argv) \

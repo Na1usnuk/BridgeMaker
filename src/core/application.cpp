@@ -6,8 +6,8 @@
 
 BM_START
 
-Application::Application()
-	: m_running(true)
+Application::Application(std::string_view title, int width, int height)
+	:	m_window(WindowsWindow::Data(title, width, height))
 {
 }
 
@@ -19,8 +19,10 @@ Application::~Application()
 
 int Application::run(int argc, char** argv)
 {
-	while (m_running)
+	while (m_window.isOpen())
 	{
+		onUpdate();
+		m_window.onUpdate();
 	}
 
 	return EXIT_SUCCESS;
