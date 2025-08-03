@@ -32,7 +32,6 @@
 	#define BM_CORE_ASSERT(x, msg, ...)
 #endif
 
-#define BM_INHERIT_APP public ::BM::Application
 
 #define BM_APP ::BM::Application
 

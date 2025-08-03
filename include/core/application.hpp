@@ -1,6 +1,10 @@
 #pragma once
 
 #include "core.hpp"
+#include "events/event.hpp"
+#include "events/app_event.hpp"
+#include "events/key_event.hpp"
+#include "events/mouse_event.hpp"
 
 #ifdef BM_PLATFORM_WINDOWS
 #define BM_API
@@ -24,6 +28,11 @@ public:
 	virtual ~Application();
 
 	virtual void onUpdate() const = 0;
+	virtual void onEvent(Event&);
+	virtual bool onClose(WindowCloseEvent& e);
+
+	virtual bool onResize(WindowResizeEvent& e);
+
 
 	virtual int run(int argc, char** argv);
 	

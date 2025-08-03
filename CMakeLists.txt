@@ -24,7 +24,8 @@ if(WIN32)
 	target_sources(BridgeMaker PRIVATE ${BM_WINDOWS_FILES})
 endif()
 
-
+file(GLOB BM_EVENTS_FILES LIST_DIRECTORIES false include/core/events/*)
+source_group(Events FILES ${BM_EVENTS_FILES})
 
 target_precompile_headers(BridgeMaker PUBLIC ${PCH_HEADER})
 
@@ -39,6 +40,7 @@ target_include_directories(BridgeMaker
 	deps/glad/include
     PRIVATE
 	include/
+	include/core
 )
 target_link_libraries(BridgeMaker
     PRIVATE

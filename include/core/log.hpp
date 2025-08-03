@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/core.hpp"
-#include "core/timer.hpp"
+#include "core.hpp"
+#include "timer.hpp"
 
 #define FMT_UNICODE 0
 #include "spdlog/spdlog.h"

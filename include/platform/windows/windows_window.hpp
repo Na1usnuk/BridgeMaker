@@ -1,6 +1,6 @@
-#include "core/core.hpp"
+#include "core.hpp"
 
-#include "core/window.hpp"
+#include "window.hpp"
 
 struct GLFWwindow;
 
@@ -20,17 +20,17 @@ public:
 	unsigned int getHeight() const override { return m_data.height; }
 	bool getVSync() const override { return m_data.vsync; };
 
-	void setVSync(bool enabled) override;
+	inline void setVSync(bool enabled) override;
+	void resize(int width, int height) override;
 
 	void init(const Data& props);
 
-	bool isOpen() const override;
-	void close() override;
+	inline bool isOpen() const override;
+	inline void close() override;
 
 private:
 
 	GLFWwindow* m_window;
-	Data m_data;
 
 };
 

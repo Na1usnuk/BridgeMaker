@@ -1,5 +1,9 @@
 #include "pch.hpp"
 #include "core/log.hpp"
+#include "events/app_event.hpp"
+#include "events/key_event.hpp"
+#include "events/mouse_event.hpp"
+
 
 #include "platform/windows/windows_window.hpp"
 
@@ -23,7 +27,7 @@ WindowsWindow::WindowsWindow(const AbstractWindow::Data& data)
 
 WindowsWindow::~WindowsWindow()
 {
-	BM_CORE_TRACE("Windows window \"{0}\" is destroyed", m_data.title);
+	BM_CORE_TRACE("Window \"{0}\" is destroyed", m_data.title);
 	glfwDestroyWindow(m_window);
 }
 
@@ -33,7 +37,8 @@ void WindowsWindow::onUpdate()
 	glfwSwapBuffers(m_window);
 }
 
-void WindowsWindow::setVSync(bool enabled)
+
+inline void WindowsWindow::setVSync(bool enabled)
 {
 	if (enabled)
 		glfwSwapInterval(1);
@@ -43,11 +48,18 @@ void WindowsWindow::setVSync(bool enabled)
 	m_data.vsync = enabled;
 }
 
+void WindowsWindow::resize(int width, int height)
+{
+	m_data.height = height;
+	m_data.width = width;
+	BM_TRACE("Window \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
+}
+
 void WindowsWindow::init(const Data& data)
 {
 	m_data = data;
 
-	BM_CORE_INFO("Creating Windows Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
+	BM_CORE_INFO("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
 
 	if (!s_isGLFWInitialized)
 	{
@@ -61,27 +73,40 @@ void WindowsWindow::init(const Data& data)
 	}
 
 	m_window = glfwCreateWindow((int)m_data.width, (int)m_data.height, m_data.title.c_str(), nullptr, nullptr);
-	if (!m_window)
-	{
-		BM_CORE_ERROR("Failed to create window");
-		return;
-	}
+	BM_CORE_ASSERT(m_window, "Failed to create window");
+
 	glfwMakeContextCurrent(m_window);
 	glfwSetWindowUserPointer(m_window, &m_data);
 	setVSync(m_data.vsync);
 
 	BM_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize Glad");
+	BM_CORE_INFO("Glad initialized");
 
+	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) 
+		{
+			BM_CORE_TRACE("Window close event occured");
+			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+			WindowCloseEvent e;
+			data->callback(e);
+		});
+
+	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int width, int height) 
+		{
+			BM_CORE_TRACE("Window resize event occured: {0}x{1}", width, height);
+			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+			WindowResizeEvent e(width, height);
+			data->callback(e);
+		});
 
 }
 
-void WindowsWindow::close()
+inline void WindowsWindow::close()
 {
 	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
-	BM_CORE_TRACE("Windows window \"{0}\" is closed", m_data.title);
+	BM_CORE_TRACE("Window \"{0}\" is closed", m_data.title);
 }
 
-bool WindowsWindow::isOpen() const
+inline bool WindowsWindow::isOpen() const
 {
 	return !glfwWindowShouldClose(m_window);
 }
