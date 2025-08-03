@@ -18,11 +18,12 @@ std::unique_ptr<AbstractWindow> AbstractWindow::create(const Data& props)
 
 WindowsWindow::WindowsWindow(const AbstractWindow::Data& data)
 {
-	init(data);
+	BM_TIMING_OF("Windows Window initialization time", init(data));
 }
 
 WindowsWindow::~WindowsWindow()
 {
+	BM_CORE_TRACE("Windows window \"{0}\" is destroyed", m_data.title);
 	glfwDestroyWindow(m_window);
 }
 
@@ -77,6 +78,7 @@ void WindowsWindow::init(const Data& data)
 void WindowsWindow::close()
 {
 	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+	BM_CORE_TRACE("Windows window \"{0}\" is closed", m_data.title);
 }
 
 bool WindowsWindow::isOpen() const

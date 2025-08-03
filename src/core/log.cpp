@@ -9,7 +9,7 @@ std::shared_ptr<spdlog::logger> BM::Log::s_ClientLogger;
 
 
 
-void BM::Log::Init()
+void BM::Log::init()
 {
 	spdlog::set_pattern("%^[%T] %n: %v%$");
 	s_CoreLogger = spdlog::stdout_color_mt("Bridge Maker");

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/core.hpp"
+#include "core/timer.hpp"
 
 #define FMT_UNICODE 0
 #include "spdlog/spdlog.h"
@@ -16,7 +17,7 @@ class BM_API Log
 {
 public:
 
-	static void Init();
+	static void init();
 
 	static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 	static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
@@ -43,3 +44,15 @@ BM_END
 #define BM_WARNING(...) ::BM::Log::GetClientLogger()->warning(__VA_ARGS__)
 #define BM_ERROR(...) ::BM::Log::GetClientLogger()->error(__VA_ARGS__)
 #define BM_FATAL(...) ::BM::Log::GetClientLogger()->critical(__VA_ARGS__)
+
+#define BM_TIMING_OF(msg, ...) do{Timer __BM_TIMING_OF_TIMER__; __VA_ARGS__;  BM_CORE_TRACE("{1}: {0}s", __BM_TIMING_OF_TIMER__.getTimeFromCreation(), msg);}while(false)
+
+#ifdef BM_LEVEL_TRACE
+	#define BM_CORE_TRACE_FUNCTION_START BM_CORE_TRACE("Function \"{0}\" start", (BM_FUNCTION_NAME)); Timer __BM_CORE_TRACE_FUNCTION_TIMER__; 
+	#define BM_CORE_TRACE_FUNCTION_END BM_CORE_TRACE("Function \"{0}\" ends in {1}s", (BM_FUNCTION_NAME), __BM_CORE_TRACE_FUNCTION_TIMER__.getTimeFromCreation());
+	#define BM_CORE_TRACE_FUNCTION(...) do{BM_CORE_TRACE_FUNCTION_START __VA_ARGS__ BM_CORE_TRACE_FUNCTION_END}while(false)
+#else 
+	#define BM_CORE_TRACE_FUNCTION_START(function_name)
+	#define BM_CORE_TRACE_FUNCTION_END(function_name)
+	#define BM_CORE_TRACE_FUNCTION(function_name, ...)
+#endif

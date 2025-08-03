@@ -19,6 +19,7 @@ Application::~Application()
 
 int Application::run(int argc, char** argv)
 {
+
 	while (m_window.isOpen())
 	{
 		onUpdate();
