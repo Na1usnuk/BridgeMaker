@@ -10,7 +10,7 @@
 BM_START
 
 Application::Application(std::string_view title, int width, int height)
-	:	m_window(WindowsWindow::Data(title, width, height))
+	:	m_window(Window::Data(title, width, height))
 {
 	m_window.setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
 }

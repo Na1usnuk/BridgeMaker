@@ -6,16 +6,7 @@
 #include "events/key_event.hpp"
 #include "events/mouse_event.hpp"
 #include "layer_stack.hpp"
-
-#ifdef BM_PLATFORM_WINDOWS
-#define BM_API
-#include "platform/windows/windows_window.hpp"
-BM_START
-using Window = WindowsWindow;
-BM_END
-#else 
-#error "Windows only for now"
-#endif 
+#include "window.hpp"
 
 #include <string_view>
 
@@ -34,7 +25,6 @@ public:
 	virtual bool onResize(WindowResizeEvent& e);
 
 	void pushLayer(LayerStack::raw_ptr_t layer) { m_layers.pushLayer(layer); }
-
 	void pushOverlay(LayerStack::raw_ptr_t overlay) { m_layers.pushOverlay(overlay); }
 
 	virtual int run(int argc, char** argv);

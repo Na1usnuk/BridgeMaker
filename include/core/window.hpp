@@ -3,61 +3,49 @@
 #include "core.hpp"
 #include "events/event.hpp"
 
-#include <string>
-#include <string_view>
-#include <memory>
-#include <functional>
-
+struct GLFWwindow;
 
 BM_START
 
 
-class AbstractWindow
+class Window
 {
 public:
-	
-	using EventCallbackFn = std::function<void(Event&)>;
+
+	using EventCallbackFn_t = std::function<void(Event&)>;
+	struct Data
+	{
+		Data(std::string_view t = "BridgeMaker APP", int w = 1280, int h = 720, bool vs = false) : title(t), width(w), height(h), vsync(vs) {}
+		std::string title;
+		int width, height;
+		bool vsync;
+		EventCallbackFn_t callback;
+	};
 
 public:
 
-	AbstractWindow() = default;
-	AbstractWindow(const AbstractWindow&) = delete;
-	AbstractWindow& operator=(const AbstractWindow&) = delete;
-	AbstractWindow(AbstractWindow&&) = default;
-	AbstractWindow& operator=(AbstractWindow&&) = default;
+	 Window(const Data& data = Data{});
+	~Window();
 
-	virtual ~AbstractWindow() {}
+	void onUpdate();
 
-	virtual void onUpdate() = 0;
+	unsigned int getWidth() const  { return m_data.width; }
+	unsigned int getHeight() const  { return m_data.height; }
+	bool         getVSync() const  { return m_data.vsync; };
 
-	virtual unsigned int getWidth() const = 0;
-	virtual unsigned int getHeight() const = 0;
-	virtual bool getVSync() const = 0;
+	void setVSync(bool enabled);
+	void setEventCallback(EventCallbackFn_t fn) { m_data.callback = fn; }
 
-	void setEventCallback(const EventCallbackFn& fn) { m_data.callback = fn; }
-	virtual void setVSync(bool enabled) = 0;
-	virtual void resize(int width, int height) = 0;
+	void resize(int width, int height);
+	void init(const Data& props);
 
-	virtual bool isOpen() const = 0;
-	virtual void close() = 0;
+	bool isOpen() const;
+	void close();
 
-	struct Data
-	{
-		std::string title;
-		unsigned int width;
-		unsigned int height;
-		bool vsync;
-		EventCallbackFn callback;
+private:
 
-		Data(std::string_view t = "Bridge Maker App", unsigned int w = 1280, unsigned int h = 720, bool vs = false) : width(w), height(h), title(t), vsync(vs) {}
-	};
-
-	static std::unique_ptr<AbstractWindow> create(const Data& props = Data());
-
-protected:
-
+	GLFWwindow* m_window;
 	Data m_data;
-
 };
 
 

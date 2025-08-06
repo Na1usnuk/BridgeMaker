@@ -9,7 +9,7 @@
 	#define BM_API
 	//#include "platform/windows/windows_window.hpp"
 	BM_START
-	//using Window = WindowsWindow;
+	//using Window = Window;
 	BM_END
 #else
 	#define BM_API

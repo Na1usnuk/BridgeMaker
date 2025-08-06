@@ -17,11 +17,6 @@ add_library(BridgeMaker ${BM_SRC} ${BM_HEADERS})
 
 if(WIN32)
 	target_compile_definitions(BridgeMaker PRIVATE BM_PLATFORM_WINDOWS)
-	file(GLOB_RECURSE BM_WINDOWS_FILES 
-		include/platform/windows/*.hpp
-		src/platform/windows/*.cpp
-	)
-	target_sources(BridgeMaker PRIVATE ${BM_WINDOWS_FILES})
 endif()
 
 

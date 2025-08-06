@@ -5,7 +5,7 @@
 #include "events/mouse_event.hpp"
 
 
-#include "platform/windows/windows_window.hpp"
+#include "window.hpp"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -14,31 +14,25 @@ BM_START
 
 static bool s_isGLFWInitialized = false;
 
-std::unique_ptr<AbstractWindow> AbstractWindow::create(const Data& props)
-{
-	return std::make_unique<WindowsWindow>(props);
-}
 
-
-WindowsWindow::WindowsWindow(const AbstractWindow::Data& data)
+Window::Window(const Data& data)
 {
 	BM_TIME_OF("Windows Window initialization time", init(data));
 }
 
-WindowsWindow::~WindowsWindow()
+Window::~Window()
 {
 	BM_CORE_TRACE("Window \"{0}\" is destroyed", m_data.title);
 	glfwDestroyWindow(m_window);
 }
 
-void WindowsWindow::onUpdate()
+void Window::onUpdate()
 {
 	glfwPollEvents();
 	glfwSwapBuffers(m_window);
 }
 
-
-inline void WindowsWindow::setVSync(bool enabled)
+void Window::setVSync(bool enabled)
 {
 	if (enabled)
 		glfwSwapInterval(1);
@@ -48,14 +42,25 @@ inline void WindowsWindow::setVSync(bool enabled)
 	m_data.vsync = enabled;
 }
 
-void WindowsWindow::resize(int width, int height)
+void Window::resize(int width, int height)
 {
 	m_data.height = height;
 	m_data.width = width;
 	BM_TRACE("Window \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
 }
 
-void WindowsWindow::init(const Data& data)
+void Window::close()
+{
+	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+	BM_CORE_TRACE("Window \"{0}\" is closed", m_data.title);
+}
+
+bool Window::isOpen() const
+{
+	return !glfwWindowShouldClose(m_window);
+}
+
+void Window::init(const Data& data)
 {
 	m_data = data;
 
@@ -84,21 +89,21 @@ void WindowsWindow::init(const Data& data)
 
 	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) 
 		{
-			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowCloseEvent e;
 			data->callback(e);
 		});
 
 	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int width, int height) 
 		{
-			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowResizeEvent e(width, height);
 			data->callback(e);
 		});
 
 	glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) 
 		{
-			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			switch (action)
 			{
 				case GLFW_PRESS:
@@ -118,7 +123,7 @@ void WindowsWindow::init(const Data& data)
 
 	glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
 	{
-		AbstractWindow::Data * data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+		Data * data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 
 		static struct { int key, repeat = 0; } last_key;
 
@@ -147,17 +152,6 @@ void WindowsWindow::init(const Data& data)
 			}	
 		}
 	});
-}
-
-inline void WindowsWindow::close()
-{
-	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
-	BM_CORE_TRACE("Window \"{0}\" is closed", m_data.title);
-}
-
-inline bool WindowsWindow::isOpen() const
-{
-	return !glfwWindowShouldClose(m_window);
 }
 
 BM_END
