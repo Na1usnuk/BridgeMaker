@@ -22,7 +22,7 @@ std::unique_ptr<AbstractWindow> AbstractWindow::create(const Data& props)
 
 WindowsWindow::WindowsWindow(const AbstractWindow::Data& data)
 {
-	BM_TIMING_OF("Windows Window initialization time", init(data));
+	BM_TIME_OF("Windows Window initialization time", init(data));
 }
 
 WindowsWindow::~WindowsWindow()
@@ -84,7 +84,6 @@ void WindowsWindow::init(const Data& data)
 
 	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window) 
 		{
-			BM_CORE_TRACE("Window close event occured");
 			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
 			WindowCloseEvent e;
 			data->callback(e);
@@ -92,12 +91,62 @@ void WindowsWindow::init(const Data& data)
 
 	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int width, int height) 
 		{
-			BM_CORE_TRACE("Window resize event occured: {0}x{1}", width, height);
 			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
 			WindowResizeEvent e(width, height);
 			data->callback(e);
 		});
 
+	glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods) 
+		{
+			AbstractWindow::Data* data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+			switch (action)
+			{
+				case GLFW_PRESS:
+				{
+					MouseButtonPressedEvent e(button);
+					data->callback(e);
+					return;
+				}
+				case GLFW_RELEASE:
+				{
+					MouseButtonReleasedEvent e(button);
+					data->callback(e);
+					return;
+				}
+			}
+		});
+
+	glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
+	{
+		AbstractWindow::Data * data = static_cast<AbstractWindow::Data*>(glfwGetWindowUserPointer(window));
+
+		static struct { int key, repeat = 0; } last_key;
+
+		switch (action)
+			{
+			case GLFW_PRESS:
+			{
+				last_key.key = key;
+				KeyPressedEvent e(key, last_key.repeat);
+				data->callback(e);
+				return;
+			}
+			case GLFW_RELEASE:
+			{
+				if (key == last_key.key)
+					last_key.repeat = 0;
+				KeyReleasedEvent e(key);
+				data->callback(e);
+				return;
+			}
+			case GLFW_REPEAT:
+			{
+				if (key == last_key.key)
+					last_key.repeat++;
+				return;
+			}	
+		}
+	});
 }
 
 inline void WindowsWindow::close()

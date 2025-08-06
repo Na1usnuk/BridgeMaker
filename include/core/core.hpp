@@ -15,6 +15,8 @@
 	#define BM_API
 #endif
 
+#define BM_BIND_EVENT_FN(func_name) std::bind(&func_name, this, std::placeholders::_1)
+
 #ifdef _MSC_VER
 	#define BM_FUNCTION_NAME __FUNCSIG__
 #elif defined(__GNUC__)

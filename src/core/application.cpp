@@ -6,14 +6,13 @@
 #include "events/key_event.hpp"
 #include "events/mouse_event.hpp"
 
-#define BM_BIND_EVENT_FN(func_name) std::bind(&Application::func_name, this, std::placeholders::_1)
 
 BM_START
 
 Application::Application(std::string_view title, int width, int height)
 	:	m_window(WindowsWindow::Data(title, width, height))
 {
-	m_window.setEventCallback(BM_BIND_EVENT_FN(onEvent));
+	m_window.setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
 }
 
 
@@ -26,7 +25,14 @@ void Application::onEvent(Event& e)
 {
 	EventDispatcher d(e);
 
-	d.dispatch<WindowCloseEvent>(BM_BIND_EVENT_FN(onClose));
+	d.dispatch<WindowCloseEvent>(BM_BIND_EVENT_FN(Application::onClose));
+
+	for (auto layer = m_layers.end(); layer > m_layers.begin();)
+	{
+		(*--layer)->onEvent(e);
+		if (e.isHandled())
+			break;
+	}
 }
 
 bool Application::onClose(WindowCloseEvent& e)
@@ -40,6 +46,13 @@ bool Application::onResize(WindowResizeEvent& e)
 {
 	m_window.resize(e.getWidth(), e.getHeight());
 	return true;
+}
+
+
+void Application::onUpdate()
+{
+	for (auto& layer : m_layers)
+		layer->onUpdate();
 }
 
 

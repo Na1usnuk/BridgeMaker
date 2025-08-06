@@ -28,7 +28,7 @@ enum EventCategory
 
 #define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return EventType::##type;} \
 							   virtual EventType getEventType() const override { return getStaticType(); } \
-							   virtual const char* getName() const override { return #type; } 
+							   BM_DEBUG_CODE(virtual const char* getName() const override { return #type; }) 
 							   
 #define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return category; }
 
@@ -40,10 +40,10 @@ class BM_API Event
 public:
 
 	virtual EventType getEventType() const = 0;
-	virtual const char* getName() const = 0;
 	virtual int getCategoryFlags()  const = 0;
 
 	BM_DEBUG_CODE(
+	virtual const char* getName() const = 0;
 	virtual std::string toString() const { return getName(); }
 	)
 
@@ -51,6 +51,8 @@ public:
 	{
 		return getCategoryFlags() & category;
 	}
+
+	bool isHandled() const { return m_handled; }
 
 protected:
 
@@ -94,5 +96,4 @@ inline std::ostream& operator<<(std::ostream& os, const Event& event)
 	return os << event.toString();
 }
 )
-
 BM_END

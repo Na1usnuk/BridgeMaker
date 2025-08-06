@@ -24,6 +24,8 @@ if(WIN32)
 	target_sources(BridgeMaker PRIVATE ${BM_WINDOWS_FILES})
 endif()
 
+
+
 file(GLOB BM_EVENTS_FILES LIST_DIRECTORIES false include/core/events/*)
 source_group(Events FILES ${BM_EVENTS_FILES})
 
@@ -43,8 +45,10 @@ target_include_directories(BridgeMaker
 	include/core
 )
 target_link_libraries(BridgeMaker
+    PUBLIC 
+        spdlog
     PRIVATE
-	spdlog
+
 	glfw
 	glad
 )
