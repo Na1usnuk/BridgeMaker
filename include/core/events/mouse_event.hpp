@@ -4,7 +4,7 @@
 
 BM_START
 
-class BM_API MouseMoveEvent : public Event
+class  MouseMoveEvent : public Event
 {
 public:
 	
@@ -32,7 +32,7 @@ private:
 };
 
 
-class BM_API MouseScrollEvent : public Event
+class  MouseScrollEvent : public Event
 {
 public:
 
@@ -60,7 +60,7 @@ private:
 };
 
 
-class BM_API MouseButtonEvent : public Event
+class  MouseButtonEvent : public Event
 {
 public:
 
@@ -77,7 +77,7 @@ protected:
 };
 
 
-class BM_API MouseButtonPressedEvent : public MouseButtonEvent
+class  MouseButtonPressedEvent : public MouseButtonEvent
 {
 public:
 
@@ -99,7 +99,7 @@ public:
 };
 
 
-class BM_API MouseButtonReleasedEvent : public MouseButtonEvent
+class  MouseButtonReleasedEvent : public MouseButtonEvent
 {
 public:
 

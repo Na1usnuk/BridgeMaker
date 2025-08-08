@@ -5,6 +5,8 @@
 #include "log.hpp"
 
 #include <utility>
+#include <string_view>
+#include <functional>
 
 struct GLFWwindow;
 

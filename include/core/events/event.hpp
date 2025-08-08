@@ -34,7 +34,7 @@ enum EventCategory
 
 class EventDispatcher;
 
-class BM_API Event
+class Event
 {
 
 public:

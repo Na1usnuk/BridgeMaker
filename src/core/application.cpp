@@ -45,13 +45,11 @@ bool Application::onClose(WindowCloseEvent& e)
 	return true;
 }
 
-
 bool Application::onResize(WindowResizeEvent& e)
 {
 	m_window.resize(e.getWidth(), e.getHeight());
 	return true;
 }
-
 
 void Application::onUpdate()
 {
@@ -60,7 +58,6 @@ void Application::onUpdate()
 	for (auto& layer : m_layers)
 		layer->onUpdate();
 }
-
 
 int Application::run(int argc, char** argv)
 {
@@ -72,6 +69,19 @@ int Application::run(int argc, char** argv)
 	}
 
 	return EXIT_SUCCESS;
+}
+
+void Application::closeWindow(const Window* window)
+{
+	auto it = std::find(m_windows.begin(), m_windows.end(), *window);
+	if (it != m_windows.end())
+		m_windows.erase(it);
+}
+
+void Application::addWindow(std::string_view title, int width, int height)
+{
+	m_windows.emplace_back(title, width, height);
+	m_windows.back().setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
 }
 
 BM_END

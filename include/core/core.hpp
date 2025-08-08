@@ -5,16 +5,6 @@
 
 #define BIT(n) (1 << n)
 
-#ifdef BM_PLATFORM_WINDOWS
-	#define BM_API
-	//#include "platform/windows/windows_window.hpp"
-	BM_START
-	//using Window = Window;
-	BM_END
-#else
-	#define BM_API
-#endif
-
 #define BM_BIND_EVENT_FN(func_name) std::bind(&func_name, this, std::placeholders::_1)
 
 #ifdef _MSC_VER
@@ -23,17 +13,18 @@
 	#define BM_FUNCTION_NAME __PRETTY_FUNCTION__
 #else
 	#define BM_FUNCTION_NAME __func__
-#endif
+#endif //BM_FUNCTION_NAME 
 
 #if defined(DEBUG) || defined(_DEBUG)
 	#define BM_DEBUG_CODE(...)  __VA_ARGS__
 	#define BM_CORE_ASSERT(x, msg, ...) if(!(x)){ BM_CORE_FATAL(msg); __debugbreak(); __VA_ARGS__}
+	#define BM_CORE_SIMPLE_ASSERT(x) if(!(x)){__debugbreak();}
 	#define BM_LEVEL_TRACE
 #else
 	#define BM_DEBUG_CODE(...)
 	#define BM_CORE_ASSERT(x, msg, ...)
-#endif
-
+	#define BM_CORE_SIMPLE_ASSERT(x) 
+#endif //DEBUG
 
 #define BM_APP ::BM::Application
 
@@ -50,4 +41,5 @@ int main(int argc, char** argv) \
 	YourApplication app; \
 	return app.run(argc, argv); \
 }
+
 

@@ -18,6 +18,10 @@ class Application
 {
 public:
 
+	int run(int argc, char** argv);
+
+protected:
+
 	Application(std::string_view title, int width = 1280, int height = 720);
 	virtual ~Application();
 
@@ -32,23 +36,9 @@ public:
 	void pushLayer(LayerStack::raw_ptr_t layer) { m_layers.pushLayer(layer); }
 	void pushOverlay(LayerStack::raw_ptr_t overlay) { m_layers.pushOverlay(overlay); }
 
-	//void setMainWindow(Window& window);
-	template<typename... T>
-	void addWindow(T&&... data)
-	{
-		m_windows.emplace_back(std::forward<T>(data)...);
-		m_windows.back().setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
-	}
+	void closeWindow(const Window* window);
+	void addWindow(std::string_view title, int width, int height);
 
-	void closeWindow(const Window* window)
-	{
-		auto it = std::find(m_windows.begin(), m_windows.end(), *window);
-		if (it != m_windows.end())
-			m_windows.erase(it);
-	}
-
-	int run(int argc, char** argv);
-	
 private:
 
 	Window m_window;

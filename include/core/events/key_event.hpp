@@ -6,7 +6,7 @@
 BM_START
 
 
-class BM_API KeyEvent : public Event
+class  KeyEvent : public Event
 {
 public:
 
@@ -21,7 +21,7 @@ protected:
 };
 
 
-class BM_API KeyPressedEvent : public KeyEvent
+class  KeyPressedEvent : public KeyEvent
 {
 public:
 
@@ -47,7 +47,7 @@ private:
 };
 
 
-class BM_API KeyReleasedEvent : public KeyEvent
+class  KeyReleasedEvent : public KeyEvent
 {
 public:
 

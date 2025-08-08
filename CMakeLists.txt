@@ -11,6 +11,7 @@ file(GLOB_RECURSE BM_SRC
 )
 file(GLOB_RECURSE BM_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/*.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/graphic/*.hpp
 )
 
 add_library(BridgeMaker ${BM_SRC} ${BM_HEADERS})
@@ -23,6 +24,9 @@ endif()
 
 file(GLOB BM_EVENTS_FILES LIST_DIRECTORIES false include/core/events/*)
 source_group(Events FILES ${BM_EVENTS_FILES})
+
+file(GLOB_RECURSE BM_GL_FILES include/graphic/*.hpp src/graphic/*.cpp)
+source_group(Graphic FILES ${BM_GL_FILES})
 
 target_precompile_headers(BridgeMaker PUBLIC ${PCH_HEADER})
 
@@ -38,12 +42,12 @@ target_include_directories(BridgeMaker
     PRIVATE
 	include/
 	include/core
+	include/graphic
 )
 target_link_libraries(BridgeMaker
     PUBLIC 
         spdlog
     PRIVATE
-
 	glfw
 	glad
 )

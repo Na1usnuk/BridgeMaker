@@ -5,7 +5,7 @@
 
 BM_START
 
-class BM_API WindowResizeEvent : public Event
+class  WindowResizeEvent : public Event
 {
 public:
 
@@ -33,7 +33,7 @@ private:
 };
 
 
-class BM_API WindowCloseEvent : public Event
+class  WindowCloseEvent : public Event
 {
 public:
 	WindowCloseEvent(Window* w) : window(w) {}
@@ -45,7 +45,7 @@ public:
 };
 
 
-class BM_API AppTickEvent : public Event
+class  AppTickEvent : public Event
 {
 public:
 	AppTickEvent() {}
@@ -55,7 +55,7 @@ public:
 };
 
 
-class BM_API AppUpdateEvent : public Event
+class  AppUpdateEvent : public Event
 {
 public:
 	AppUpdateEvent() {}
@@ -65,7 +65,7 @@ public:
 };
 
 
-class BM_API AppRenderEvent : public Event
+class  AppRenderEvent : public Event
 {
 public:
 	AppRenderEvent() {}
