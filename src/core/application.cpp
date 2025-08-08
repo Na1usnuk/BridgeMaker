@@ -15,11 +15,10 @@ Application::Application(std::string_view title, int width, int height)
 	m_window.setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
 }
 
-
 Application::~Application()
 {
+	//m_window.destroy();
 }
-
 
 void Application::onEvent(Event& e)
 {
@@ -27,6 +26,11 @@ void Application::onEvent(Event& e)
 
 	d.dispatch<WindowCloseEvent>(BM_BIND_EVENT_FN(Application::onClose));
 
+	onLayersEvent(e);
+}
+
+void Application::onLayersEvent(Event& e)
+{
 	for (auto layer = m_layers.end(); layer > m_layers.begin();)
 	{
 		(*--layer)->onEvent(e);
@@ -51,6 +55,8 @@ bool Application::onResize(WindowResizeEvent& e)
 
 void Application::onUpdate()
 {
+	for (auto& window : m_windows)
+		window.onUpdate();
 	for (auto& layer : m_layers)
 		layer->onUpdate();
 }

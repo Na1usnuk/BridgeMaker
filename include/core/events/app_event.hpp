@@ -1,6 +1,7 @@
 #pragma once
 
 #include "event.hpp"
+#include "window.hpp"
 
 BM_START
 
@@ -35,10 +36,12 @@ private:
 class BM_API WindowCloseEvent : public Event
 {
 public:
-	WindowCloseEvent() {}
+	WindowCloseEvent(Window* w) : window(w) {}
 
 	EVENT_CLASS_TYPE(WindowClose)
 	EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	Window* window; // window that throw event
 };
 
 

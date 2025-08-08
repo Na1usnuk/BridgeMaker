@@ -2,6 +2,9 @@
 
 #include "core.hpp"
 #include "events/event.hpp"
+#include "log.hpp"
+
+#include <utility>
 
 struct GLFWwindow;
 
@@ -20,11 +23,20 @@ public:
 		int width, height;
 		bool vsync;
 		EventCallbackFn_t callback;
+		Window* window = nullptr;
 	};
 
 public:
 
-	 Window(const Data& data = Data{});
+	Window(const Window&) = delete;
+	Window& operator=(const Window&) = delete;
+	Window(Window&& oth) = delete;
+	Window& operator=(Window&& oth) = delete;
+
+	bool operator==(const Window& oth) { return m_window == oth.m_window; }
+
+	Window(std::string_view v, int w, int h) : Window(Data{v, w, h}) {}
+	Window(const Data& data = Data{});
 	~Window();
 
 	void onUpdate();
@@ -37,10 +49,22 @@ public:
 	void setEventCallback(EventCallbackFn_t fn) { m_data.callback = fn; }
 
 	void resize(int width, int height);
-	void init(const Data& props);
 
 	bool isOpen() const;
 	void close();
+	void destroy();
+
+private:
+
+	void create(const Data& props);
+
+	void setGLFWPointer();
+
+	void setKeyCallback();
+	void setMuoseButtonCallback();
+	void setCloseCallback();
+	void setResizeCallback();
+	void setAllCallbacks();
 
 private:
 
