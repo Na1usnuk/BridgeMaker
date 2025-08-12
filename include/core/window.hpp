@@ -26,6 +26,12 @@ public:
 		bool vsync;
 		EventCallbackFn_t callback;
 		Window* window = nullptr;
+
+		struct
+		{
+			int key;
+			int repeat_count;
+		}last_key;
 	};
 
 public:
@@ -35,9 +41,9 @@ public:
 	Window(Window&& oth) = delete;
 	Window& operator=(Window&& oth) = delete;
 
-	bool operator==(const Window& oth) { return m_window == oth.m_window; }
+	bool operator==(const Window& oth) const { return m_window == oth.m_window; }
 
-	Window(std::string_view v, int w, int h) : Window(Data{v, w, h}) {}
+	Window(std::string_view v, int w, int h, bool vs = false) : Window(Data{v, w, h, vs}) {}
 	Window(const Data& data = Data{});
 	~Window();
 
@@ -46,11 +52,15 @@ public:
 	unsigned int getWidth() const  { return m_data.width; }
 	unsigned int getHeight() const  { return m_data.height; }
 	bool         getVSync() const  { return m_data.vsync; };
+	GLFWwindow*  getNativeWindow() const { return m_window; }
 
 	void setVSync(bool enabled);
 	void setEventCallback(EventCallbackFn_t fn) { m_data.callback = fn; }
 
 	void resize(int width, int height);
+	void resizeTo(int width, int height);
+
+	void makeCurrent() const;
 
 	bool isOpen() const;
 	void close();
@@ -59,9 +69,7 @@ public:
 private:
 
 	void create(const Data& props);
-
 	void setGLFWPointer();
-
 	void setKeyCallback();
 	void setMuoseButtonCallback();
 	void setCloseCallback();

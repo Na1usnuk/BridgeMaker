@@ -3,6 +3,9 @@
 #include "core.hpp"
 #include "log.hpp"
 
+BM_START
+GL_START
+
 class VertexBuffer
 {
 public:
@@ -65,3 +68,6 @@ private:
 	std::vector<Element> m_elements;
 	unsigned int m_stride;
 };
+
+GL_END
+BM_END

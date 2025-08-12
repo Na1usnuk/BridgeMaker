@@ -36,12 +36,11 @@ private:
 class  WindowCloseEvent : public Event
 {
 public:
-	WindowCloseEvent(Window* w) : window(w) {}
+	WindowCloseEvent() {}
 
 	EVENT_CLASS_TYPE(WindowClose)
 	EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-	Window* window; // window that throw event
 };
 
 

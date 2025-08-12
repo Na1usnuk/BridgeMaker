@@ -9,24 +9,16 @@
 
 BM_START
 
-Application::Application(std::string_view title, int width, int height)
-	:	m_window(Window::Data(title, width, height))
+Application::Application()
 {
-	m_window.setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
 }
 
 Application::~Application()
 {
-	//m_window.destroy();
 }
 
 void Application::onEvent(Event& e)
 {
-	EventDispatcher d(e);
-
-	d.dispatch<WindowCloseEvent>(BM_BIND_EVENT_FN(Application::onClose));
-
-	onLayersEvent(e);
 }
 
 void Application::onLayersEvent(Event& e)
@@ -39,49 +31,59 @@ void Application::onLayersEvent(Event& e)
 	}
 }
 
-bool Application::onClose(WindowCloseEvent& e)
-{
-	m_window.close();
-	return true;
-}
-
-bool Application::onResize(WindowResizeEvent& e)
-{
-	m_window.resize(e.getWidth(), e.getHeight());
-	return true;
-}
-
 void Application::onUpdate()
 {
-	for (auto& window : m_windows)
-		window.onUpdate();
-	for (auto& layer : m_layers)
-		layer->onUpdate();
 }
-
+#include "opengl/opengl.hpp"
 int Application::run(int argc, char** argv)
 {
-
-	while (m_window.isOpen())
+	while (m_is_running)
 	{
-		onUpdate();
-		m_window.onUpdate();
+		for (auto& w : m_windows)
+		{
+			AppRenderEvent e;
+			e.setWindow(&w);
+			w.makeCurrent();
+
+			m_renderer.clear(0.2f, 0.2f, 0.2f, 1.0f);
+
+			onEvent(e);
+			for (auto& l : m_layers)
+				l->onUpdate();
+			onUpdate();
+			w.onUpdate();
+		}
+
+		if (m_close_window != nullptr)
+		{
+			_closeWindow(m_close_window);
+			m_close_window = nullptr;
+			continue;
+		}
+
 	}
 
 	return EXIT_SUCCESS;
 }
 
-void Application::closeWindow(const Window* window)
+void Application::closeWindow(Window* window)
+{
+		m_close_window = window;
+}
+
+
+Window& Application::addWindow(std::string_view title, int width, int height, bool vsync)
+{
+	m_windows.emplace_back(title, width, height, vsync);
+	m_windows.back().setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
+	return m_windows.back();
+}
+
+void Application::_closeWindow(Window* window)
 {
 	auto it = std::find(m_windows.begin(), m_windows.end(), *window);
 	if (it != m_windows.end())
 		m_windows.erase(it);
-}
-
-void Application::addWindow(std::string_view title, int width, int height)
-{
-	m_windows.emplace_back(title, width, height);
-	m_windows.back().setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
 }
 
 BM_END

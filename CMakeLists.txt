@@ -12,6 +12,7 @@ file(GLOB_RECURSE BM_SRC
 file(GLOB_RECURSE BM_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/*.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/graphic/*.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui.hpp
 )
 
 add_library(BridgeMaker ${BM_SRC} ${BM_HEADERS})
@@ -20,7 +21,7 @@ if(WIN32)
 	target_compile_definitions(BridgeMaker PRIVATE BM_PLATFORM_WINDOWS)
 endif()
 
-
+target_compile_definitions(BridgeMaker PRIVATE BM_USE_OPENGL)
 
 file(GLOB BM_EVENTS_FILES LIST_DIRECTORIES false include/core/events/*)
 source_group(Events FILES ${BM_EVENTS_FILES})
@@ -33,13 +34,16 @@ target_precompile_headers(BridgeMaker PUBLIC ${PCH_HEADER})
 add_subdirectory(deps/spdlog)
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
+add_subdirectory(deps/imgui)
 
 target_include_directories(BridgeMaker
     PUBLIC
-        deps/spdlog/include 
-	deps/glfw/include
-	deps/glad/include
+	deps/imgui/
+	deps/imgui/backends
     PRIVATE
+        deps/spdlog/include 
+	deps/glad/include
+	deps/glfw/include
 	include/
 	include/core
 	include/graphic
@@ -47,6 +51,7 @@ target_include_directories(BridgeMaker
 target_link_libraries(BridgeMaker
     PUBLIC 
         spdlog
+	imgui
     PRIVATE
 	glfw
 	glad

@@ -66,20 +66,20 @@ class LayerStack
 {
 public:
 
-	using ptr_t = std::unique_ptr<Layer>;
+	using ptr_t = std::shared_ptr<Layer>;
 	using raw_ptr_t = Layer*;
 
 public:
 
 	LayerStack() { m_inserter = m_layers.begin(); }
 
-	void pushLayer(raw_ptr_t layer)
+	void pushLayer(ptr_t layer)
 	{
 		m_inserter = m_layers.emplace(m_inserter, layer);
 		layer->onAttach();
 	}
 
-	void pushOverlay(raw_ptr_t overlay)
+	void pushOverlay(ptr_t overlay)
 	{
 		m_layers.emplace_back(overlay);
 		overlay->onAttach();

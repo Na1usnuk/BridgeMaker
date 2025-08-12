@@ -19,7 +19,7 @@
 	#define BM_DEBUG_CODE(...)  __VA_ARGS__
 	#define BM_CORE_ASSERT(x, msg, ...) if(!(x)){ BM_CORE_FATAL(msg); __debugbreak(); __VA_ARGS__}
 	#define BM_CORE_SIMPLE_ASSERT(x) if(!(x)){__debugbreak();}
-	#define BM_LEVEL_TRACE
+//	#define BM_LEVEL_TRACE
 #else
 	#define BM_DEBUG_CODE(...)
 	#define BM_CORE_ASSERT(x, msg, ...)
@@ -43,3 +43,5 @@ int main(int argc, char** argv) \
 }
 
 
+#define GL_START namespace OpenGL {
+#define GL_END }

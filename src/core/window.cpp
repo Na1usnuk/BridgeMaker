@@ -29,6 +29,7 @@ Window::~Window()
 void Window::destroy()
 {
 	glfwDestroyWindow(m_window);
+	m_window = nullptr;
 	BM_CORE_TRACE("Window \"{0}\" is destroyed", m_data.title);
 }
 
@@ -55,15 +56,28 @@ void Window::resize(int width, int height)
 	BM_TRACE("Window \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
 }
 
+void Window::resizeTo(int width, int height)
+{
+	resize(width, height);
+	glfwSetWindowSize(m_window, width, height);
+}
+
+void Window::makeCurrent() const
+{
+	BM_CORE_TRACE("makeCurrent {0}", m_data.title);
+	glfwMakeContextCurrent(m_window);
+}
+
 void Window::close()
 {
 	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+	m_window = nullptr;
 	BM_CORE_TRACE("Window \"{0}\" is closed", m_data.title);
 }
 
 bool Window::isOpen() const
 {
-	return !glfwWindowShouldClose(m_window);
+	return !glfwWindowShouldClose(m_window) && (m_window != nullptr);
 }
 
 void Window::create(const Data& data)
@@ -89,14 +103,13 @@ void Window::create(const Data& data)
 
 	if (s_mainWindow == nullptr)
 	{
-		glfwMakeContextCurrent(m_window);
 		s_mainWindow = m_window;
 	}
 
+	glfwMakeContextCurrent(m_window);
 	setVSync(m_data.vsync);
 	setGLFWPointer();
 
-	if (!s_isGladInitialized)
 	{
 		BM_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize Glad");
 		BM_CORE_INFO("Glad initialized");
@@ -118,29 +131,32 @@ void Window::setKeyCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 
-			static struct { int key, repeat = 0; } last_key;
-
 			switch (action)
 			{
 			case GLFW_PRESS:
 			{
-				last_key.key = key;
-				KeyPressedEvent e(key, last_key.repeat);
+				KeyPressedEvent e(key, 0);
 				data->callback(e);
+				data->last_key.key = key;
+				data->last_key.repeat_count = 0;
 				return;
 			}
 			case GLFW_RELEASE:
 			{
-				if (key == last_key.key)
-					last_key.repeat = 0;
 				KeyReleasedEvent e(key);
 				data->callback(e);
+				if (key == data->last_key.key)
+					data->last_key.repeat_count = 0;
 				return;
 			}
 			case GLFW_REPEAT:
 			{
-				if (key == last_key.key)
-					last_key.repeat++;
+				if (key == data->last_key.key)
+				{
+					data->last_key.repeat_count++;
+					KeyPressedEvent e(key, data->last_key.repeat_count);
+					data->callback(e);
+				}
 				return;
 			}
 			}
@@ -172,12 +188,14 @@ void Window::setMuoseButtonCallback()
 
 void Window::setResizeCallback()
 {
-	glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
+	glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowResizeEvent e(width, height);
+			e.setWindow(data->window);
 			data->callback(e);
 		});
+	
 }
 
 void Window::setAllCallbacks()
@@ -193,7 +211,8 @@ void Window::setCloseCallback()
 	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window)
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-			WindowCloseEvent e(data->window);
+			WindowCloseEvent e;
+			e.setWindow(data->window);
 			data->callback(e);
 		});
 }

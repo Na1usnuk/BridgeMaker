@@ -1,9 +1,10 @@
 #pragma once
 
-#include "core.hpp"
+#include "core/core.hpp"
 
 BM_START
 
+class Window;
 
 enum class EventType
 {
@@ -28,7 +29,7 @@ enum EventCategory
 
 #define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return EventType::##type;} \
 							   virtual EventType getEventType() const override { return getStaticType(); } \
-							   BM_DEBUG_CODE(virtual const char* getName() const override { return #type; }) 
+							   BM_DEBUG_CODE(virtual const char* getName() const override { return #type; }) \
 							   
 #define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return category; }
 
@@ -38,6 +39,9 @@ class Event
 {
 
 public:
+
+	Event() {}
+	Event(Window* w) : m_window(w) {}
 
 	virtual EventType getEventType() const = 0;
 	virtual int getCategoryFlags()  const = 0;
@@ -54,12 +58,16 @@ public:
 
 	bool isHandled() const { return m_handled; }
 
+	//get window that throw the event
+	Window* getWindow() const { return m_window; }
+	void setWindow(Window* w) { m_window = w; }
+
 protected:
 
 	friend class EventDispatcher;
 
 	bool m_handled = false;
-
+	Window* m_window = nullptr; // window that throw event
 };
 
 

@@ -3,6 +3,9 @@
 #include "opengl/vertex_buffer.hpp"
 #include "opengl/opengl.hpp"
 
+BM_START
+GL_START
+
 VertexBuffer::VertexBuffer(const void* data, unsigned long long size)
 {
 	GLCALL(glGenBuffers(1, &m_id));
@@ -62,3 +65,6 @@ void VertexBuffer::Layout::push<unsigned char>(unsigned int count)
 	m_elements.push_back({ GL_UNSIGNED_BYTE, count, GL_TRUE });
 	m_stride += count * Element::getSizeOfType(GL_UNSIGNED_BYTE);
 }
+
+GL_END
+BM_END

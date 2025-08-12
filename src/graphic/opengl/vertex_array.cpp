@@ -3,6 +3,8 @@
 #include "opengl/vertex_array.hpp"
 #include "opengl/opengl.hpp"
 
+BM_START
+GL_START
 
 VertexArray::VertexArray()
 	: m_id(0)
@@ -13,11 +15,30 @@ VertexArray::VertexArray()
 
 VertexArray::~VertexArray()
 {
+	destroy();
+}
+
+VertexArray::VertexArray(VertexArray&& oth) noexcept
+{
+	if (m_id == oth.m_id)
+		return;
+	m_id = oth.m_id;
+	oth.m_id = 0;
+}
+
+VertexArray& VertexArray::operator=(VertexArray&& oth) noexcept
+{
+	if (m_id == oth.m_id)
+		return *this;
+	m_id = oth.m_id;
+	oth.m_id = 0;
+	return *this;
 }
 
 void VertexArray::destroy()
 {
 	GLCALL(glDeleteVertexArrays(1, &m_id));
+	BM_CORE_TRACE("VertexArray {0} deleted", m_id);
 }
 
 void VertexArray::addVertexBuffer(const VertexBuffer& vb, const VertexBuffer::Layout& layout)
@@ -46,3 +67,6 @@ void VertexArray::unbind() const
 {
 	GLCALL(glBindVertexArray(0));
 }
+
+GL_END
+BM_END

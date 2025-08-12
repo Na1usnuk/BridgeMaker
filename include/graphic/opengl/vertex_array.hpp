@@ -1,6 +1,11 @@
 #pragma once
 
-#include "opengl/vertex_buffer.hpp"
+#include "core.hpp"
+
+#include "vertex_buffer.hpp"
+
+BM_START
+GL_START
 
 class VertexArray
 {
@@ -10,6 +15,10 @@ public:
 
 	VertexArray();
 	~VertexArray();
+	VertexArray(const VertexArray&) = delete;
+	VertexArray& operator=(const VertexArray&) = delete;
+	VertexArray(VertexArray&& oth) noexcept;
+	VertexArray& operator=(VertexArray&& oth) noexcept;
 
 	void addVertexBuffer(const VertexBuffer& vb, const VertexBuffer::Layout& layout);
 
@@ -19,6 +28,9 @@ public:
 
 private:
 
-	unsigned int m_id;
+	unsigned int m_id = 0;
 
 };
+
+GL_END
+BM_END
