@@ -60,8 +60,6 @@ public:
 	void resize(int width, int height);
 	void resizeTo(int width, int height);
 
-	void makeCurrent() const;
-
 	bool isOpen() const;
 	void close();
 	void destroy();

@@ -31,38 +31,34 @@ void Application::onLayersEvent(Event& e)
 	}
 }
 
-void Application::onUpdate()
-{
-}
-#include "opengl/opengl.hpp"
 int Application::run(int argc, char** argv)
 {
+	//processArgs(argc, argv);
+
 	while (m_is_running)
 	{
 		for (auto& w : m_windows)
 		{
 			AppRenderEvent e;
 			e.setWindow(&w);
-			w.makeCurrent();
-
-			m_renderer.clear(0.2f, 0.2f, 0.2f, 1.0f);
+			m_ctx.makeCurrent(&w);
 
 			onEvent(e);
 			for (auto& l : m_layers)
+			{
+				l->onEvent(e);
 				l->onUpdate();
+			}
 			onUpdate();
 			w.onUpdate();
 		}
-
 		if (m_close_window != nullptr)
 		{
 			_closeWindow(m_close_window);
 			m_close_window = nullptr;
 			continue;
 		}
-
 	}
-
 	return EXIT_SUCCESS;
 }
 

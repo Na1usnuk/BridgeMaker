@@ -12,9 +12,12 @@
 //#define BM_USE_OPENGL //only opengl for now
 
 #include "graphic/renderer.hpp"
+#include "graphic/context.hpp"
 #ifdef BM_USE_OPENGL
 	#include "graphic/opengl/opengl_renderer.hpp"
-	#define __BM_GRAPHIC_BACKEND ::BM::OpenGL::OpenGLRenderer
+	#include "graphic/opengl/opengl_context.hpp"
+	#define __BM_GRAPHIC_BACKEND ::BM::GL::OpenGLRenderer
+	#define __BM_CONTEXT_BACKEND ::BM::GL::OpenGLContext
 #elifdef BM_USE_VULCAN
 	#error Vulcan not supported
 #elifdef BM_USE_DIRECTX
@@ -35,6 +38,7 @@ class Application
 public:
 
 	using Renderer = Renderer<__BM_GRAPHIC_BACKEND>;
+	using Context = Context<__BM_CONTEXT_BACKEND>;
 
 public:
 
@@ -45,8 +49,8 @@ protected:
 	Application();
 	virtual ~Application();
 
-	virtual void onUpdate();
-	virtual void onEvent(Event&);
+	virtual void onUpdate() = 0;
+	virtual void onEvent(Event&) = 0;
 	void onLayersEvent(Event& e);
 
 	std::list<Window>& getWindows() { return m_windows; }
@@ -73,6 +77,7 @@ private:
 	Renderer m_renderer;
 	bool m_is_running = true;
 	Window* m_close_window = nullptr;
+	Context& m_ctx = Context::getContext();
 
 };
 

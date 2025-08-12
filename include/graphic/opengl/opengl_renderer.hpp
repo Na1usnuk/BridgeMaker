@@ -15,11 +15,6 @@ class OpenGLRenderer
 {
 public:
 
-	using VertexArray = ::BM::OpenGL::VertexArray;
-	using VertexBuffer = ::BM::OpenGL::VertexBuffer;
-	using IndexBuffer = ::BM::OpenGL::IndexBuffer;
-	using Shader = ::BM::OpenGL::Shader;
-
 	enum class PolygonMode : unsigned int
 	{
 		Fill = 0x1B02,

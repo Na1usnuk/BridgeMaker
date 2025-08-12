@@ -11,10 +11,6 @@ public:
 
 	using Obj = typename Backend::Obj;
 	using PolygonMode = typename Backend::PolygonMode;
-	using VertexBuffer = typename Backend::VertexBuffer;
-	using VertexArray = typename Backend::VertexArray;
-	using IndexBuffer = typename Backend::IndexBuffer;
-	using Shader = typename Backend::Shader;
 	
 
 public:

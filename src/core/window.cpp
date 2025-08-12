@@ -3,17 +3,14 @@
 #include "events/app_event.hpp"
 #include "events/key_event.hpp"
 #include "events/mouse_event.hpp"
-
-
 #include "window.hpp"
+#include "opengl/opengl_context.hpp"
 
-#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 BM_START
 
-static bool s_isGLFWInitialized = false, s_isGladInitialized = false;
-static GLFWwindow* s_mainWindow = nullptr;
+static bool s_isGLFWInitialized = false;
 
 
 Window::Window(const Data& data)
@@ -62,12 +59,6 @@ void Window::resizeTo(int width, int height)
 	glfwSetWindowSize(m_window, width, height);
 }
 
-void Window::makeCurrent() const
-{
-	BM_CORE_TRACE("makeCurrent {0}", m_data.title);
-	glfwMakeContextCurrent(m_window);
-}
-
 void Window::close()
 {
 	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
@@ -98,26 +89,16 @@ void Window::create(const Data& data)
 		s_isGLFWInitialized = true;
 	}
 
-	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, s_mainWindow);
+	GL::OpenGLContext& ctx = GL::OpenGLContext::getContext();
+
+	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, ctx.shareContext());
 	BM_CORE_ASSERT(m_window, "Failed to create window");
 
-	if (s_mainWindow == nullptr)
-	{
-		s_mainWindow = m_window;
-	}
-
-	glfwMakeContextCurrent(m_window);
+	ctx.makeCurrent(this);
+	ctx.init();
 	setVSync(m_data.vsync);
 	setGLFWPointer();
-
-	{
-		BM_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize Glad");
-		BM_CORE_INFO("Glad initialized");
-		s_isGladInitialized = true;
-	}
-
 	setAllCallbacks();
-	
 }
 
 void Window::setGLFWPointer()

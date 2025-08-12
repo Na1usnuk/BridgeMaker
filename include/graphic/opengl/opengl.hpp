@@ -14,6 +14,6 @@ bool __gl_log_error(const char* const func, const char* const file, int line);
 GL_END
 BM_END
 
-#define GLCALL(x) ::BM::OpenGL::__gl_clear_error(); x; BM_CORE_SIMPLE_ASSERT(::BM::OpenGL::__gl_log_error(#x, __FILE__, __LINE__));
+#define GLCALL(x) ::BM::GL::__gl_clear_error(); x; BM_CORE_SIMPLE_ASSERT(::BM::GL::__gl_log_error(#x, __FILE__, __LINE__));
 
 
