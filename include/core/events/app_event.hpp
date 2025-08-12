@@ -3,6 +3,8 @@
 #include "event.hpp"
 #include "window.hpp"
 
+#include <utility>
+
 BM_START
 
 class  WindowResizeEvent : public Event
@@ -40,6 +42,25 @@ public:
 
 	EVENT_CLASS_TYPE(WindowClose)
 	EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+};
+
+
+class WindowMoveEvent : public Event
+{
+public:
+	WindowMoveEvent(int x, int y) : m_x(x), m_y(y) {}
+
+	EVENT_CLASS_TYPE(WindowMoved)
+	EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	int getX() const { return m_x; }
+	int getY() const { return m_y; }
+	std::pair<int, int> getPos() const { return { getX(), getY() }; }
+
+private:
+
+	int m_x, m_y;
 
 };
 

@@ -36,6 +36,13 @@ void Window::onUpdate()
 	glfwSwapBuffers(m_window);
 }
 
+std::pair<int, int> Window::getPosition() const
+{
+	int x, y;
+	glfwGetWindowPos(m_window, &x, &y);
+	return std::pair<int, int>(x, y);
+}
+
 void Window::setVSync(bool enabled)
 {
 	if (enabled)
@@ -46,6 +53,17 @@ void Window::setVSync(bool enabled)
 	m_data.vsync = enabled;
 }
 
+void Window::setTitle(std::string_view title)
+{
+	glfwSetWindowTitle(m_window, title.data());
+	m_data.title = title;
+}
+
+void Window::setIcon(Icon path)
+{
+	glfwSetWindowIcon(m_window, 1, (GLFWimage*)&path);
+}
+
 void Window::resize(int width, int height)
 {
 	m_data.height = height;
@@ -53,10 +71,30 @@ void Window::resize(int width, int height)
 	BM_TRACE("Window \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
 }
 
-void Window::resizeTo(int width, int height)
+void Window::hide()
+{
+	glfwHideWindow(m_window);
+}
+
+void Window::show()
+{
+	glfwShowWindow(m_window);
+}
+
+void Window::setSize(int width, int height)
 {
 	resize(width, height);
 	glfwSetWindowSize(m_window, width, height);
+}
+
+void Window::setOpacity(float opacity)
+{
+	glfwSetWindowOpacity(m_window, opacity);
+}
+
+void Window::setPosition(int x, int y)
+{
+	glfwSetWindowPos(m_window, x, y);
 }
 
 void Window::close()
@@ -185,6 +223,30 @@ void Window::setAllCallbacks()
 	setMuoseButtonCallback();
 	setCloseCallback();
 	setResizeCallback();
+	setPosCallback();
+	setMouseMoveCallback();
+}
+
+void Window::setMouseMoveCallback()
+{
+	glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double x, double y)
+		{
+			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+			MouseMoveEvent e(x, y);
+			e.setWindow(data->window);
+			data->callback(e);
+		});
+}
+
+void Window::setPosCallback()
+{
+	glfwSetWindowPosCallback(m_window, [](GLFWwindow* window, int x, int y)
+		{
+			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+			WindowMoveEvent e(x, y);
+			e.setWindow(data->window);
+			data->callback(e);
+		});
 }
 
 void Window::setCloseCallback()

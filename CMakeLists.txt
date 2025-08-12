@@ -35,6 +35,7 @@ add_subdirectory(deps/spdlog)
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
 add_subdirectory(deps/imgui)
+add_subdirectory(deps/stb)
 
 target_include_directories(BridgeMaker
     PUBLIC
@@ -44,6 +45,7 @@ target_include_directories(BridgeMaker
         deps/spdlog/include 
 	deps/glad/include
 	deps/glfw/include
+	deps/stb
 	include/
 	include/core
 	include/graphic
@@ -55,5 +57,6 @@ target_link_libraries(BridgeMaker
     PRIVATE
 	glfw
 	glad
+	stb
 )
 
