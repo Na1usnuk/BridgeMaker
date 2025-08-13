@@ -29,18 +29,19 @@ BM_START
 		unsigned char* pixels;
 	};
 
-class Window
+class XWindow
 {
 public:
 
-	using EventCallbackFn_t = std::function<void(Event&)>;
+	using NativeWindowPtr = GLFWwindow*;
+	using EventCallbackFn = std::function<void(Event&)>;
 	struct Data
 	{
 		Data(std::string_view t = "BridgeMaker APP", int w = 1280, int h = 720, bool vs = false) : title(t), width(w), height(h), vsync(vs) {}
 		std::string title;
 		int width, height;
 		bool vsync;
-		EventCallbackFn_t callback;
+		EventCallbackFn callback;
 		Window* window = nullptr;
 
 		struct
@@ -53,29 +54,29 @@ public:
 
 public:
 
-	Window(const Window&) = delete;
-	Window& operator=(const Window&) = delete;
-	Window(Window&& oth) = delete;
-	Window& operator=(Window&& oth) = delete;
+	XWindow(const XWindow&) = delete;
+	XWindow& operator=(const XWindow&) = delete;
+	XWindow(XWindow&& oth) = delete;
+	XWindow& operator=(XWindow&& oth) = delete;
 
-	bool operator==(const Window& oth) const { return m_window == oth.m_window; }
+	bool operator==(const XWindow& oth) const { return m_window == oth.m_window; }
 
-	Window(std::string_view v, int w, int h, bool vs = false) : Window(Data{v, w, h, vs}) {}
-	Window(const Data& data = Data{});
-	~Window();
+	XWindow(std::string_view v, int w, int h, bool vs = false) : XWindow(Data{v, w, h, vs}) {}
+	XWindow(const Data& data = Data{});
+	~XWindow();
 
 	void onUpdate();
 
 	unsigned int		getWidth() const  { return m_data.width; }
 	unsigned int		getHeight() const  { return m_data.height; }
 	bool				getVSync() const  { return m_data.vsync; };
-	GLFWwindow*			getNativeWindow() const { return m_window; }
+	NativeWindowPtr			getNativeWindow() const { return m_window; }
 	std::pair<int, int> getPosition() const;
 
 	void setVSync(bool enabled);
-	void setEventCallback(EventCallbackFn_t fn) { m_data.callback = fn; }
+	void setEventCallback(EventCallbackFn fn) { m_data.callback = fn; }
 	void setTitle(std::string_view title);
-	void setIcon(Icon path);
+	void setIcon(std::string_view path);
 	void setSize(int width, int height);
 	void setOpacity(float opacity = 1.f);
 	void setPosition(int x, int y);
@@ -87,6 +88,8 @@ public:
 	bool isOpen() const;
 	void close();
 	void destroy();
+
+	Window* getSelf() { return m_self; }
 
 private:
 
@@ -100,11 +103,12 @@ private:
 	void setAllCallbacks();
 	void setMouseMoveCallback();
 
-
-
 private:
 
+	friend class AbstractWindow<XWindow>;
+
 	GLFWwindow* m_window;
+	Window* m_self;
 	Data m_data;
 };
 

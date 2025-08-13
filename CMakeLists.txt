@@ -4,18 +4,26 @@ project(BridgeMaker LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(PCH_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/include/pch.hpp)
+set(PCH_HEADER ${BridgeMaker_SOURCE_DIR}/include/pch.hpp)
 
 file(GLOB_RECURSE BM_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${BridgeMaker_SOURCE_DIR}/src/*.cpp
 )
 file(GLOB_RECURSE BM_HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/include/core/*.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/graphic/*.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/imgui.hpp
+	${BridgeMaker_SOURCE_DIR}/include/core/*.hpp
+	${BridgeMaker_SOURCE_DIR}/include/graphic/*.hpp
+	${BridgeMaker_SOURCE_DIR}/include/imgui.hpp
+	${BridgeMaker_SOURCE_DIR}/include/imgui.hpp
+)
+#for now only crossplatform
+file(GLOB_RECURSE BM_PLATFORM_SPECIFIC 
+	${BridgeMaker_SOURCE_DIR}/include/platform/*.hpp
+	${BridgeMaker_SOURCE_DIR}/src/platform/*.hpp
+	${BridgeMaker_SOURCE_DIR}/include/platform/xplatform/*.hpp
+	${BridgeMaker_SOURCE_DIR}/src/platform/xplatform/*.cpp
 )
 
-add_library(BridgeMaker ${BM_SRC} ${BM_HEADERS})
+add_library(BridgeMaker ${BM_SRC} ${BM_HEADERS} ${BM_PLATFORM_SPECIFIC})
 
 if(WIN32)
 	target_compile_definitions(BridgeMaker PRIVATE BM_PLATFORM_WINDOWS)
@@ -25,6 +33,8 @@ target_compile_definitions(BridgeMaker PRIVATE BM_USE_OPENGL)
 
 file(GLOB BM_EVENTS_FILES LIST_DIRECTORIES false include/core/events/*)
 source_group(Events FILES ${BM_EVENTS_FILES})
+
+source_group(Platform FILES ${BM_PLATFORM_SPECIFIC})
 
 file(GLOB_RECURSE BM_GL_FILES include/graphic/*.hpp src/graphic/*.cpp)
 source_group(Graphic FILES ${BM_GL_FILES})

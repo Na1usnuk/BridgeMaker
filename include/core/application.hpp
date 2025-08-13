@@ -6,18 +6,17 @@
 #include "events/key_event.hpp"
 #include "events/mouse_event.hpp"
 #include "layer_stack.hpp"
-#include "window.hpp"
 
 
 //#define BM_USE_OPENGL //only opengl for now
 
 #include "graphic/renderer.hpp"
 #include "graphic/context.hpp"
-#ifdef BM_USE_OPENGL
+#include "platform/window.hpp"
+#ifdef BM_PLATFORM_X
 	#include "graphic/opengl/opengl_renderer.hpp"
 	#include "graphic/opengl/opengl_context.hpp"
-	#define __BM_GRAPHIC_BACKEND ::BM::GL::OpenGLRenderer
-	#define __BM_CONTEXT_BACKEND ::BM::GL::OpenGLContext
+	#include "platform/xplatform/xwindow.hpp"
 #elifdef BM_USE_VULCAN
 	#error Vulcan not supported
 #elifdef BM_USE_DIRECTX
@@ -37,8 +36,7 @@ class Application
 {
 public:
 
-	using Renderer = Renderer<__BM_GRAPHIC_BACKEND>;
-	using Context = Context<__BM_CONTEXT_BACKEND>;
+
 
 public:
 

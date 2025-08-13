@@ -1,7 +1,9 @@
 #include "pch.hpp"
 
 #include "imgui.hpp"
-#include "window.hpp"
+
+#include "platform/window.hpp"
+#include "platform/xplatform/xwindow.hpp"
 
 BM_START
 
@@ -13,9 +15,9 @@ ImGuiLayer::~ImGuiLayer()
 {
 }
 
-void ImGuiLayer::setCurrent(Window& window)
+void ImGuiLayer::setCurrent(Window* window)
 {
-	ImGui_ImplGlfw_InitForOpenGL(window.getNativeWindow(), true);
+	ImGui_ImplGlfw_InitForOpenGL(window->getNativeWindow(), true);
 	ImGui::SetCurrentContext(ImGui::GetCurrentContext());
 }
 

@@ -5,7 +5,7 @@
 BM_START
 
 template<typename Backend>
-class Renderer
+class AbstractRenderer
 {
 public:
 
@@ -15,8 +15,8 @@ public:
 
 public:
 
-	Renderer() {}
-	~Renderer() {}
+	AbstractRenderer() {}
+	~AbstractRenderer() {}
 
 	void draw(const Obj& object) const { m_impl.draw(object); }
 
@@ -24,7 +24,7 @@ public:
 	//void setBackgrounColor(float R, float G, float B, float A = 1.f) const { m_impl.setBackgroungColor(R, G, B, A); }
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill) const { m_impl.setPolygonMode(mode); }
 
-	void setView(int x, int y, int w, int h) const { BM_CORE_TRACE("setView to {0}x{1}", w, h); m_impl.setView(x, y, w, h); }
+	void setView(int x, int y, int w, int h) const { m_impl.setView(x, y, w, h); }
 
 	void clear(float R, float G, float B, float A = 1.f) { m_impl.clearColor(R, G, B, A); }
 

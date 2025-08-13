@@ -4,8 +4,6 @@
 
 BM_START
 
-class Window;
-
 enum class EventType
 {
 	NONE = 0,

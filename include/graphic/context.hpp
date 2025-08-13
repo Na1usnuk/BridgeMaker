@@ -2,26 +2,26 @@
 
 #include "core/core.hpp"
 
-class Window;
 
 BM_START
 
 template<typename Backend>
-class Context 
+class AbstractContext 
 {
 public:
 
 
 	void init() { Backend::getContext().init(); }
-	void makeCurrent(Window* window) { Backend::getContext().makeCurrent(window); }
-	Backend::native_window_t shareContext() { return Backend::getContext().ishareContext(); }
-	void swapBuffers() const { Backend::getContext().iswapBuffers(); }
+	template<typename WindowType>
+	void makeCurrent(WindowType* window) { Backend::getContext().makeCurrent(&window->getImpl()); }
+	Backend::native_window_t shareContext() { return Backend::getContext().shareContext(); }
+	void swapBuffers() const { Backend::getContext().swapBuffers(); }
 
-	static Context& getContext() { static Context ctx; return ctx; }
+	static AbstractContext& getContext() { static AbstractContext ctx; return ctx; }
 
 private:
 
-	Context() = default;
+	AbstractContext() = default;
 
 };
 

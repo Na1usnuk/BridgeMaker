@@ -3,6 +3,7 @@
 #include "core/core.hpp"
 #include "core/layer.hpp"
 #include "imgui.h"
+#include "core/events/event.hpp"
 
 #ifdef BM_USE_OPENGL
 #include "imgui_impl_opengl3.h"
@@ -15,6 +16,7 @@
 #include <functional>
 
 BM_START
+
 
 class ImGuiWindowRegistry
 {
@@ -56,7 +58,7 @@ public:
 	ImGuiLayer(ImGuiWindowRegistry windows);
 	~ImGuiLayer();
 
-	void setCurrent(Window& window) override;
+	void setCurrent(Window* window) override;
 
 	void onUpdate() override;
 	void onEvent(Event& e) override;

@@ -5,9 +5,6 @@
 struct GLFWwindow;
 
 BM_START
-
-class Window;
-
 GL_START
 
 
@@ -21,7 +18,7 @@ public:
 public:
 
 	void init();
-	void makeCurrent(Window* window);
+	void makeCurrent(XWindow* window);
 	void swapBuffers() const;
 	GLFWwindow* shareContext() const;
 
@@ -33,7 +30,7 @@ private:
 	{
 	}
 
-	Window* m_window = nullptr;
+	XWindow* m_window = nullptr;
 
 };
 

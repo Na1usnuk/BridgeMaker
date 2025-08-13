@@ -1,4 +1,5 @@
 #pragma once
+#define BM_PLATFORM_X
 
 #define BM_START namespace BM {
 #define BM_END }
@@ -45,3 +46,22 @@ int main(int argc, char** argv) \
 
 #define GL_START namespace GL {
 #define GL_END }
+
+BM_START
+template<typename Backend> class AbstractRenderer;
+template<typename Backend> class AbstractContext;
+template<typename Backend> class AbstractWindow;
+BM_END
+
+#ifdef BM_PLATFORM_X
+BM_START
+GL_START
+class OpenGLRenderer;
+class OpenGLContext;
+GL_END
+class XWindow;
+using Renderer = ::BM::AbstractRenderer<::BM::GL::OpenGLRenderer>;
+using Context = ::BM::AbstractContext<::BM::GL::OpenGLContext>;
+using Window = ::BM::AbstractWindow<::BM::XWindow>;
+BM_END
+#endif

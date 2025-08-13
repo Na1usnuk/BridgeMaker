@@ -3,7 +3,8 @@
 #include "events/app_event.hpp"
 #include "events/key_event.hpp"
 #include "events/mouse_event.hpp"
-#include "window.hpp"
+
+#include "platform/xplatform/xwindow.hpp"
 #include "opengl/opengl_context.hpp"
 
 #include "GLFW/glfw3.h"
@@ -13,37 +14,37 @@ BM_START
 static bool s_isGLFWInitialized = false;
 
 
-Window::Window(const Data& data)
+XWindow::XWindow(const Data& data)
 {
-	BM_TIME_OF("Windows Window initialization time", create(data));
+	BM_TIME_OF("XWindow initialization time", create(data));
 }
 
-Window::~Window()
+XWindow::~XWindow()
 {
 	destroy();
 }
 
-void Window::destroy()
+void XWindow::destroy()
 {
 	glfwDestroyWindow(m_window);
 	m_window = nullptr;
-	BM_CORE_TRACE("Window \"{0}\" is destroyed", m_data.title);
+	BM_CORE_TRACE("XWindow \"{0}\" is destroyed", m_data.title);
 }
 
-void Window::onUpdate()
+void XWindow::onUpdate()
 {
 	glfwPollEvents();
 	glfwSwapBuffers(m_window);
 }
 
-std::pair<int, int> Window::getPosition() const
+std::pair<int, int> XWindow::getPosition() const
 {
 	int x, y;
 	glfwGetWindowPos(m_window, &x, &y);
 	return std::pair<int, int>(x, y);
 }
 
-void Window::setVSync(bool enabled)
+void XWindow::setVSync(bool enabled)
 {
 	if (enabled)
 		glfwSwapInterval(1);
@@ -53,68 +54,69 @@ void Window::setVSync(bool enabled)
 	m_data.vsync = enabled;
 }
 
-void Window::setTitle(std::string_view title)
+void XWindow::setTitle(std::string_view title)
 {
 	glfwSetWindowTitle(m_window, title.data());
 	m_data.title = title;
 }
 
-void Window::setIcon(Icon path)
+void XWindow::setIcon(std::string_view path)
 {
-	glfwSetWindowIcon(m_window, 1, (GLFWimage*)&path);
+	Icon icon(path);
+	glfwSetWindowIcon(m_window, 1, (GLFWimage*)&icon);
 }
 
-void Window::resize(int width, int height)
+void XWindow::resize(int width, int height)
 {
 	m_data.height = height;
 	m_data.width = width;
-	BM_TRACE("Window \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
+	BM_TRACE("XWindow \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
 }
 
-void Window::hide()
+void XWindow::hide()
 {
 	glfwHideWindow(m_window);
 }
 
-void Window::show()
+void XWindow::show()
 {
 	glfwShowWindow(m_window);
 }
 
-void Window::setSize(int width, int height)
+void XWindow::setSize(int width, int height)
 {
 	resize(width, height);
 	glfwSetWindowSize(m_window, width, height);
 }
 
-void Window::setOpacity(float opacity)
+void XWindow::setOpacity(float opacity)
 {
 	glfwSetWindowOpacity(m_window, opacity);
 }
 
-void Window::setPosition(int x, int y)
+void XWindow::setPosition(int x, int y)
 {
 	glfwSetWindowPos(m_window, x, y);
 }
 
-void Window::close()
+void XWindow::close()
 {
 	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 	m_window = nullptr;
-	BM_CORE_TRACE("Window \"{0}\" is closed", m_data.title);
+	BM_CORE_TRACE("XWindow \"{0}\" is closed", m_data.title);
 }
 
-bool Window::isOpen() const
+bool XWindow::isOpen() const
 {
 	return !glfwWindowShouldClose(m_window) && (m_window != nullptr);
 }
 
-void Window::create(const Data& data)
+void XWindow::create(const Data& data)
 {
 	m_data = data;
-	m_data.window = this;
+	//m_data.window = this->getSelf();
 
-	BM_CORE_INFO("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
+	BM_CORE_INFO("Creating XWindow \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
 
 	if (!s_isGLFWInitialized)
 	{
@@ -139,12 +141,12 @@ void Window::create(const Data& data)
 	setAllCallbacks();
 }
 
-void Window::setGLFWPointer()
+void XWindow::setGLFWPointer()
 {
 	glfwSetWindowUserPointer(m_window, &m_data);
 }
 
-void Window::setKeyCallback()
+void XWindow::setKeyCallback()
 {
 	glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
@@ -182,7 +184,7 @@ void Window::setKeyCallback()
 		});
 }
 
-void Window::setMuoseButtonCallback()
+void XWindow::setMuoseButtonCallback()
 {
 	glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods)
 		{
@@ -205,7 +207,7 @@ void Window::setMuoseButtonCallback()
 		});
 }
 
-void Window::setResizeCallback()
+void XWindow::setResizeCallback()
 {
 	glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
 		{
@@ -214,10 +216,9 @@ void Window::setResizeCallback()
 			e.setWindow(data->window);
 			data->callback(e);
 		});
-	
 }
 
-void Window::setAllCallbacks()
+void XWindow::setAllCallbacks()
 {
 	setKeyCallback();
 	setMuoseButtonCallback();
@@ -227,7 +228,7 @@ void Window::setAllCallbacks()
 	setMouseMoveCallback();
 }
 
-void Window::setMouseMoveCallback()
+void XWindow::setMouseMoveCallback()
 {
 	glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double x, double y)
 		{
@@ -238,7 +239,7 @@ void Window::setMouseMoveCallback()
 		});
 }
 
-void Window::setPosCallback()
+void XWindow::setPosCallback()
 {
 	glfwSetWindowPosCallback(m_window, [](GLFWwindow* window, int x, int y)
 		{
@@ -249,7 +250,7 @@ void Window::setPosCallback()
 		});
 }
 
-void Window::setCloseCallback()
+void XWindow::setCloseCallback()
 {
 	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window)
 		{

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "event.hpp"
-#include "window.hpp"
 
 #include <utility>
 

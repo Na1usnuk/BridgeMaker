@@ -67,7 +67,6 @@ void Application::closeWindow(Window* window)
 		m_close_window = window;
 }
 
-
 Window& Application::addWindow(std::string_view title, int width, int height, bool vsync)
 {
 	m_windows.emplace_back(title, width, height, vsync);

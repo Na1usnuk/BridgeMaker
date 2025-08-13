@@ -2,7 +2,8 @@
 
 #include "log.hpp"
 #include "opengl/opengl_context.hpp"
-#include "window.hpp"
+#include "platform/window.hpp"
+#include "platform/xplatform/xwindow.hpp"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -17,7 +18,7 @@ void OpenGLContext::init()
 	BM_CORE_INFO("Glad initialized");
 }
 
-void OpenGLContext::makeCurrent(Window* window)
+void OpenGLContext::makeCurrent(XWindow* window)
 {
 	m_window = window;
 	glfwMakeContextCurrent(m_window->getNativeWindow());
