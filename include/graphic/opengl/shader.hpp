@@ -6,6 +6,7 @@
 #include <string_view>
 #include <unordered_map>
 
+#include "glm/mat4x4.hpp"
 
 BM_START
 GL_START
@@ -33,7 +34,7 @@ public:
 	void setUniform(std::string_view name, float f0, float f1, float f2);
 	void setUniform(std::string_view name, float f);
 	void setUniform(std::string_view name, int i);
-//	void setUniformMat4(const std::string& name, const glm::mat4& mat);
+	void setUniform(std::string_view name, const glm::mat4& mat);
 
 
 private:

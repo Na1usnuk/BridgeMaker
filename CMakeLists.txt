@@ -46,11 +46,13 @@ add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
 add_subdirectory(deps/imgui)
 add_subdirectory(deps/stb)
+add_subdirectory(deps/glm)
 
 target_include_directories(BridgeMaker
     PUBLIC
 	deps/imgui/
 	deps/imgui/backends
+	deps/glm
     PRIVATE
         deps/spdlog/include 
 	deps/glad/include
@@ -64,6 +66,7 @@ target_link_libraries(BridgeMaker
     PUBLIC 
         spdlog
 	imgui
+	glm
     PRIVATE
 	glfw
 	glad

@@ -35,12 +35,11 @@
 
 //simple main function template.
 //can be overriden, but dont forget to return app.run(argc, argv) and write BM_INIT in beginning
-#define BM_APP_INITIALIZE(YourApplication) \
+#define BM_APP_INIT(YourApplication) \
 int main(int argc, char** argv) \
 { \
 	BM_INIT \
-	YourApplication app; \
-	return app.run(argc, argv); \
+	return YourApplication::getApplication().run(argc, argv); \
 }
 
 
@@ -51,6 +50,8 @@ BM_START
 template<typename Backend> class AbstractRenderer;
 template<typename Backend> class AbstractContext;
 template<typename Backend> class AbstractWindow;
+template<typename Backend> class AbstractInput;
+template<typename Backend> class AbstractCursor;
 BM_END
 
 #ifdef BM_PLATFORM_X
@@ -60,8 +61,12 @@ class OpenGLRenderer;
 class OpenGLContext;
 GL_END
 class XWindow;
+class XInput;
+class XCursor;
 using Renderer = ::BM::AbstractRenderer<::BM::GL::OpenGLRenderer>;
 using Context = ::BM::AbstractContext<::BM::GL::OpenGLContext>;
 using Window = ::BM::AbstractWindow<::BM::XWindow>;
+using Input = ::BM::AbstractInput<::BM::XInput>;
+using Cursor = ::BM::AbstractCursor<::BM::XCursor>;
 BM_END
 #endif

@@ -9,23 +9,22 @@
 
 BM_START
 
-Application::Application()
-{
-}
-
 Application::~Application()
 {
 }
 
 void Application::onEvent(Event& e)
 {
+	//EventDispatcher d(e);
+	onLayersEvent(e);
 }
 
 void Application::onLayersEvent(Event& e)
 {
 	for (auto layer = m_layers.end(); layer > m_layers.begin();)
 	{
-		(*--layer)->onEvent(e);
+		if (!(*--layer)->isEnabled()) continue;
+		(*layer)->onEvent(e);
 		if (e.isHandled())
 			break;
 	}
@@ -43,14 +42,15 @@ int Application::run(int argc, char** argv)
 			e.setWindow(&w);
 			m_ctx.makeCurrent(&w);
 
-			onEvent(e);
-			for (auto& l : m_layers)
-			{
-				l->onEvent(e);
-				l->onUpdate();
-			}
 			onUpdate();
-			w.onUpdate();
+			for (auto& l : m_layers)
+				if(l->isEnabled())
+					l->onUpdate();
+
+			onEvent(e);
+
+			m_ctx.swapBuffers();
+			w.onUpdate(); // poll events
 		}
 		if (m_close_window != nullptr)
 		{
@@ -67,11 +67,16 @@ void Application::closeWindow(Window* window)
 		m_close_window = window;
 }
 
-Window& Application::addWindow(std::string_view title, int width, int height, bool vsync)
+Window& Application::addWindow(std::string_view title, int width, int height, bool vsync, bool decorated, bool visible)
 {
-	m_windows.emplace_back(title, width, height, vsync);
+	m_windows.emplace_back(title, width, height, vsync, decorated, visible);
 	m_windows.back().setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
 	return m_windows.back();
+}
+
+Application::Application()
+{
+
 }
 
 void Application::_closeWindow(Window* window)

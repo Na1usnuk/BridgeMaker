@@ -32,6 +32,12 @@ public:
 		Shader shader;
 	};
 
+	using VertexArray  = ::BM::GL::VertexArray;
+	using VertexBuffer = ::BM::GL::VertexBuffer;
+	using IndexBuffer  = ::BM::GL::IndexBuffer;
+	using Shader       = ::BM::GL::Shader;
+
+
 public:
 
 	OpenGLRenderer();

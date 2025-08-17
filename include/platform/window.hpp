@@ -12,6 +12,7 @@ public:
 	using NativeWindowPtr = Backend::NativeWindowPtr;
 	using Data = Backend::Data;
 	using EventCallbackFn = Backend::EventCallbackFn;
+	using Icon = Backend::Icon;
 
 public:
 	AbstractWindow(const AbstractWindow&) = delete;
@@ -21,8 +22,13 @@ public:
 
 	bool operator==(const AbstractWindow& oth) const { return m_impl == oth.m_impl; }
 
-	AbstractWindow(std::string_view v, int w, int h, bool vs = false) : AbstractWindow(Data{ v, w, h, vs }) {}
-	AbstractWindow(const Data& data = Data{}) : m_impl(data) { m_impl.m_self = this;  m_impl.m_data.window = this; }
+	AbstractWindow(std::string_view v, int w, int h, bool vs = false, bool decorated = true, bool visible = true) : AbstractWindow(Data{ v, w, h, vs }, decorated, visible) {}
+	AbstractWindow(const Data& data = Data{}, bool decorated = true, bool visible = true) : m_impl(data, decorated, visible)
+	{ 
+		m_impl.m_self = this;  
+		m_impl.m_data.window = this; 
+		Backend::onFocus(getNativeWindow(), true);
+	}
 
 	void onUpdate() { m_impl.onUpdate(); }
 
@@ -31,11 +37,15 @@ public:
 	bool				getVSync() const { return m_impl.getVSync(); }
 	NativeWindowPtr		getNativeWindow() const { return m_impl.getNativeWindow(); }
 	std::pair<int, int> getPosition() const { return m_impl.getPosition(); }
+	std::pair<int, int> getFramebufferSize() const { return m_impl.getFramebufferSize(); }
+	std::pair<int, int> getSize() const { return m_impl.getSize(); }
+	std::pair<int, int> getFramebufferPosition() const { return m_impl.getFramebufferPosition(); }
+	std::string			getTitle() const { return m_impl.getTitle(); }
 
 	void setVSync(bool enabled) { m_impl.setVSync(enabled); }
 	void setEventCallback(EventCallbackFn fn) { m_impl.setEventCallback(fn); }
 	void setTitle(std::string_view title) { m_impl.setTitle(title); }
-	void setIcon(std::string_view path) { m_impl.setIcon(path); }
+	void setIcon(Icon icon) { m_impl.setIcon(icon); }
 	void setSize(int width, int height) { m_impl.setSize(width, height); }
 	void setOpacity(float opacity = 1.f) { m_impl.setOpacity(opacity); }
 	void setPosition(int x, int y) { m_impl.setPosition(x, y); }

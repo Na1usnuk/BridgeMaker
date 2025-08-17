@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 
+
+
 BM_START
 GL_START
 
@@ -88,11 +90,11 @@ void Shader::setUniform(std::string_view name, int i)
 	GLCALL(glUniform1i(getUniformLocation(name), i));
 }
 
-//void Shader::setUniformMat4(std::string_view name, const glm::mat4& mat)
-//{
-//	bind();
-//	GLCALL(glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
-//}
+void Shader::setUniform(std::string_view name, const glm::mat4& mat)
+{
+	bind();
+	GLCALL(glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]));
+}
 
 int Shader::getUniformLocation(std::string_view name)
 {

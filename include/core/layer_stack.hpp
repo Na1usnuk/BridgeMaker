@@ -71,7 +71,7 @@ public:
 
 public:
 
-	LayerStack() { m_inserter = m_layers.begin(); }
+	LayerStack() : m_inserter(m_layers.begin()) {}
 
 	void pushLayer(ptr_t layer)
 	{

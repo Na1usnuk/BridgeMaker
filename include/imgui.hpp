@@ -4,6 +4,9 @@
 #include "core/layer.hpp"
 #include "imgui.h"
 #include "core/events/event.hpp"
+#include "core/events/app_event.hpp"
+#include "core/events/mouse_event.hpp"
+#include "core/events/key_event.hpp"
 
 #ifdef BM_USE_OPENGL
 #include "imgui_impl_opengl3.h"
@@ -65,11 +68,22 @@ public:
 	void onAttach() override;
 	void onDetach() override;
 
+	bool onRender(BM::AppRenderEvent& e);
+
+	bool onWindowClose(BM::WindowCloseEvent& e);
+	bool onWindowMove(BM::WindowMoveEvent& e);
+	bool onWindowResize(BM::WindowResizeEvent& e);
+	bool onKeyPress(BM::KeyPressedEvent& e);
+	bool onKeyRelease(BM::KeyReleasedEvent& e);
+	bool onMouseRelease(BM::MouseButtonReleasedEvent& e);
+	bool onMousePress(BM::MouseButtonPressedEvent& e);
+	bool onMouseMove(BM::MouseMoveEvent& e);
+
 
 private:
 
 	ImGuiWindowRegistry m_windows;
-
+	Window* m_window = nullptr;
 };
 
 

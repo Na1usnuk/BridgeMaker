@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/core.hpp"
-
+#include "core/log.hpp"
 
 BM_START
 
@@ -14,6 +14,8 @@ public:
 	void init() { Backend::getContext().init(); }
 	template<typename WindowType>
 	void makeCurrent(WindowType* window) { Backend::getContext().makeCurrent(&window->getImpl()); }
+	template<typename WindowType>
+	WindowType* getCurrent() { return Backend::getContext().getCurrent()->getSelf(); }
 	Backend::native_window_t shareContext() { return Backend::getContext().shareContext(); }
 	void swapBuffers() const { Backend::getContext().swapBuffers(); }
 

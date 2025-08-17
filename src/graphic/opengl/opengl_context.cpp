@@ -14,14 +14,27 @@ GL_START
 
 void OpenGLContext::init()
 {
-	BM_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize Glad");
+	auto status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+	BM_CORE_ASSERT(status, "Failed to initialize Glad");
 	BM_CORE_INFO("Glad initialized");
 }
 
 void OpenGLContext::makeCurrent(XWindow* window)
 {
+	if (m_window == window)
+		return;
 	m_window = window;
 	glfwMakeContextCurrent(m_window->getNativeWindow());
+}
+
+XWindow* OpenGLContext::getCurrent()
+{
+	return m_window;
+}
+
+void OpenGLContext::destroy()
+{
+	glfwTerminate();
 }
 
 void OpenGLContext::swapBuffers() const { glfwSwapBuffers(m_window->getNativeWindow()); }

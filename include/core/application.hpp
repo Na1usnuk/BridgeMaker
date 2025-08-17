@@ -8,21 +8,24 @@
 #include "layer_stack.hpp"
 
 
-//#define BM_USE_OPENGL //only opengl for now
 
 #include "graphic/renderer.hpp"
 #include "graphic/context.hpp"
 #include "platform/window.hpp"
+#include "platform/input.hpp"
+#include "platform/cursor.hpp"
 #ifdef BM_PLATFORM_X
 	#include "graphic/opengl/opengl_renderer.hpp"
 	#include "graphic/opengl/opengl_context.hpp"
 	#include "platform/xplatform/xwindow.hpp"
-#elifdef BM_USE_VULCAN
-	#error Vulcan not supported
-#elifdef BM_USE_DIRECTX
-	#error DirectX not supported
-#elifdef BM_USE_METAL
-	#error Metal not supported
+	#include "platform/xplatform/xinput.hpp"
+	#include "platform/xplatform/xcursor.hpp"
+#elifdef BM_PLATFORM_WINDOWS 
+	#error For now use crossplatform BM_PLATFORM_X                       
+#elifdef BM_PLATFORM_LINUX
+	#error For now use crossplatform BM_PLATFORM_X    
+#elifdef BM_PLATFORM_MACOS
+	#error For now use crossplatform BM_PLATFORM_X    
 #endif
 
 
@@ -42,6 +45,21 @@ public:
 
 	int run(int argc, char** argv);
 
+	template<typename App>
+	static App& getApplication()
+	{
+		static App app;
+		return app;
+	}
+
+	Renderer& getRenderer() { return m_renderer; }
+	std::list<Window>& getWindows() { return m_windows; }
+	//Main window is window that was added first
+	bool isMainWindow(Window* window) { return &m_windows.front() == window; }
+	//not actually destroy, just put in queue to destroy later (in end of frame)
+	void closeWindow(Window* window);
+	Window& addWindow(std::string_view title, int width, int height, bool vsync = false, bool decorated = true, bool visible = true);
+
 protected:
 
 	Application();
@@ -51,21 +69,14 @@ protected:
 	virtual void onEvent(Event&) = 0;
 	void onLayersEvent(Event& e);
 
-	std::list<Window>& getWindows() { return m_windows; }
-
 	void pushLayer(LayerStack::ptr_t layer) { m_layers.pushLayer(layer); }
 	void pushOverlay(LayerStack::ptr_t overlay) { m_layers.pushOverlay(overlay); }
-
-	//not actually destroy, just put in queue to destroy later (in end of frame)
-	void closeWindow(Window* window);
-	Window& addWindow(std::string_view title, int width, int height, bool vsync = false);
-
-	Renderer& getRenderer() { return m_renderer; }
 
 	void close() { m_is_running = false; }
 	bool isOpen() { return m_is_running; }
 
 private:
+
 
 	//actually destroy window
 	void _closeWindow(Window* window);

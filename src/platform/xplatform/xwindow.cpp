@@ -7,6 +7,10 @@
 #include "platform/xplatform/xwindow.hpp"
 #include "opengl/opengl_context.hpp"
 
+#include "platform/input.hpp"
+#include "platform/cursor.hpp"
+#include "platform/xplatform/xcursor.hpp"
+
 #include "GLFW/glfw3.h"
 
 BM_START
@@ -14,9 +18,9 @@ BM_START
 static bool s_isGLFWInitialized = false;
 
 
-XWindow::XWindow(const Data& data)
+XWindow::XWindow(const Data& data, bool decorated, bool visible)
 {
-	BM_TIME_OF("XWindow initialization time", create(data));
+	BM_TIME_OF("XWindow initialization time", create(data, decorated, visible));
 }
 
 XWindow::~XWindow()
@@ -28,19 +32,53 @@ void XWindow::destroy()
 {
 	glfwDestroyWindow(m_window);
 	m_window = nullptr;
+	Cursor::destroy();
 	BM_CORE_TRACE("XWindow \"{0}\" is destroyed", m_data.title);
 }
+
+void XWindow::onFocus(NativeWindowPtr window, int focused)
+{
+	if (focused)
+	{
+		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+		Input::setCurrentWindow(data->window);
+	}
+}
+
 
 void XWindow::onUpdate()
 {
 	glfwPollEvents();
-	glfwSwapBuffers(m_window);
 }
 
 std::pair<int, int> XWindow::getPosition() const
 {
 	int x, y;
 	glfwGetWindowPos(m_window, &x, &y);
+	return std::pair<int, int>(x, y);
+}
+
+std::pair<int, int> XWindow::getFramebufferSize() const
+{
+	int w, h;
+	glfwGetFramebufferSize(m_window, &w, &h);
+	return std::pair<int, int>(w, h);
+}
+
+std::pair<int, int> XWindow::getSize() const
+{
+	int w, h;
+	glfwGetWindowSize(m_window, &w, &h);
+	return std::pair<int, int>(w, h);
+}
+
+std::pair<int, int> XWindow::getFramebufferPosition() const
+{
+	auto [x, y] = getPosition();
+	int top, left;
+	glfwGetWindowFrameSize(m_window, &left, &top, nullptr, nullptr);
+	x += left;
+	y += top;
 	return std::pair<int, int>(x, y);
 }
 
@@ -60,9 +98,8 @@ void XWindow::setTitle(std::string_view title)
 	m_data.title = title;
 }
 
-void XWindow::setIcon(std::string_view path)
+void XWindow::setIcon(Icon icon)
 {
-	Icon icon(path);
 	glfwSetWindowIcon(m_window, 1, (GLFWimage*)&icon);
 }
 
@@ -70,7 +107,7 @@ void XWindow::resize(int width, int height)
 {
 	m_data.height = height;
 	m_data.width = width;
-	BM_TRACE("XWindow \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
+	//BM_TRACE("XWindow \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
 }
 
 void XWindow::hide()
@@ -103,6 +140,7 @@ void XWindow::close()
 {
 	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 	m_window = nullptr;
+	destroy();
 	BM_CORE_TRACE("XWindow \"{0}\" is closed", m_data.title);
 }
 
@@ -111,10 +149,9 @@ bool XWindow::isOpen() const
 	return !glfwWindowShouldClose(m_window) && (m_window != nullptr);
 }
 
-void XWindow::create(const Data& data)
+void XWindow::create(const Data& data, bool decorated, bool visible)
 {
 	m_data = data;
-	//m_data.window = this->getSelf();
 
 	BM_CORE_INFO("Creating XWindow \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
 
@@ -131,11 +168,15 @@ void XWindow::create(const Data& data)
 
 	GL::OpenGLContext& ctx = GL::OpenGLContext::getContext();
 
+	glfwWindowHint(GLFW_DECORATED, (int)decorated);
+	glfwWindowHint(GLFW_VISIBLE, (int)visible);
+
 	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, ctx.shareContext());
 	BM_CORE_ASSERT(m_window, "Failed to create window");
 
 	ctx.makeCurrent(this);
 	ctx.init();
+	Cursor::init();
 	setVSync(m_data.vsync);
 	setGLFWPointer();
 	setAllCallbacks();
@@ -157,6 +198,7 @@ void XWindow::setKeyCallback()
 			case GLFW_PRESS:
 			{
 				KeyPressedEvent e(key, 0);
+				e.setWindow(data->window);
 				data->callback(e);
 				data->last_key.key = key;
 				data->last_key.repeat_count = 0;
@@ -165,6 +207,7 @@ void XWindow::setKeyCallback()
 			case GLFW_RELEASE:
 			{
 				KeyReleasedEvent e(key);
+				e.setWindow(data->window);
 				data->callback(e);
 				if (key == data->last_key.key)
 					data->last_key.repeat_count = 0;
@@ -176,6 +219,7 @@ void XWindow::setKeyCallback()
 				{
 					data->last_key.repeat_count++;
 					KeyPressedEvent e(key, data->last_key.repeat_count);
+					e.setWindow(data->window);
 					data->callback(e);
 				}
 				return;
@@ -194,12 +238,14 @@ void XWindow::setMuoseButtonCallback()
 			case GLFW_PRESS:
 			{
 				MouseButtonPressedEvent e(button);
+				e.setWindow(data->window);
 				data->callback(e);
 				return;
 			}
 			case GLFW_RELEASE:
 			{
 				MouseButtonReleasedEvent e(button);
+				e.setWindow(data->window);
 				data->callback(e);
 				return;
 			}
@@ -226,6 +272,7 @@ void XWindow::setAllCallbacks()
 	setResizeCallback();
 	setPosCallback();
 	setMouseMoveCallback();
+	setWindowFocusCallback();
 }
 
 void XWindow::setMouseMoveCallback()
@@ -235,8 +282,15 @@ void XWindow::setMouseMoveCallback()
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			MouseMoveEvent e(x, y);
 			e.setWindow(data->window);
+			Input::setMousePos({ (float)x, (float)y });
+			//BM_CORE_INFO("Mouse position X:{0} Y:{1}", x, y);
 			data->callback(e);
 		});
+}
+
+void XWindow::setWindowFocusCallback()
+{
+	glfwSetWindowFocusCallback(m_window, &onFocus);
 }
 
 void XWindow::setPosCallback()

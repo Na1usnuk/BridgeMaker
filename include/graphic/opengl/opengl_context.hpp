@@ -18,7 +18,9 @@ public:
 public:
 
 	void init();
+	void destroy();
 	void makeCurrent(XWindow* window);
+	XWindow* getCurrent();
 	void swapBuffers() const;
 	GLFWwindow* shareContext() const;
 

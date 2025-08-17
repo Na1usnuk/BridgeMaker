@@ -8,14 +8,14 @@
 
 BM_START
 
-bool XInput::isPressed(Window& window, int key)
+bool XInput::isPressed(Window& window, int key) const
 {
 	return (glfwGetKey(window.getNativeWindow(), key) == GLFW_PRESS);
 }
 
-bool XInput::isReleased(Window& window, int key)
+bool XInput::isReleased(Window& window, int key) const
 {
-	return false;
+	return (glfwGetKey(window.getNativeWindow(), key) == GLFW_RELEASE);
 }
 
 

@@ -9,7 +9,6 @@ GL_START
 
 OpenGLRenderer::OpenGLRenderer()
 {
-
 }
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -44,7 +43,6 @@ void OpenGLRenderer::setBackgroundColor(float R, float G, float B, float A)
 
 void OpenGLRenderer::clearColor(float R, float G, float B, float A)
 {
-	//BM_CORE_TRACE("clear color to: {0} {1} {2} {3}", R, G, B, A);
 	GLCALL(glClearColor(R, G, B, A));
 	clear();
 }
