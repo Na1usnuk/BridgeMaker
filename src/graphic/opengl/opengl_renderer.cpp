@@ -2,6 +2,10 @@
 
 #include "opengl/opengl_renderer.hpp"
 #include "opengl/opengl.hpp"
+#include "opengl/opengl_context.hpp"
+#include "context.hpp"
+#include "platform/window.hpp"
+#include "platform/xplatform/xwindow.hpp"
 
 
 BM_START
@@ -16,54 +20,67 @@ OpenGLRenderer::~OpenGLRenderer()
 }
 
 
-void OpenGLRenderer::setView(int x, int y, int w, int h) const
+void OpenGLRenderer::setView(std::array<int, 4> viewport)
 {
-	GLCALL(glViewport(x, y, w, h));
+	auto& current_viewport = m_state_cache[Context::getContext().getCurrent()].viewport;
+
+	if(viewport != current_viewport)
+	{
+		GLCALL(glViewport(viewport[0], viewport[1], viewport[2], viewport[3]));
+		current_viewport = viewport;
+	}
 }
 
-void OpenGLRenderer::clear() const
+void OpenGLRenderer::setBackgroundColor(RGBA_t rgba)
+{
+	auto& current_color = m_state_cache[Context::getContext().getCurrent()].clear_color;
+
+	if (rgba != current_color)
+	{
+		GLCALL(glClearColor(rgba[0], rgba[1], rgba[2], rgba[3]));
+		current_color = rgba;
+	}
+}
+
+void OpenGLRenderer::setBackgroundColor(RGB_t rgb)
+{
+	setBackgroundColor({ rgb[0], rgb[1], rgb[2], 1.f });
+}
+
+void OpenGLRenderer::clear()
 {
 	GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
-void OpenGLRenderer::setBackgroundColor(float R, float G, float B, float A)
+void OpenGLRenderer::clearColor(RGBA_t rgba)
 {
-	if (m_background_color != std::array<float, 4>{R, G, B, A})
-	{
-		GLCALL(glClearColor(R, G, B, A));
-		m_background_color = std::array<float, 4>{ R, G, B, A };
-	}
-	BM_DEBUG_CODE(
-		float r[4];
-		GLCALL(glGetFloatv(GL_COLOR_CLEAR_VALUE, r));
-		BM_CORE_TRACE("Actual clear color: {0}, {1}, {2}, {3}", r[0], r[1], r[2], r[3]);
-		BM_CORE_TRACE("Cached clear color: {0}, {1}, {2}, {3}", m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
-	);
-}
-
-void OpenGLRenderer::clearColor(float R, float G, float B, float A)
-{
-	GLCALL(glClearColor(R, G, B, A));
+	setBackgroundColor(rgba);
 	clear();
 }
 
-void OpenGLRenderer::setPolygonMode(PolygonMode mode) const
+void OpenGLRenderer::clearColor(RGB_t rgb)
 {
-	GLCALL(glPolygonMode(GL_FRONT_AND_BACK, (unsigned int)mode));
+	clearColor({ rgb[0], rgb[1], rgb[2], 1.f });
 }
 
-void OpenGLRenderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& sh) const
+void OpenGLRenderer::setPolygonMode(PolygonMode mode)
+{
+	auto& current_mode = m_state_cache[Context::getContext().getCurrent()].polygon_mode;
+
+	if(current_mode != mode)
+	{
+		GLCALL(glPolygonMode(GL_FRONT_AND_BACK, static_cast<unsigned int>(mode)));
+		current_mode = mode;
+	}
+}
+
+void OpenGLRenderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& sh) 
 {
 	sh.bind();
 	va.bind();
 	ib.bind();
 
 	GLCALL(glDrawElements(GL_TRIANGLES, ib.count(), GL_UNSIGNED_INT, nullptr));
-}
-
-void OpenGLRenderer::draw(const Obj& object) const
-{
-	draw(object.vao, object.ebo, object.shader); 
 }
 
 GL_END

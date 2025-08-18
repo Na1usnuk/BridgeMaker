@@ -29,6 +29,7 @@ void OpenGLContext::makeCurrent(XWindow* window)
 
 XWindow* OpenGLContext::getCurrent()
 {
+	BM_CORE_ASSERT(m_window, "Current context is invalid");
 	return m_window;
 }
 
@@ -39,7 +40,7 @@ void OpenGLContext::destroy()
 
 void OpenGLContext::swapBuffers() const { glfwSwapBuffers(m_window->getNativeWindow()); }
 
-GLFWwindow* OpenGLContext::shareContext() const
+OpenGLContext::NativeWindow OpenGLContext::shareContext() const
 {
 	if (m_window != nullptr)
 		return m_window->getNativeWindow();

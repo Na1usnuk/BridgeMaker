@@ -12,18 +12,17 @@ public:
 
 
 	void init() { Backend::getContext().init(); }
-	template<typename WindowType>
+	template<typename WindowType = Window>
 	void makeCurrent(WindowType* window) { Backend::getContext().makeCurrent(&window->getImpl()); }
-	template<typename WindowType>
+	template<typename WindowType = Window>
 	WindowType* getCurrent() { return Backend::getContext().getCurrent()->getSelf(); }
-	Backend::native_window_t shareContext() { return Backend::getContext().shareContext(); }
+	typename Backend::NativeWindow shareContext() { return Backend::getContext().shareContext(); }
 	void swapBuffers() const { Backend::getContext().swapBuffers(); }
 
 	static AbstractContext& getContext() { static AbstractContext ctx; return ctx; }
 
 private:
 
-	AbstractContext() = default;
 
 };
 

@@ -13,7 +13,7 @@ class OpenGLContext
 {
 public:
 
-	using native_window_t = GLFWwindow*;
+	using NativeWindow = GLFWwindow*;
 
 public:
 
@@ -22,7 +22,7 @@ public:
 	void makeCurrent(XWindow* window);
 	XWindow* getCurrent();
 	void swapBuffers() const;
-	GLFWwindow* shareContext() const;
+	NativeWindow shareContext() const;
 
 	static OpenGLContext& getContext();
 

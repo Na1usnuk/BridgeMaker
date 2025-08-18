@@ -7,6 +7,8 @@
 #include "vertex_array.hpp"
 #include "shader.hpp"
 
+#include <unordered_map>
+
 
 BM_START
 GL_START
@@ -17,19 +19,10 @@ public:
 
 	enum class PolygonMode : unsigned int
 	{
+		//magic numbers from GL
 		Fill = 0x1B02,
 		Line = 0x1B01,
 		Point = 0x1B00
-	};
-	
-	struct Obj
-	{
-		Obj(VertexArray& va, IndexBuffer& eb, Shader& sh) : vao(std::move(va)), ebo(std::move(eb)), shader(std::move(sh)) {}
-		//~Obj() { vao.destroy(); ebo.destroy(); shader.destroy(); }
-		void bind() const { vao.bind(); ebo.bind(); shader.bind(); }
-		VertexArray vao;
-		IndexBuffer ebo;
-		Shader shader;
 	};
 
 	using VertexArray  = ::BM::GL::VertexArray;
@@ -37,25 +30,37 @@ public:
 	using IndexBuffer  = ::BM::GL::IndexBuffer;
 	using Shader       = ::BM::GL::Shader;
 
+	using RGB_t      = std::array<float, 3>;
+	using RGBA_t     = std::array<float, 4>;
+
+private:
+
+	struct StateCache
+	{
+		RGBA_t clear_color;
+		PolygonMode polygon_mode;
+		std::array<int, 4> viewport;
+	};
 
 public:
 
 	OpenGLRenderer();
 	~OpenGLRenderer();
 
-	void clear() const;
-	void draw(const VertexArray&, const IndexBuffer&, const Shader&) const;
-	void draw(const Obj& object) const;
+	void clear();
+	void draw(const VertexArray&, const IndexBuffer&, const Shader&);
 	
-	void setPolygonMode(PolygonMode mode = PolygonMode::Fill) const;
-	void setView(int x, int y, int w, int h) const;
-	void setBackgroundColor(float R, float G, float B, float A = 1.f);
+	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
+	void setView(std::array<int, 4> viewport);
+	void setBackgroundColor(RGBA_t rgba = {0.f, 0.f, 0.f, 1.f});
+	void setBackgroundColor(RGB_t rgb = {0.f, 0.f, 0.f});
+	void clearColor(RGBA_t rgba = { 0.f, 0.f, 0.f, 1.f });
+	void clearColor(RGB_t rgb = { 0.f, 0.f, 0.f });
 
-	void clearColor(float R, float G, float B, float A);
 
 private:
 
-	std::array<float, 4> m_background_color = {.0f, .0f, .0f, 1.f};
+	std::unordered_map<Window*, StateCache> m_state_cache;
 
 };
 
