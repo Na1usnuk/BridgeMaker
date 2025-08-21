@@ -32,8 +32,8 @@ public:
 
 	void onUpdate() { m_impl.onUpdate(); }
 
-	unsigned int		getWidth() const { return m_impl.getWidth(); }
-	unsigned int		getHeight() const { return m_impl.getHeight(); }
+	int		            getWidth() const { return m_impl.getWidth(); }
+	int		            getHeight() const { return m_impl.getHeight(); }
 	bool				getVSync() const { return m_impl.getVSync(); }
 	NativeWindowPtr		getNativeWindow() const { return m_impl.getNativeWindow(); }
 	std::pair<int, int> getPosition() const { return m_impl.getPosition(); }

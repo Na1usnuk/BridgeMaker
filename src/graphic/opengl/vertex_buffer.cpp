@@ -6,20 +6,39 @@
 BM_START
 GL_START
 
-VertexBuffer::VertexBuffer(const void* data, unsigned long long size)
+
+VertexBuffer::VertexBuffer(unsigned long long size, Draw draw_hint) : m_size(size_t(size))
 {
 	GLCALL(glGenBuffers(1, &m_id));
-	GLCALL(glBindBuffer(GL_ARRAY_BUFFER, m_id));
-	GLCALL(glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(size), data, GL_STATIC_DRAW));
+	bind();
+	GLCALL(glBufferData(GL_ARRAY_BUFFER, size, nullptr, (int)draw_hint));
+}
+
+VertexBuffer::VertexBuffer(const void* data, unsigned long long size, Draw draw_hint) : m_size(size_t(size))
+{
+	GLCALL(glGenBuffers(1, &m_id));
+	bind();
+	GLCALL(glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(size), data, (int)draw_hint));
 }
 
 VertexBuffer::~VertexBuffer()
 {
+	destroy();
 }
 
 void VertexBuffer::destroy()
 {
-	GLCALL(glDeleteBuffers(1, &m_id));
+	if(m_id != 0)
+	{
+		GLCALL(glDeleteBuffers(1, &m_id));
+		m_id = 0;
+	}
+}
+
+void VertexBuffer::populate(void* data)
+{
+	bind();
+	GLCALL(glBufferSubData(GL_ARRAY_BUFFER, 0, m_size, data););
 }
 
 void VertexBuffer::bind() const

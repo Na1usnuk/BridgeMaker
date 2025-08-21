@@ -43,15 +43,15 @@ public:
 	void clear() { m_impl.clear(); }
 
 	template<typename ...T>
-	VertexArrayPtr createVAO(T&&... args) { return std::make_shared<VertexArray>(std::forward<T>(args)...); }
+	static VertexArrayPtr createVAO(T&&... args) { return std::make_shared<VertexArray>(std::forward<T>(args)...); }
 	template<typename ...T>
-	VertexBufferPtr createVBO(T&&... args) { return std::make_shared<VertexBuffer>(std::forward<T>(args)...); }
+	static VertexBufferPtr createVBO(T&&... args) { return std::make_shared<VertexBuffer>(std::forward<T>(args)...); }
 	template<typename ...T>
-	VertexBufferLayoutPtr createVBOLayout(T&&... args) { return std::make_shared<VertexBufferLayout>(std::forward<T>(args)...); }
+	static VertexBufferLayoutPtr createVBOLayout(T&&... args) { return std::make_shared<VertexBufferLayout>(std::forward<T>(args)...); }
 	template<typename ...T>
-	IndexBufferPtr createIBO(T&&... args) { return std::make_shared<IndexBuffer>(std::forward<T>(args)...); }
+	static IndexBufferPtr createIBO(T&&... args) { return std::make_shared<IndexBuffer>(std::forward<T>(args)...); }
 	template<typename ...T>
-	ShaderPtr createShader(T&&... args) { return std::make_shared<Shader>(std::forward<T>(args)...); }
+	static ShaderPtr createShader(T&&... args) { return std::make_shared<Shader>(std::forward<T>(args)...); }
 
 
 private:

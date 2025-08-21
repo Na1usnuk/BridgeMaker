@@ -10,20 +10,33 @@ class VertexBuffer
 {
 public:
 
+	enum class Draw
+	{
+		STATIC = 0x88E4,
+		DYNAMIC = 0x88E8,
+	};
+
 	class Layout;
+
+	using size_t = signed long long;
 
 public:
 
-	VertexBuffer(const void* data, unsigned long long size);
+	VertexBuffer(const void* data, unsigned long long size, Draw draw_hint = Draw::STATIC);
+	VertexBuffer(unsigned long long size, Draw draw_hint = Draw::STATIC); 
 	~VertexBuffer();
 
 	void bind() const;
 	void unbind() const;
 	void destroy();
+	void populate(void* data);
+
 
 private:
 
 	unsigned int m_id;
+
+	signed long long m_size;
 };
 
 

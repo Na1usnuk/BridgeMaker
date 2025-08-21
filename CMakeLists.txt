@@ -73,3 +73,8 @@ target_link_libraries(BridgeMaker
 	stb
 )
 
+
+if(MSVC)
+    add_compile_options(/nologo)
+endif()
+
