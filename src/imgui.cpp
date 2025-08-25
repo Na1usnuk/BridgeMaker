@@ -2,10 +2,9 @@
 
 #include "imgui.hpp"
 
-#include "platform/window.hpp"
-#include "platform/xplatform/xwindow.hpp"
+import bm.window;
 
-BM_START
+namespace bm {
 
 ImGuiLayer::ImGuiLayer(ImGuiWindowRegistry windows) : m_windows(std::move(windows))
 {
@@ -27,7 +26,7 @@ void ImGuiLayer::onUpdate()
 
 }
 
-bool ImGuiLayer::onRender(BM::AppRenderEvent& e)
+bool ImGuiLayer::onRender(bm::AppRenderEvent& e)
 {
 	if (e.getWindow() != m_window)
 		return false;
@@ -43,21 +42,21 @@ bool ImGuiLayer::onRender(BM::AppRenderEvent& e)
 
 void ImGuiLayer::onEvent(Event& e)
 {
-	BM::EventDispatcher d(e);
-	//BM_CORE_INFO("Event occured in ImGuiLayer");
+	bm::EventDispatcher d(e);
+	//log::core::info("Event occured in ImGuiLayer");
 
-	d.dispatch<BM::WindowCloseEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onWindowClose));
-	d.dispatch<BM::WindowMoveEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onWindowMove));
-	d.dispatch<BM::WindowResizeEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onWindowResize));
+	d.dispatch<bm::WindowCloseEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onWindowClose));
+	d.dispatch<bm::WindowMoveEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onWindowMove));
+	d.dispatch<bm::WindowResizeEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onWindowResize));
 
-	d.dispatch<BM::KeyPressedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onKeyPress));
-	d.dispatch<BM::KeyReleasedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onKeyRelease));
+	d.dispatch<bm::KeyPressedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onKeyPress));
+	d.dispatch<bm::KeyReleasedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onKeyRelease));
 
-	d.dispatch<BM::MouseButtonPressedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onMousePress));
-	d.dispatch<BM::MouseButtonReleasedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onMouseRelease));
-	d.dispatch<BM::MouseMoveEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onMouseMove));
+	d.dispatch<bm::MouseButtonPressedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onMousePress));
+	d.dispatch<bm::MouseButtonReleasedEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onMouseRelease));
+	d.dispatch<bm::MouseMoveEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onMouseMove));
 
-	d.dispatch<BM::AppRenderEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onRender));
+	d.dispatch<bm::AppRenderEvent>(BM_BIND_EVENT_FN(ImGuiLayer::onRender));
 }
 
 void ImGuiLayer::onAttach()
@@ -78,32 +77,32 @@ void ImGuiWindowRegistry::add(WindowFn fn)
 	m_window_queue.push_back(fn);
 }
 
-bool ImGuiLayer::onWindowClose(BM::WindowCloseEvent& e)
+bool ImGuiLayer::onWindowClose(bm::WindowCloseEvent& e)
 {
 	return false;
 }
 
-bool ImGuiLayer::onWindowMove(BM::WindowMoveEvent& e)
+bool ImGuiLayer::onWindowMove(bm::WindowMoveEvent& e)
 {
 	return false;
 }
 
-bool ImGuiLayer::onWindowResize(BM::WindowResizeEvent& e)
+bool ImGuiLayer::onWindowResize(bm::WindowResizeEvent& e)
 {
 	return false;
 }
 
-bool ImGuiLayer::onKeyPress(BM::KeyPressedEvent& e)
+bool ImGuiLayer::onKeyPress(bm::KeyPressedEvent& e)
 {
 	return false;
 }
 
-bool ImGuiLayer::onKeyRelease(BM::KeyReleasedEvent& e)
+bool ImGuiLayer::onKeyRelease(bm::KeyReleasedEvent& e)
 {
 	return false;
 }
 
-bool ImGuiLayer::onMouseRelease(BM::MouseButtonReleasedEvent& e)
+bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
 {
 	if (e.getWindow() != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
@@ -112,7 +111,7 @@ bool ImGuiLayer::onMouseRelease(BM::MouseButtonReleasedEvent& e)
 	return ImGui::IsAnyItemHovered();
 }
 
-bool ImGuiLayer::onMousePress(BM::MouseButtonPressedEvent& e)
+bool ImGuiLayer::onMousePress(bm::MouseButtonPressedEvent& e)
 {
 	if (e.getWindow() != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
@@ -121,7 +120,7 @@ bool ImGuiLayer::onMousePress(BM::MouseButtonPressedEvent& e)
 	return ImGui::IsAnyItemHovered();
 }
 
-bool ImGuiLayer::onMouseMove(BM::MouseMoveEvent& e)
+bool ImGuiLayer::onMouseMove(bm::MouseMoveEvent& e)
 {
 	if (e.getWindow() != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
@@ -131,4 +130,4 @@ bool ImGuiLayer::onMouseMove(BM::MouseMoveEvent& e)
 }
 
 
-BM_END
+}

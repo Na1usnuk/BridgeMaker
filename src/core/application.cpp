@@ -1,13 +1,14 @@
 #include "pch.hpp"
 #include "application.hpp"
-#include "log.hpp"
 
 #include "events/app_event.hpp"
 #include "events/key_event.hpp"
 #include "events/mouse_event.hpp"
 
+import bm.log;
 
-BM_START
+namespace bm 
+{
 
 Application::~Application()
 {
@@ -86,4 +87,4 @@ void Application::_closeWindow(Window* window)
 		m_windows.erase(it);
 }
 
-BM_END
+}

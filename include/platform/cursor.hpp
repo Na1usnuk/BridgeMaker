@@ -2,8 +2,8 @@
 
 #include "core/core.hpp"
 
-BM_START
-
+namespace bm
+{
 
 template<typename Backend>
 class AbstractCursor
@@ -28,6 +28,5 @@ private:
 template<typename Backend>
 Backend AbstractCursor<Backend>::m_impl{};
 
-
-BM_END
+}
 

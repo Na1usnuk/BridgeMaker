@@ -8,17 +8,15 @@
 #include "core/events/mouse_event.hpp"
 #include "core/events/key_event.hpp"
 
-#ifdef BM_USE_OPENGL
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
-#endif // BM_USE_OPENGL
 
 
 #include <vector>
 #include <utility>
 #include <functional>
 
-BM_START
+namespace bm {
 
 
 class ImGuiWindowRegistry
@@ -68,16 +66,16 @@ public:
 	void onAttach() override;
 	void onDetach() override;
 
-	bool onRender(BM::AppRenderEvent& e);
+	bool onRender(bm::AppRenderEvent& e);
 
-	bool onWindowClose(BM::WindowCloseEvent& e);
-	bool onWindowMove(BM::WindowMoveEvent& e);
-	bool onWindowResize(BM::WindowResizeEvent& e);
-	bool onKeyPress(BM::KeyPressedEvent& e);
-	bool onKeyRelease(BM::KeyReleasedEvent& e);
-	bool onMouseRelease(BM::MouseButtonReleasedEvent& e);
-	bool onMousePress(BM::MouseButtonPressedEvent& e);
-	bool onMouseMove(BM::MouseMoveEvent& e);
+	bool onWindowClose(bm::WindowCloseEvent& e);
+	bool onWindowMove(bm::WindowMoveEvent& e);
+	bool onWindowResize(bm::WindowResizeEvent& e);
+	bool onKeyPress(bm::KeyPressedEvent& e);
+	bool onKeyRelease(bm::KeyReleasedEvent& e);
+	bool onMouseRelease(bm::MouseButtonReleasedEvent& e);
+	bool onMousePress(bm::MouseButtonPressedEvent& e);
+	bool onMouseMove(bm::MouseMoveEvent& e);
 
 
 private:
@@ -87,5 +85,5 @@ private:
 };
 
 
-BM_END
+}
 

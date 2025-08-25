@@ -3,7 +3,7 @@
 #include "event.hpp"
 
 
-BM_START
+namespace bm {
 
 
 class  KeyEvent : public Event
@@ -71,4 +71,4 @@ private:
 };
 
 
-BM_END
+}

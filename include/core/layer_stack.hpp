@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <utility>
 
-BM_START
+namespace bm {
 
 /*
 template<typename ...AllLayerTypeNames>
@@ -126,4 +126,4 @@ private:
 };
 
 
-BM_END
+}

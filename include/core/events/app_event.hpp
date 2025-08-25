@@ -4,7 +4,7 @@
 
 #include <utility>
 
-BM_START
+namespace bm {
 
 class  WindowResizeEvent : public Event
 {
@@ -93,4 +93,4 @@ public:
 	EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };
 
-BM_END
+}

@@ -3,8 +3,8 @@
 
 #include "layer_stack.hpp"
 
-BM_START
+namespace bm {
 
 
 
-BM_END
+}

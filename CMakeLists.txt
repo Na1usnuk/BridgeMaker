@@ -160,14 +160,11 @@ file(GLOB_RECURSE BM_IMPLS CONFIGURE_DEPENDS
 	${BridgeMaker_SOURCE_DIR}/impl/*.cppp # extension for module partition implementation
 )
 
-# Excluding config
-# So we can have config data in project.
-# For examle we have is_debug boolean in it, 
-# so we can use something like | if constexpr (config::is_debug) |, to avoid preprocessor.
+# Exclude the appropriate config module from BM_MODS based on build type.
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-	list(FILTER BM_MODS EXCLUDE REGEX "config_debug\\.cppm$")
+	list(FILTER BM_MODULES EXCLUDE REGEX "config_debug\\.cppm$")
 else()
-	list(FILTER BM_MODS EXCLUDE REGEX "config_release\\.cppm$")
+	list(FILTER BM_MODULES EXCLUDE REGEX "config_release\\.cppm$")
 endif()
 
 
@@ -181,8 +178,12 @@ file(GLOB BM_EVENTS_FILES LIST_DIRECTORIES false include/core/events/*)
 source_group(Events FILES ${BM_EVENTS_FILES})
 
 # Graphic group
-file(GLOB_RECURSE BM_GL_FILES include/graphic/*.hpp src/graphic/*.cpp)
+file(GLOB_RECURSE BM_GL_FILES include/graphic/*.hpp src/graphic/*.cpp mod/graphic/*.cppm impl/graphic/*.cpp impl/graphic/*cppp)
 source_group(Graphic FILES ${BM_GL_FILES})
+
+
+# Module group
+source_group(Graphic FILES ${BM_MODULES})
 
 
 #------------------------------------------------#
@@ -199,19 +200,13 @@ target_sources(BridgeMaker
 		${BM_SRCS}
 		${BM_PLATFORM_SRCS}
 		${BM_GRAPHIC_SRCS}
-)
-
-target_sources(BridgeMaker
 	PRIVATE
-	FILE_SET bm_headers TYPE HEADERS BASE_DIRS include FILES
+	FILE_SET HEADERS BASE_DIRS include FILES
 		${BM_HEADERS}
 		${BM_PLATFORM_HEADERS}
 		${BM_GRAPHIC_HEADERS}
-)
-
-target_sources(BridgeMaker
 	PRIVATE
-	FILE_SET bm_modules TYPE CXX_MODULES BASE_DIRS impl mod FILES
+	FILE_SET CXX_MODULES BASE_DIRS impl mod FILES
 		${BM_MODULES}
 		${BM_IMPLS}
 )

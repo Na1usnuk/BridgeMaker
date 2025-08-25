@@ -2,12 +2,11 @@
 
 #include "core.hpp"
 #include "events/event.hpp"
-//#include "window.hpp"
 
 #include <string>
 #include <string_view>
 
-BM_START
+namespace bm {
 
 
 class Layer
@@ -48,4 +47,4 @@ private:
 };
 
 
-BM_END
+}

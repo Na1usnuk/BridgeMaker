@@ -1,9 +1,9 @@
 #include "pch.hpp"
 #include "events/event.hpp"
 
-BM_START
+namespace bm {
 
 
 
 
-BM_END
+}

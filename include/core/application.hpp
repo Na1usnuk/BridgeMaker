@@ -7,39 +7,22 @@
 #include "events/mouse_event.hpp"
 #include "layer_stack.hpp"
 
+import std;
 
+import bm.log;
 
-#include "graphic/renderer.hpp"
-#include "graphic/context.hpp"
-#include "platform/window.hpp"
-#include "platform/input.hpp"
-#include "platform/cursor.hpp"
-#ifdef BM_PLATFORM_X
-	#include "graphic/opengl/opengl_renderer.hpp"
-	#include "graphic/opengl/opengl_context.hpp"
-	#include "platform/xplatform/xwindow.hpp"
-	#include "platform/xplatform/xinput.hpp"
-	#include "platform/xplatform/xcursor.hpp"
-#elifdef BM_PLATFORM_WINDOWS 
-	#error For now use crossplatform BM_PLATFORM_X                       
-#elifdef BM_PLATFORM_LINUX
-	#error For now use crossplatform BM_PLATFORM_X    
-#elifdef BM_PLATFORM_MACOS
-	#error For now use crossplatform BM_PLATFORM_X    
-#endif
+import bm.gfx.renderer;
+import bm.gfx.context;
 
+import bm.window;
+import bm.input;
+import bm.cursor;
 
-#include <string_view>
-#include <list>
-#include <utility>
-
-BM_START
+namespace bm 
+{
 
 class Application
 {
-public:
-
-
 
 public:
 
@@ -52,7 +35,7 @@ public:
 		return app;
 	}
 
-	Renderer& getRenderer() { return m_renderer; }
+	gfx::Renderer& getRenderer() { return m_renderer; }
 	std::list<Window>& getWindows() { return m_windows; }
 	//Main window is window that was added first
 	bool isMainWindow(Window* window) { return &m_windows.front() == window; }
@@ -83,13 +66,13 @@ private:
 
 	LayerStack m_layers;
 	std::list<Window> m_windows;
-	Renderer m_renderer;
+	gfx::Renderer m_renderer;
 	bool m_is_running = true;
 	Window* m_close_window = nullptr;
-	Context& m_ctx = Context::getContext();
+	gfx::Context& m_ctx = gfx::Context::getContext();
 
 };
 
 
-BM_END
+}
 

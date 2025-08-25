@@ -2,7 +2,7 @@
 
 #include "event.hpp"
 
-BM_START
+namespace bm {
 
 class  MouseMoveEvent : public Event
 {
@@ -120,4 +120,4 @@ public:
 
 };
 
-BM_END
+}

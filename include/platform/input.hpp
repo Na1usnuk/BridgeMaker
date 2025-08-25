@@ -3,7 +3,11 @@
 #include "core/core.hpp"
 #include <utility>
 
-BM_START
+
+namespace bm
+{
+
+class Window;
 
 template<typename Backend>
 class AbstractInput
@@ -38,9 +42,9 @@ template<typename Backend>
 Backend AbstractInput<Backend>::m_impl{};
 
 template<typename Backend>
-BM::Window* AbstractInput<Backend>::m_window = nullptr;
+Window* AbstractInput<Backend>::m_window = nullptr;
 
 template<typename Backend>
 AbstractInput<Backend>::mpos_t AbstractInput<Backend>::m_mouse_pos = { 0.f, 0.f };
 
-BM_END
+}

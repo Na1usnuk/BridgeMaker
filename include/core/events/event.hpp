@@ -2,7 +2,10 @@
 
 #include "core/core.hpp"
 
-BM_START
+
+namespace bm {
+
+class Window;
 
 enum class EventType
 {
@@ -102,4 +105,4 @@ inline std::ostream& operator<<(std::ostream& os, const Event& event)
 	return os << event.toString();
 }
 )
-BM_END
+}
