@@ -70,8 +70,8 @@ public:
 
 	void onUpdate();
 
-	unsigned int		getWidth() const  { return m_data.width; }
-	unsigned int		getHeight() const  { return m_data.height; }
+	int		            getWidth() const  { return m_data.width; }
+	int		            getHeight() const  { return m_data.height; }
 	bool				getVSync() const  { return m_data.vsync; };
 	NativeWindowPtr		getNativeWindow() const { return m_window; }
 	std::pair<int, int> getPosition() const;
