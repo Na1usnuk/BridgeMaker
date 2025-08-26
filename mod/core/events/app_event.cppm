@@ -73,6 +73,18 @@ class WindowMoveEvent : public Event
 public:
 	WindowMoveEvent(int x, int y) : m_x(x), m_y(y) {}
 
+	std::string toString() const override
+	{
+		if constexpr (config::is_debug)
+		{
+			std::stringstream ss;
+			ss << "WindowMoveEvent: " << m_x << ", " << m_y;
+			return ss.str();
+		}
+		else
+			return "";
+	}
+
 	const char* getName() const override
 	{
 		if constexpr (config::is_debug)

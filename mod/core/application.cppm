@@ -19,6 +19,7 @@ import bm.event.base;
 namespace bm 
 {
 
+	export Window* getCurrentWindow() { return gfx::Context::getCurrent(); }
 
 export class Application
 {
@@ -37,7 +38,12 @@ public:
 	gfx::Renderer& getRenderer() { return m_renderer; }
 	std::list<Window>& getWindows() { return m_windows; }
 	//Main window is window that was added first
-	bool isMainWindow(Window* window) { return &m_windows.front() == window; }
+	bool isMainWindow(Window* window = nullptr) 
+	{ 
+		if (window == nullptr)
+			window = gfx::Context::getCurrent();
+		return &m_windows.front() == window; 
+	}
 	//not actually destroy, just put in queue to destroy later (in end of frame)
 	void closeWindow(Window* window);
 	Window& addWindow(std::string_view title = "Bridge Maker App", int width = 1280, int height = 720, bool vsync = false, bool decorated = true, bool visible = true);

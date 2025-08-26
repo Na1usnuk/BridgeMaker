@@ -10,7 +10,6 @@ import bm.gfx.utility;
 import bm.log;
 import bm.assert;
 
-
 namespace bm::gfx
 {
 
@@ -26,9 +25,10 @@ struct Shader::ProgramSource
 	std::string fragmentSource;
 };
 
-Shader::Shader(std::string_view filepath)
+Shader::Shader(const std::filesystem::path& filepath)
     :  m_filepath(filepath)
 {
+	core::verify(std::filesystem::exists(filepath), "Shader " + filepath.string() + " do not exist");
 	ProgramSource src = parseShader(filepath);
 	m_id = createProgram(src.vertexSource, src.fragmentSource);
 }
@@ -161,9 +161,9 @@ unsigned int Shader::createProgram(std::string_view vertexShader, std::string_vi
 	return prog;
 }
 
-Shader::ProgramSource Shader::parseShader(std::string_view filepath)
+Shader::ProgramSource Shader::parseShader(const std::filesystem::path& filepath)
 {
-	std::ifstream stream(filepath.data());
+	std::ifstream stream(filepath);
 
 	enum class shaderType
 	{

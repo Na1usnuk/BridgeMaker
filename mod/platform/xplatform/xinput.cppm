@@ -7,11 +7,14 @@ import bm.window;
 namespace bm
 {
 
-export enum class Key;
-export enum class Mouse;
 
 export class Input
 {
+public:
+
+	enum class Key;
+	enum class Mouse;
+
 public:
 
 	static bool isPressed(Key key);
@@ -34,7 +37,7 @@ private:
 };
 
 //from glfw3.h
-export enum class Key
+export enum class Input::Key
 {
 	SPACE = 32,
 	APOSTROPHE = 39,
@@ -158,7 +161,7 @@ export enum class Key
 	MENU = 348,
 };
 
-export enum class Mouse
+export enum class Input::Mouse
 {
 	_1 = 0,
 	_2 = 1,

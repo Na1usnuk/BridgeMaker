@@ -19,6 +19,11 @@ VertexArray::VertexArray()
 	bind();
 }
 
+VertexArray::VertexArray(std::shared_ptr<VertexBuffer> vbo, std::shared_ptr<VertexBufferLayout> layout) : VertexArray()
+{
+	addVertexBuffer(vbo, layout);
+}
+
 VertexArray::~VertexArray()
 {
 	destroy();

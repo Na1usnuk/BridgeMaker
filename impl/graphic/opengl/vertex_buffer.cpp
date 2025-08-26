@@ -10,15 +10,25 @@ import bm.gfx.utility;
 namespace bm::gfx
 {
 
-VertexBuffer::VertexBuffer(const void* data, unsigned long long size)
+
+
+VertexBuffer::VertexBuffer(const void* data, std::size_t size, Draw draw_hint)
+	: m_size(size)
 {
 	glCall(glGenBuffers, 1, &m_id);
 	glCall(glBindBuffer, GL_ARRAY_BUFFER, m_id);
-	glCall(glBufferData, GL_ARRAY_BUFFER, GLsizeiptr(size), data, GL_STATIC_DRAW);
+	glCall(glBufferData, GL_ARRAY_BUFFER, GLsizeiptr(size), data, static_cast<int>(draw_hint));
 }
+
 
 VertexBuffer::~VertexBuffer()
 {
+}
+
+void VertexBuffer::populate(const void* data)
+{
+	bind();
+	glCall(glBufferSubData, GL_ARRAY_BUFFER, 0, m_size, data);
 }
 
 void VertexBuffer::destroy()

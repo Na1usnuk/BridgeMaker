@@ -1,5 +1,7 @@
 export module bm.gfx.buffer.index;
 
+import bm.gfx.utility;
+
 namespace bm::gfx
 {
 
@@ -8,6 +10,9 @@ export class IndexBuffer
 public:
 
 	IndexBuffer(const unsigned int* data, unsigned long long count);
+	template<BufferConcept ContainerType>
+	IndexBuffer(const ContainerType& data) : IndexBuffer(data.data(), data.size()) {}
+
 	~IndexBuffer();
 	IndexBuffer(const IndexBuffer&) = delete;
 	IndexBuffer& operator=(const IndexBuffer&) = delete;

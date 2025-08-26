@@ -7,6 +7,7 @@ export module bm.gfx.buffer.vertex;
 
 import bm.assert;
 import bm.log;
+import bm.gfx.utility;
 
 import std;
 
@@ -17,16 +18,31 @@ export class VertexBuffer
 {
 public:
 
-	VertexBuffer(const void* data, unsigned long long size);
+	enum class Draw
+	{
+		// Magic numbers from opengl
+		STATIC = 0x88E4,
+		DYNAMIC = 0x88E8,
+	};
+
+public:
+
+	VertexBuffer(const void* data, std::size_t size, Draw draw_hint = Draw::STATIC);
+	VertexBuffer(std::size_t size, Draw draw_hint = Draw::STATIC) : VertexBuffer(nullptr, size, draw_hint) {}
+	template<BufferConcept ContainerType>
+	VertexBuffer(const ContainerType& data, Draw draw_hint = Draw::STATIC) : VertexBuffer(data.data(), data.size() * sizeof(typename ContainerType::value_type), draw_hint) {}
 	~VertexBuffer();
 
 	void bind() const;
 	void unbind() const;
 	void destroy();
+	void populate(const void* data);
 
 private:
 
 	unsigned int m_id;
+	std::size_t m_size;
+
 };
 
 

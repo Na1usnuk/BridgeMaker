@@ -3,7 +3,7 @@ export module bm.event.mouse;
 import std;
 import bm.config;
 import bm.event.base;
-
+import bm.input;
 
 export namespace bm
 {
@@ -91,15 +91,15 @@ class  MouseButtonEvent : public Event
 {
 public:
 
-	int getMouseButton() const { return m_button; }
+	Input::Mouse getMouseButton() const { return m_button; }
 
 	int getCategoryFlags() const override { return Category::Mouse | Category::Input; }
 
 protected:
 
-	MouseButtonEvent(int button) : m_button(button) {}
+	MouseButtonEvent(int button) : m_button(static_cast<Input::Mouse>(button)) {}
 
-	int m_button;
+	Input::Mouse m_button;
 
 };
 
@@ -117,7 +117,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "MouseButtonPressedEvent: " << m_button;
+			ss << "MouseButtonPressedEvent: " << static_cast<int>(m_button);
 			return ss.str();
 		}
 		else
@@ -151,7 +151,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << m_button;
+			ss << "MouseButtonReleasedEvent: " << static_cast<int>(m_button);
 			return ss.str();
 		}
 		else

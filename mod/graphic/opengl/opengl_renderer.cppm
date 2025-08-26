@@ -4,14 +4,12 @@ import std;
 
 import bm.window;
 
-
+import bm.gfx.buffer.index;
+import bm.gfx.vertexarray;
+import bm.gfx.shader;
 
 namespace bm::gfx
 {
-
-class VertexArray;
-class IndexBuffer;
-class Shader; 
 
 export class Renderer
 {

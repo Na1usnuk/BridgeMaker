@@ -174,16 +174,21 @@ endif()
 
 
 # Event group
-file(GLOB BM_EVENTS_FILES LIST_DIRECTORIES false include/core/events/*)
-source_group(Events FILES ${BM_EVENTS_FILES})
+file(GLOB BM_EVENT_FILES LIST_DIRECTORIES false mod/core/events/*.cppm impl/core/events/*.cpp)
+source_group(Events FILES ${BM_EVENT_FILES})
+
+# Layer group
+file(GLOB BM_LAYER_FILES LIST_DIRECTORIES false mod/core/layers/*.cppm impl/core/layers/*.cpp)
+source_group(Layers FILES ${BM_LAYER_FILES})
 
 # Graphic group
-file(GLOB_RECURSE BM_GL_FILES include/graphic/*.hpp src/graphic/*.cpp mod/graphic/*.cppm impl/graphic/*.cpp impl/graphic/*cppp)
+file(GLOB_RECURSE BM_GL_FILES mod/graphic/*.cppm impl/graphic/*.cpp)
 source_group(Graphic FILES ${BM_GL_FILES})
 
+# Platform group
+file(GLOB BM_PLATFORM_FILES LIST_DIRECTORIES false mod/platform/${BM_PLATFORM}/*.cppm impl/platform/${BM_PLATFORM}/*.cpp)
+source_group(Platform FILES ${BM_PLATFORM_FILES})
 
-# Module group
-source_group(Graphic FILES ${BM_MODULES})
 
 
 #------------------------------------------------#

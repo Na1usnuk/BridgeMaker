@@ -16,7 +16,7 @@ struct ProgramSource;
 struct Cache;
 public:
 
-	Shader(std::string_view);
+	Shader(const std::filesystem::path& filepath);
 	~Shader();
 
 	Shader(const Shader&) = delete;
@@ -40,14 +40,15 @@ private:
 
 	int getUniformLocation(std::string_view);
 	unsigned int compileShader(unsigned int, std::string_view);
-	ProgramSource parseShader(std::string_view);
+	ProgramSource parseShader(const std::filesystem::path&);
 	unsigned int createProgram(std::string_view, std::string_view);
 
 private:
 
 	unsigned int m_id = 0;
-	std::string m_filepath;
+	std::filesystem::path m_filepath;
 	std::unique_ptr<Cache> m_cache;
+
 };
 
 }

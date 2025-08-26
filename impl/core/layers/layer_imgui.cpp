@@ -112,7 +112,7 @@ bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
 {
 	if (gfx::Context::getCurrent() != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
-	io.MouseDown[e.getMouseButton()] = false;
+	io.MouseDown[static_cast<int>(e.getMouseButton())] = false;
 
 	return ImGui::IsAnyItemHovered();
 }
@@ -121,7 +121,7 @@ bool ImGuiLayer::onMousePress(bm::MouseButtonPressedEvent& e)
 {
 	if (gfx::Context::getCurrent() != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
-	io.MouseDown[e.getMouseButton()] = true;
+	io.MouseDown[static_cast<int>(e.getMouseButton())] = true;
 
 	return ImGui::IsAnyItemHovered();
 }

@@ -39,7 +39,6 @@ namespace core
 	export template<bool condition = false>
 		void verify(std::string_view msg = {}) { verify(condition, msg); }
 
-
 	export template<bool condition = false>
 		void assert(/*std::string_view msg = {}*/) //waits for C++26
 	{

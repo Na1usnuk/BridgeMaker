@@ -1,9 +1,3 @@
-module;
-
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_glfw.h"
-
 export module bm.layer.imgui;
 
 import std;
@@ -11,6 +5,12 @@ import std;
 import bm.layer.base;
 import bm.event;
 import bm.window;
+
+export import "imgui.h";
+export import "imgui_impl_opengl3.h";
+export import "imgui_impl_glfw.h";
+
+
 
 namespace bm {
 

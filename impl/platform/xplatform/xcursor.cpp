@@ -8,6 +8,7 @@ import bm.window;
 import bm.log;
 
 import bm.input;
+import bm.gfx.context;
 
 namespace bm 
 {
@@ -17,7 +18,7 @@ unsigned int Cursor::m_ref_count = 0;
 
 void Cursor::setCursor(Type type)
 {
-    glfwSetCursor(Input::getCurrentWindow()->getNativeWindow(), m_cursors[type]);
+    glfwSetCursor(gfx::Context::getCurrent()->getNativeWindow(), m_cursors[type]);
 }
 
 void Cursor::init()

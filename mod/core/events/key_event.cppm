@@ -3,6 +3,7 @@ export module bm.event.key;
 import std;
 import bm.config;
 import bm.event.base;
+import bm.input;
 
 export namespace bm
 {
@@ -11,15 +12,15 @@ class  KeyEvent : public Event
 {
 public:
 
-	int getKeyCode() const { return m_keyCode; }
+	Input::Key getKeyCode() const { return m_keyCode; }
 
 	int getCategoryFlags() const override { return Category::Keyboard | Category::Input; }
 
 protected:
 
-	KeyEvent(int keyCode) : m_keyCode(keyCode) {}
+	KeyEvent(int keyCode) : m_keyCode(static_cast<Input::Key>(keyCode)) {}
 
-	int m_keyCode;
+	Input::Key m_keyCode;
 };
 
 
@@ -38,7 +39,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << m_keyCode << " (" << m_repeatCount << " repeats)";
+			ss << "KeyPressedEvent: " << static_cast<int>(m_keyCode) << " (" << m_repeatCount << " repeats)";
 			return ss.str();
 		}
 		else
@@ -75,7 +76,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << m_keyCode;
+			ss << "KeyReleasedEvent: " << static_cast<int>(m_keyCode);
 			return ss.str();
 		}
 		else

@@ -12,6 +12,14 @@ import std;
 namespace bm::gfx 
 {
 
+export template<typename Container>
+concept BufferConcept = requires (Container c)
+{
+	{ c.data() } -> std::convertible_to<const void*>;
+	{ c.size() } -> std::convertible_to<std::size_t>;
+	typename Container::value_type;
+};
+
 void glClearError()
 {
 	if constexpr (::bm::config::is_debug)

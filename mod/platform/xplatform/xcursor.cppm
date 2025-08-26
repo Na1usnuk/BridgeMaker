@@ -34,7 +34,7 @@ public:
 
 public:
 
-	static void setCursor(Type type);
+	static void setCursor(Type type = Type::Arrow);
 
 	static void destroy();
 	static void init();
