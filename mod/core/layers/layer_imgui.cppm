@@ -1,25 +1,21 @@
-#pragma once 
+module;
 
-#include "core/core.hpp"
-#include "core/layer.hpp"
 #include "imgui.h"
-#include "core/events/event.hpp"
-#include "core/events/app_event.hpp"
-#include "core/events/mouse_event.hpp"
-#include "core/events/key_event.hpp"
-
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 
+export module bm.layer.imgui;
 
-#include <vector>
-#include <utility>
-#include <functional>
+import std;
+
+import bm.layer.base;
+import bm.event;
+import bm.window;
 
 namespace bm {
 
 
-class ImGuiWindowRegistry
+export class ImGuiWindowRegistry
 {
 public:
 
@@ -43,7 +39,7 @@ private:
 	data_t m_window_queue;
 };
 
-class ImGuiLayer : public Layer
+export class ImGuiLayer : public Layer
 {
 public:
 

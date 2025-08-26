@@ -1,9 +1,5 @@
 module;
 
-#include "events/app_event.hpp"
-#include "events/key_event.hpp"
-#include "events/mouse_event.hpp"
-
 #include "GLFW/glfw3.h"
 
 module bm.window;
@@ -12,6 +8,8 @@ import bm.log;
 import bm.gfx.context;
 import bm.cursor;
 import bm.input;
+import bm.assert;
+import bm.event;
 
 namespace bm 
 {
@@ -19,15 +17,17 @@ namespace bm
 static bool s_isGLFWInitialized = false;
 
 
-Window::Window(const Data& data, bool decorated, bool visible)
+Window::Window(std::string_view v, int w, int h, bool vs, bool decorated, bool visible)
+	: m_data( v, w, h, vs )
 {
-	create(data, decorated, visible);
+	create(decorated, visible);
 }
 
 Window::~Window()
 {
 	destroy();
 }
+
 
 void Window::destroy()
 {
@@ -150,9 +150,8 @@ bool Window::isOpen() const
 	return !glfwWindowShouldClose(m_window) && (m_window != nullptr);
 }
 
-void Window::create(const Data& data, bool decorated, bool visible)
+void Window::create(bool decorated, bool visible)
 {
-	m_data = data;
 
 	log::core::info("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
 
@@ -167,16 +166,14 @@ void Window::create(const Data& data, bool decorated, bool visible)
 		s_isGLFWInitialized = true;
 	}
 
-	gfx::Context& ctx = gfx::Context::getContext();
-
 	glfwWindowHint(GLFW_DECORATED, (int)decorated);
 	glfwWindowHint(GLFW_VISIBLE, (int)visible);
 
-	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, ctx.shareContext());
+	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::shareContext());
 	core::verify(m_window, "Failed to create window");
 
-	ctx.makeCurrent(this);
-	ctx.init();
+	gfx::Context::makeCurrent(this);
+	gfx::Context::init();
 	Cursor::init();
 	setVSync(m_data.vsync);
 	setGLFWPointer();
@@ -199,7 +196,6 @@ void Window::setKeyCallback()
 			case GLFW_PRESS:
 			{
 				KeyPressedEvent e(key, 0);
-				e.setWindow(data->window);
 				data->callback(e);
 				data->last_key.key = key;
 				data->last_key.repeat_count = 0;
@@ -208,7 +204,6 @@ void Window::setKeyCallback()
 			case GLFW_RELEASE:
 			{
 				KeyReleasedEvent e(key);
-				e.setWindow(data->window);
 				data->callback(e);
 				if (key == data->last_key.key)
 					data->last_key.repeat_count = 0;
@@ -220,7 +215,6 @@ void Window::setKeyCallback()
 				{
 					data->last_key.repeat_count++;
 					KeyPressedEvent e(key, data->last_key.repeat_count);
-					e.setWindow(data->window);
 					data->callback(e);
 				}
 				return;
@@ -239,14 +233,12 @@ void Window::setMuoseButtonCallback()
 			case GLFW_PRESS:
 			{
 				MouseButtonPressedEvent e(button);
-				e.setWindow(data->window);
 				data->callback(e);
 				return;
 			}
 			case GLFW_RELEASE:
 			{
 				MouseButtonReleasedEvent e(button);
-				e.setWindow(data->window);
 				data->callback(e);
 				return;
 			}
@@ -260,7 +252,6 @@ void Window::setResizeCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowResizeEvent e(width, height);
-			e.setWindow(data->window);
 			data->callback(e);
 		});
 }
@@ -282,7 +273,6 @@ void Window::setMouseMoveCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			MouseMoveEvent e(x, y);
-			e.setWindow(data->window);
 			Input::setMousePos({ (float)x, (float)y });
 			//log::core::info("Mouse position X:{0} Y:{1}", x, y);
 			data->callback(e);
@@ -300,7 +290,6 @@ void Window::setPosCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowMoveEvent e(x, y);
-			e.setWindow(data->window);
 			data->callback(e);
 		});
 }
@@ -311,7 +300,6 @@ void Window::setCloseCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowCloseEvent e;
-			e.setWindow(data->window);
 			data->callback(e);
 		});
 }

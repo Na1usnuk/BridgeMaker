@@ -1,22 +1,31 @@
-#pragma once 
+export module bm.layer.base;
 
-#include "core.hpp"
-#include "events/event.hpp"
+import std;
 
-#include <string>
-#include <string_view>
+import bm.config;
+import bm.window;
+import bm.event.base;
 
 namespace bm {
 
 
-class Layer
+export class Layer
 {
 public:
 
-	BM_DEBUG_CODE(
-		Layer(std::string_view name) : m_name(name) {}
-		const std::string getName() const { return m_name; }
-	)
+	Layer(std::string_view name) 
+	{
+		if constexpr (config::is_debug)
+			m_debug_name = name;
+	}
+	const std::string getName() const 
+	{ 
+		if constexpr (config::is_debug)
+			return m_name;
+		else
+			return {};
+	}
+
 
 	Layer() = default;
 	Layer(const Layer&) = delete;
@@ -28,7 +37,7 @@ public:
 
 	bool isEnabled() const { return m_enabled; }
 	void enable(bool enable = true) { m_enabled = enable; }
-	void disable(bool disable = true) { enable(!disable); }
+	void disable(bool disable = true) { enable(not disable); }
 
 	virtual void onAttach() = 0;
 	virtual void onDetach() = 0;
@@ -41,9 +50,9 @@ private:
 
 	bool m_enabled = true;
 
-	BM_DEBUG_CODE(
-		std::string m_name;
-	)
+	std::string m_name;
+	std::conditional<config::is_debug, std::string, std::monostate>::type m_debug_name;
+
 };
 
 

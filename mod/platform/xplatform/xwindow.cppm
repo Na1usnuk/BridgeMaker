@@ -1,8 +1,6 @@
 module;
 
 #include "../deps/stb/stb_image.h"
-#include "events/event.hpp"
-
 #include "GLFW/glfw3.h"
 
 export module bm.window;
@@ -12,6 +10,7 @@ import std;
 
 import bm.log;
 import bm.assert;
+import bm.event.base;
 
 
 namespace bm {
@@ -36,15 +35,14 @@ export class Window
 public:
 
 	using NativeWindowPtr = GLFWwindow*;
-	using EventCallbackFn = std::function<void(Event&)>;
 	using Icon = ::bm::Icon;
 	struct Data
 	{
-		Data(std::string_view t = "BridgeMaker APP", int w = 1280, int h = 720, bool vs = false) : title(t), width(w), height(h), vsync(vs) {}
+		Data(std::string_view t, int w, int h, bool vs) : title(t), width(w), height(h), vsync(vs) {}
 		std::string title;
 		int width, height;
 		bool vsync;
-		EventCallbackFn callback;
+		::bm::Event::EventCallbackFn callback;
 		Window* window = nullptr;
 
 		struct
@@ -53,6 +51,7 @@ public:
 			int repeat_count;
 		}last_key;
 	};
+
 
 
 public:
@@ -64,29 +63,30 @@ public:
 
 	bool operator==(const Window& oth) const { return m_window == oth.m_window; }
 
-	Window(std::string_view v, int w, int h, bool vs = false, bool decorated = true, bool visible = true) : Window(Data{v, w, h, vs}, decorated, visible) {}
-	Window(const Data& data = Data{}, bool decorated = true, bool visible = true);
+	Window(std::string_view v = "Bridge Maker App", int w = 1280, int h = 720, bool vs = false, bool decorated = true, bool visible = true);
 	~Window();
 
 	void onUpdate();
 
-	int		            getWidth() const  { return m_data.width; }
-	int		            getHeight() const  { return m_data.height; }
-	bool				getVSync() const  { return m_data.vsync; };
-	NativeWindowPtr		getNativeWindow() const { return m_window; }
 	std::pair<int, int> getPosition() const;
 	std::pair<int, int> getFramebufferSize() const;
 	std::pair<int, int> getSize() const;
 	std::pair<int, int> getFramebufferPosition() const;
-	std::string			getTitle() const { return m_data.title; }
+	std::string	        getTitle() const { return m_data.title; }
+	int                 getWidth() const { return m_data.width; }
+	int	                getHeight() const { return m_data.height; }
+	bool                getVSync() const { return m_data.vsync; };
+	NativeWindowPtr     getNativeWindow() const { return m_window; }
 
 	void setVSync(bool enabled);
-	void setEventCallback(EventCallbackFn fn) { m_data.callback = fn; }
 	void setTitle(std::string_view title);
 	void setIcon(Icon icon);
 	void setSize(int width, int height);
 	void setOpacity(float opacity = 1.f);
 	void setPosition(int x, int y);
+	void setEventCallback(::bm::Event::EventCallbackFn fn) { m_data.callback = fn; }
+
+
 	
 	void resize(int width, int height);
 	void hide();
@@ -98,11 +98,9 @@ public:
 
 	static void onFocus(NativeWindowPtr window, int focused);
 
-	Window* getSelf() { return m_self; }
-
 private:
 
-	void create(const Data& props, bool decorated, bool visible);
+	void create(bool decorated, bool visible);
 	void setGLFWPointer();
 	void setKeyCallback();
 	void setMuoseButtonCallback();
@@ -116,7 +114,6 @@ private:
 private:
 
 	GLFWwindow* m_window;
-	Window* m_self;
 	Data m_data;
 };
 

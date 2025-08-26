@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Will try to get rid of it and fully use c++20 modules in future
-set(PCH_HEADER ${BridgeMaker_SOURCE_DIR}/include/pch.hpp)
+#set(PCH_HEADER ${BridgeMaker_SOURCE_DIR}/include/pch.hpp)
 
 # For now i only interested in debug configuration
 set(BM_CONFIG debug)
@@ -193,7 +193,7 @@ source_group(Graphic FILES ${BM_MODULES})
 
 add_library(BridgeMaker)
 
-target_precompile_headers(BridgeMaker PUBLIC ${PCH_HEADER})
+#target_precompile_headers(BridgeMaker PUBLIC ${PCH_HEADER})
 
 target_sources(BridgeMaker
 	PRIVATE

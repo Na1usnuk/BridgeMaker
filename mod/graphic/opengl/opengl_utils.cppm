@@ -1,6 +1,5 @@
 module;
 
-#include "core/core.hpp"
 #include "glad/glad.h"
 
 export module bm.gfx.utility;

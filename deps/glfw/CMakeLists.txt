@@ -96,18 +96,11 @@ write_basic_package_version_file(src/glfw3ConfigVersion.cmake
 #--------------------------------------------------------------------
 add_subdirectory(src)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7948dbe8c9e26865f7c504c25b1856acec028fb8
 if (GLFW_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 7948dbe8c9e26865f7c504c25b1856acec028fb8
 #--------------------------------------------------------------------
 # Install files other than the library
 # The library is installed by src/CMakeLists.txt

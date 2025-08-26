@@ -8,6 +8,8 @@ import bm.window;
 
 namespace bm {
 
+Window* Input::s_window = nullptr;
+
 bool Input::isPressed(Key key)
 {
 	return isPressedImpl(*s_window, static_cast<int>(key));

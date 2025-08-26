@@ -14,7 +14,13 @@ import bm.assert;
 namespace bm::gfx
 {
 
-struct shaderProgramSource
+
+struct Shader::Cache
+{
+		std::unordered_map<std::string, int> uniform;
+};
+
+struct Shader::ProgramSource
 {
 	std::string vertexSource;
 	std::string fragmentSource;
@@ -23,7 +29,7 @@ struct shaderProgramSource
 Shader::Shader(std::string_view filepath)
     :  m_filepath(filepath)
 {
-	shaderProgramSource src = parseShader(filepath);
+	ProgramSource src = parseShader(filepath);
 	m_id = createProgram(src.vertexSource, src.fragmentSource);
 }
 
@@ -38,7 +44,7 @@ Shader::Shader(Shader&& oth) noexcept
 		return;
 	m_id = oth.m_id;
 	m_filepath = std::move(oth.m_filepath);
-	m_uniform_cache = std::move(oth.m_uniform_cache);
+	m_cache = std::move(oth.m_cache);
 	oth.m_id = 0;
 }
 
@@ -48,7 +54,7 @@ Shader& Shader::operator=(Shader&& oth) noexcept
 		return *this;
 	m_id = oth.m_id;
 	m_filepath = std::move(oth.m_filepath);
-	m_uniform_cache = std::move(oth.m_uniform_cache);
+	m_cache = std::move(oth.m_cache);
 	oth.m_id = 0;
 	return *this;
 }
@@ -101,8 +107,8 @@ void Shader::setUniform(std::string_view name, const glm::mat4& mat)
 
 int Shader::getUniformLocation(std::string_view name)
 {
-	if (m_uniform_cache.contains(name.data()))
-		return m_uniform_cache[name.data()];
+	if (m_cache->uniform.contains(name.data()))
+		return m_cache->uniform[name.data()];
 	else
 	{
 		int location = glCall(glGetUniformLocation, m_id, name.data());
@@ -111,7 +117,7 @@ int Shader::getUniformLocation(std::string_view name)
 			log::core::warning("Uniform \"{0}\" doesn`t exist!", name);
 			return -1;
 		}
-		m_uniform_cache[name.data()] = location;
+		m_cache->uniform[name.data()] = location;
 		return location;
 	}
 }
@@ -155,7 +161,7 @@ unsigned int Shader::createProgram(std::string_view vertexShader, std::string_vi
 	return prog;
 }
 
-shaderProgramSource Shader::parseShader(std::string_view filepath)
+Shader::ProgramSource Shader::parseShader(std::string_view filepath)
 {
 	std::ifstream stream(filepath.data());
 

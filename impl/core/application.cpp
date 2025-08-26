@@ -1,10 +1,8 @@
-#include "pch.hpp"
-#include "application.hpp"
+module bm.application;
 
-#include "events/app_event.hpp"
-#include "events/key_event.hpp"
-#include "events/mouse_event.hpp"
-
+import bm.event.base;
+import bm.event.app;
+import bm.window;
 import bm.log;
 
 namespace bm 
@@ -40,8 +38,7 @@ int Application::run(int argc, char** argv)
 		for (auto& w : m_windows)
 		{
 			AppRenderEvent e;
-			e.setWindow(&w);
-			m_ctx.makeCurrent(&w);
+			gfx::Context::makeCurrent(&w);
 
 			onUpdate();
 			for (auto& l : m_layers)
@@ -50,7 +47,7 @@ int Application::run(int argc, char** argv)
 
 			onEvent(e);
 
-			m_ctx.swapBuffers();
+			gfx::Context::swapBuffers();
 			w.onUpdate(); // poll events
 		}
 		if (m_close_window != nullptr)
@@ -60,7 +57,7 @@ int Application::run(int argc, char** argv)
 			continue;
 		}
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 void Application::closeWindow(Window* window)
@@ -71,7 +68,7 @@ void Application::closeWindow(Window* window)
 Window& Application::addWindow(std::string_view title, int width, int height, bool vsync, bool decorated, bool visible)
 {
 	m_windows.emplace_back(title, width, height, vsync, decorated, visible);
-	m_windows.back().setEventCallback(BM_BIND_EVENT_FN(Application::onEvent));
+	m_windows.back().setEventCallback(bindEventFunc(&Application::onEvent, this));
 	return m_windows.back();
 }
 

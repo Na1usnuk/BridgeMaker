@@ -1,11 +1,4 @@
-#pragma once
-
-#include "core.hpp"
-#include "events/event.hpp"
-#include "events/app_event.hpp"
-#include "events/key_event.hpp"
-#include "events/mouse_event.hpp"
-#include "layer_stack.hpp"
+export module bm.application;
 
 import std;
 
@@ -18,10 +11,16 @@ import bm.window;
 import bm.input;
 import bm.cursor;
 
+import bm.layer.stack;
+import bm.layer.base;
+
+import bm.event.base;
+
 namespace bm 
 {
 
-class Application
+
+export class Application
 {
 
 public:
@@ -41,7 +40,7 @@ public:
 	bool isMainWindow(Window* window) { return &m_windows.front() == window; }
 	//not actually destroy, just put in queue to destroy later (in end of frame)
 	void closeWindow(Window* window);
-	Window& addWindow(std::string_view title, int width, int height, bool vsync = false, bool decorated = true, bool visible = true);
+	Window& addWindow(std::string_view title = "Bridge Maker App", int width = 1280, int height = 720, bool vsync = false, bool decorated = true, bool visible = true);
 
 protected:
 
@@ -69,7 +68,6 @@ private:
 	gfx::Renderer m_renderer;
 	bool m_is_running = true;
 	Window* m_close_window = nullptr;
-	gfx::Context& m_ctx = gfx::Context::getContext();
 
 };
 

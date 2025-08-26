@@ -9,10 +9,11 @@ import std;
 namespace bm::gfx
 {
 
-struct shaderProgramSource;
 
 export class Shader
 {
+struct ProgramSource;
+struct Cache;
 public:
 
 	Shader(std::string_view);
@@ -39,14 +40,14 @@ private:
 
 	int getUniformLocation(std::string_view);
 	unsigned int compileShader(unsigned int, std::string_view);
-	shaderProgramSource parseShader(std::string_view);
+	ProgramSource parseShader(std::string_view);
 	unsigned int createProgram(std::string_view, std::string_view);
 
 private:
 
 	unsigned int m_id = 0;
 	std::string m_filepath;
-	std::unordered_map<std::string, int> m_uniform_cache;
+	std::unique_ptr<Cache> m_cache;
 };
 
 }

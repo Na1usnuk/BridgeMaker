@@ -18,22 +18,16 @@ public:
 
 public:
 
-	void init();
-	void destroy();
-	void makeCurrent(Window* window);
-	Window* getCurrent();
-	void swapBuffers() const;
-	NativeWindow shareContext() const;
-
-	static Context& getContext();
+	static void init();
+	static void destroy();
+	static void makeCurrent(Window* window);
+	static Window* getCurrent();
+	static void swapBuffers();
+	static NativeWindow shareContext();
 
 private:
 
-	Context()
-	{
-	}
-
-	Window* m_window = nullptr;
+	static Window* s_window;
 
 };
 
