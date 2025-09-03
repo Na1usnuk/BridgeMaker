@@ -19,7 +19,7 @@ namespace bm
 					log::core::fatal("Core verify failed [file: {0}; function: {1}; line: {2}] {3}", file, function, line, msg)
 				  : log::fatal("Verify failed [File: {0}; Function: {1}; Line: {2}] {3}", file, function, line, msg);
 
-				if (true/*std::is_debugger_present()*/) // waiting for C++26 debugging
+				if (true/*std::is_debugger_present()*/) // waiting for C++26 debugging header
 					/*std::breakpoint();*/
 					__debugbreak(); 
 				else

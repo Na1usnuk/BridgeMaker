@@ -8,6 +8,7 @@ import bm.gfx.renderer;
 import bm.gfx.context;
 
 import bm.window;
+import bm.window.manager;
 import bm.input;
 import bm.cursor;
 
@@ -20,6 +21,7 @@ namespace bm
 {
 
 	export Window* getCurrentWindow() { return gfx::Context::getCurrent(); }
+
 
 export class Application
 {
