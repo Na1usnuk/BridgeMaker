@@ -23,7 +23,7 @@ struct WindowTraits<MultiWindowManager>
 	using WindowPtr = std::unique_ptr<Window>;
 	using WindowConstPtr = std::unique_ptr<const Window>;
 	using WindowRef = Window&;
-	using NativeWindowPtr = Window::NativeWindowPtr;
+	using NativeWindow = Window::NativeWindow;
 	using WindowContainer = std::vector<WindowPtr>;
 	using WindowIterator = WindowContainer::iterator;
 	using WindowConstIterator = WindowContainer::const_iterator;
@@ -35,7 +35,7 @@ struct WindowTraits<SingleWindowManager>
 	using WindowPtr = std::unique_ptr<Window>;
 	using WindowConstPtr = std::unique_ptr<const Window>;
 	using WindowRef = Window&;
-	using NativeWindowPtr = Window::NativeWindowPtr;
+	using NativeWindow = Window::NativeWindow;
 	using WindowContainer = std::array<WindowPtr, 1>;
 	using WindowIterator = WindowContainer::iterator;
 	using WindowConstIterator = WindowContainer::const_iterator;
@@ -69,16 +69,18 @@ public:
 		m_current_window = it;
 	}
 
-	void openWindow(std::string_view title = "Bridge Maker App", int width = 1280, int height = 720, bool vsync = false, bool decorated = true, bool visible = true)
+	Window& open(std::string_view title, int width, int height, bool vsync, bool decorated, bool visible, gfx::Context& ctx)
 	{
-		m_windows.emplace_back(std::make_unique<Window>(title, width, height, vsync, decorated, visible));
+		m_windows.emplace_back(std::make_unique<Window>(title, width, height, vsync, decorated, visible, ctx));
 		if (m_current_window == m_windows.end()) m_current_window = m_windows.begin();
+		return *m_windows.back();
 	}
 
-	void closeWindow(Traits::WindowRef window)
+	void close(Traits::WindowRef window)
 	{
 		auto it = std::find_if(m_windows.begin(), m_windows.end(), [&window](const Traits::WindowPtr& win) { return &window == win.get(); });
 		core::verify(it != m_windows.end(), "Window that is about to be deleted does not exist!");
+		(*it)->close();
 		m_windows.erase(it);
 	}
 
@@ -108,10 +110,11 @@ public:
 	SingleWindowManager() : m_window({ nullptr }) {}
 
 	//close current window and create new one
-	void openWindow(std::string_view title = "Bridge Maker App", int width = 1280, int height = 720, bool vsync = false, bool decorated = true, bool visible = true)
+	Traits::WindowRef open(std::string_view title, int width, int height, bool vsync, bool decorated, bool visible, gfx::Context& ctx)
 	{
-		Traits::WindowPtr tmp = std::make_unique<Window>(title, width, height, vsync, decorated, visible);
+		Traits::WindowPtr tmp = std::make_unique<Window>(title, width, height, vsync, decorated, visible, ctx);
 		m_window.front().swap(tmp);
+		return *m_window.front();
 	}
 
 	Traits::WindowRef getCurrent() const
@@ -120,7 +123,7 @@ public:
 		return *m_window.front(); 
 	}
 
-	void closeWindow()
+	void close()
 	{
 
 	}

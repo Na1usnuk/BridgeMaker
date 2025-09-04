@@ -55,7 +55,7 @@ public:
 	ImGuiLayer(ImGuiWindowRegistry windows);
 	~ImGuiLayer();
 
-	void setCurrent(Window* window) override;
+	void setCurrent(Window& window) override;
 
 	void onUpdate() override;
 	void onEvent(Event& e) override;

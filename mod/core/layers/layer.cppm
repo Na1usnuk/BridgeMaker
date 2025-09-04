@@ -44,7 +44,7 @@ public:
 	virtual void onEvent(Event& e) = 0;
 	virtual void onUpdate() = 0;
 
-	virtual void setCurrent(Window* window) = 0; //set window to render on
+	virtual void setCurrent(Window& window) = 0; //set window to render on
 
 private:
 

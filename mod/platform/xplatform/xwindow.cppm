@@ -15,6 +15,11 @@ import bm.event.base;
 
 namespace bm {
 
+namespace gfx
+{
+		class Context;
+}
+
 export struct Icon
 {
 	Icon(std::string_view path) : width(0), height(0), pixels(nullptr)
@@ -34,25 +39,22 @@ export class Window
 {
 public:
 
-	using NativeWindowPtr = GLFWwindow*;
+	using NativeWindow = GLFWwindow*;
 	using Icon = ::bm::Icon;
 	struct Data
 	{
-		Data(std::string_view t, int w, int h, bool vs) : title(t), width(w), height(h), vsync(vs) {}
+		Data(std::string_view t, int w, int h, bool vs, gfx::Context& ctx) : title(t), width(w), height(h), vsync(vs), context(ctx) {}
 		std::string title;
 		int width, height;
 		bool vsync;
-		::bm::Event::EventCallbackFn callback;
-		Window* window = nullptr;
+		Event::EventCallbackFn callback;
+		gfx::Context& context;
 
 		struct
 		{
-			int key;
-			int repeat_count;
-		}last_key;
+			int key, repeat_count;
+		} last_key;
 	};
-
-
 
 public:
 
@@ -63,7 +65,7 @@ public:
 
 	bool operator==(const Window& oth) const { return m_window == oth.m_window; }
 
-	Window(std::string_view v = "Bridge Maker App", int w = 1280, int h = 720, bool vs = false, bool decorated = true, bool visible = true);
+	Window(std::string_view v, int w, int h, bool vs, bool decorated, bool visible, gfx::Context& ctx);
 	~Window();
 
 	void onUpdate();
@@ -76,7 +78,7 @@ public:
 	int                 getWidth() const { return m_data.width; }
 	int	                getHeight() const { return m_data.height; }
 	bool                getVSync() const { return m_data.vsync; };
-	NativeWindowPtr     getNativeWindow() const { return m_window; }
+	NativeWindow     getNativeWindow() const { return m_window; }
 
 	void setVSync(bool enabled);
 	void setTitle(std::string_view title);
@@ -84,7 +86,7 @@ public:
 	void setSize(int width, int height);
 	void setOpacity(float opacity = 1.f);
 	void setPosition(int x, int y);
-	void setEventCallback(::bm::Event::EventCallbackFn fn) { m_data.callback = fn; }
+	void setEventCallback(Event::EventCallbackFn fn) { m_data.callback = fn; }
 
 
 	
@@ -95,8 +97,6 @@ public:
 	bool isOpen() const;
 	void close();
 	void destroy();
-
-	static void onFocus(NativeWindowPtr window, int focused);
 
 private:
 
@@ -117,5 +117,32 @@ private:
 	Data m_data;
 };
 
+
+namespace gfx
+{
+	//window`s graphic context
+	export class Context
+	{
+	public:
+
+		Context() : m_window(nullptr) {}
+
+		void init();
+		void destroy();
+		void makeCurrent(Window& window);
+		Window& getCurrent();
+		void swapBuffers();
+		Window::NativeWindow shareContext();
+
+		static Context& getContext();
+
+	private:
+
+		Window* m_window;
+
+		static Context s_ctx_inst;
+
+	};
+}
 
 }

@@ -16,14 +16,15 @@ import bm.layer.stack;
 import bm.layer.base;
 
 import bm.event.base;
+import bm.event.app;
+
+import bm.taskqueue;
 
 namespace bm 
 {
 
-	export Window* getCurrentWindow() { return gfx::Context::getCurrent(); }
-
-
-export class Application
+export template<typename WinManager = SingleWindowManager>
+class Application
 {
 
 public:
@@ -38,22 +39,34 @@ public:
 	}
 
 	gfx::Renderer& getRenderer() { return m_renderer; }
-	std::list<Window>& getWindows() { return m_windows; }
+	//std::list<Window>& getWindows() { return m_windows; }
+	
 	//Main window is window that was added first
-	bool isMainWindow(Window* window = nullptr) 
+	bool isMainWindow() 
 	{ 
-		if (window == nullptr)
-			window = gfx::Context::getCurrent();
-		return &m_windows.front() == window; 
+		return isMainWindow(m_window_manager.getCurrent()); 
 	}
+
+	bool isMainWindow(Window& window) 
+	{ 
+		return *m_window_manager.begin() == window; 
+	}
+
 	//not actually destroy, just put in queue to destroy later (in end of frame)
-	void closeWindow(Window* window);
-	Window& addWindow(std::string_view title = "Bridge Maker App", int width = 1280, int height = 720, bool vsync = false, bool decorated = true, bool visible = true);
+	void closeWindow(Window& window)
+	{
+		m_end_of_frame_tasks.push([&window]() { m_window_manager.close(window); });
+	}
+
+	Window& openWindow(std::string_view title = "Bridge Maker App", int width = 1280, int height = 720, bool vsync = false, bool decorated = true, bool visible = true)
+	{
+		return m_window_manager.open(title, width, height, vsync, decorated, visible, m_ctx);
+	}
 
 protected:
 
-	Application();
-	virtual ~Application();
+	Application() : m_is_running(true), m_ctx(gfx::Context::getContext()) {}
+	virtual ~Application() {};
 
 	virtual void onUpdate() = 0;
 	virtual void onEvent(Event&) = 0;
@@ -62,22 +75,63 @@ protected:
 	void pushLayer(LayerStack::ptr_t layer) { m_layers.pushLayer(layer); }
 	void pushOverlay(LayerStack::ptr_t overlay) { m_layers.pushOverlay(overlay); }
 
+	void registerEndOfFrameTask(TaskQueue::Task&& task) { m_end_of_frame_tasks.push(std::forward<TaskQueue::Task>(task)); }
+
 	void close() { m_is_running = false; }
 	bool isOpen() { return m_is_running; }
 
 private:
 
-
-	//actually destroy window
-	void _closeWindow(Window* window);
+	gfx::Renderer m_renderer;
+	gfx::Context& m_ctx;
 
 	LayerStack m_layers;
-	std::list<Window> m_windows;
-	gfx::Renderer m_renderer;
-	bool m_is_running = true;
-	Window* m_close_window = nullptr;
-
+	WinManager m_window_manager;
+	TaskQueue m_end_of_frame_tasks;
+	bool m_is_running;
 };
+
+
+
+template<typename WinManager>
+void Application<WinManager>::onLayersEvent(Event& e)
+{
+	for (auto layer = m_layers.end(); layer > m_layers.begin();)
+	{
+		if (!(*--layer)->isEnabled()) continue;
+		(*layer)->onEvent(e);
+		if (e.isHandled())
+			break;
+	}
+}
+
+
+template<typename WinManager>
+int Application<WinManager>::run(int argc, char** argv)
+{
+	//processArgs(argc, argv);
+
+	while (m_is_running)
+	{
+		for (auto& w : m_window_manager)
+		{
+			AppRenderEvent e;
+			gfx::Context::makeCurrent(w);
+
+			onUpdate();
+			for (auto& l : m_layers)
+				if (l->isEnabled())
+					l->onUpdate();
+
+			onEvent(e);
+
+			gfx::Context::swapBuffers();
+			w.onUpdate(); // poll events
+		}
+		m_end_of_frame_tasks.execute();
+	}
+	return 0;
+}
 
 
 }

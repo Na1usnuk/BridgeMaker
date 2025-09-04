@@ -9,27 +9,29 @@ import bm.window;
 namespace bm::gfx
 {
 
-export class Context
-{
-
-public:
-
-	using NativeWindow = GLFWwindow*;
-
-public:
-
-	static void init();
-	static void destroy();
-	static void makeCurrent(Window* window);
-	static Window* getCurrent();
-	static void swapBuffers();
-	static NativeWindow shareContext();
-
-private:
-
-	static Window* s_window;
-
-};
+//export class Context
+//{
+//public:
+//
+//
+//	void init();
+//	void destroy();
+//	void makeCurrent(Window& window);
+//	Window& getCurrent();
+//	void swapBuffers();
+//	Window::NativeWindow shareContext();
+//
+//	static Context& getContext();
+//
+//private:
+//
+//	Context() : m_window(nullptr) {}
+//
+//	Window* m_window;
+//
+//	static Context s_ctx_inst;
+//
+//};
 
 
 }

@@ -1,11 +1,11 @@
 module;
 
+#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 module bm.window;
 
 import bm.log;
-import bm.gfx.context;
 import bm.cursor;
 import bm.input;
 import bm.assert;
@@ -17,8 +17,8 @@ namespace bm
 static bool s_isGLFWInitialized = false;
 
 
-Window::Window(std::string_view v, int w, int h, bool vs, bool decorated, bool visible)
-	: m_data( v, w, h, vs )
+Window::Window(std::string_view v, int w, int h, bool vs, bool decorated, bool visible, gfx::Context& ctx)
+	: m_data( v, w, h, vs, ctx )
 {
 	create(decorated, visible);
 }
@@ -37,14 +37,14 @@ void Window::destroy()
 	log::core::trace("Window \"{0}\" is destroyed", m_data.title);
 }
 
-void Window::onFocus(NativeWindowPtr window, int focused)
-{
-	if (focused)
-	{
-		Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-		Input::setCurrentWindow(data->window);
-	}
-}
+//void Window::onFocus(NativeWindowPtr window, int focused)
+//{
+//	//if (focused)
+//	//{
+//	//	Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+//	//	Input::setCurrentWindow(data->window);
+//	//}
+//}
 
 
 void Window::onUpdate()
@@ -166,14 +166,14 @@ void Window::create(bool decorated, bool visible)
 		s_isGLFWInitialized = true;
 	}
 
-	glfwWindowHint(GLFW_DECORATED, (int)decorated);
-	glfwWindowHint(GLFW_VISIBLE, (int)visible);
+	glfwWindowHint(GLFW_DECORATED, static_cast<int>(decorated));
+	glfwWindowHint(GLFW_VISIBLE, static_cast<int>(visible));
 
-	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::shareContext());
+	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, m_data.context.shareContext());
 	core::verify(m_window, "Failed to create window");
 
-	gfx::Context::makeCurrent(this);
-	gfx::Context::init();
+	m_data.context.makeCurrent(*this);
+	m_data.context.init();
 	Cursor::init();
 	setVSync(m_data.vsync);
 	setGLFWPointer();
@@ -281,7 +281,7 @@ void Window::setMouseMoveCallback()
 
 void Window::setWindowFocusCallback()
 {
-	glfwSetWindowFocusCallback(m_window, &onFocus);
+	//glfwSetWindowFocusCallback(m_window, &onFocus);
 }
 
 void Window::setPosCallback()
@@ -302,6 +302,62 @@ void Window::setCloseCallback()
 			WindowCloseEvent e;
 			data->callback(e);
 		});
+}
+
+
+
+namespace gfx
+{
+
+	Context Context::s_ctx_inst{};
+
+
+	Context& Context::getContext()
+	{
+		return s_ctx_inst;
+	}
+
+	//initialize Glad context
+	void Context::init()
+	{
+		auto status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		core::verify(status, "Failed to initialize Glad");
+		log::core::info("Glad initialized");
+	}
+
+	void Context::makeCurrent(Window& window)
+	{
+		if (m_window == &window)
+			return;
+		m_window = &window;
+		glfwMakeContextCurrent(m_window->getNativeWindow());
+	}
+
+	Window& Context::getCurrent()
+	{
+		core::verify(m_window != nullptr, "Current context is invalid");
+		return *m_window;
+	}
+
+	void Context::destroy()
+	{
+		glfwTerminate();
+	}
+
+	void Context::swapBuffers()
+	{
+		core::verify(m_window != nullptr, "Current context is invalid");
+		glfwSwapBuffers(m_window->getNativeWindow());
+	}
+
+	//share context with other window
+	Window::NativeWindow Context::shareContext()
+	{
+		if (m_window != nullptr)
+			return m_window->getNativeWindow();
+		return nullptr;
+	}
+
 }
 
 }
