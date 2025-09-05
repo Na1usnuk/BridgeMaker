@@ -37,14 +37,14 @@ void Window::destroy()
 	log::core::trace("Window \"{0}\" is destroyed", m_data.title);
 }
 
-//void Window::onFocus(NativeWindowPtr window, int focused)
-//{
-//	//if (focused)
-//	//{
-//	//	Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-//	//	Input::setCurrentWindow(data->window);
-//	//}
-//}
+void onFocus(Window::NativeWindow window, int focused)
+{
+	if (focused)
+	{
+		Window::Data* data = static_cast<Window::Data*>(glfwGetWindowUserPointer(window));
+		Input::setCurrentWindow(data->window);
+	}
+}
 
 
 void Window::onUpdate()
@@ -108,7 +108,6 @@ void Window::resize(int width, int height)
 {
 	m_data.height = height;
 	m_data.width = width;
-	//BM_TRACE("Window \"{0}\" is resized to {1}x{2}", m_data.title, m_data.width, m_data.height);
 }
 
 void Window::hide()
@@ -153,7 +152,7 @@ bool Window::isOpen() const
 void Window::create(bool decorated, bool visible)
 {
 
-	log::core::info("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
+	log::core::trace("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
 
 	if (!s_isGLFWInitialized)
 	{
@@ -172,12 +171,16 @@ void Window::create(bool decorated, bool visible)
 	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, m_data.context.shareContext());
 	core::verify(m_window, "Failed to create window");
 
+
 	m_data.context.makeCurrent(*this);
 	m_data.context.init();
 	Cursor::init();
 	setVSync(m_data.vsync);
 	setGLFWPointer();
 	setAllCallbacks();
+
+	m_data.window = this;
+	onFocus(m_window, GLFW_TRUE);
 }
 
 void Window::setGLFWPointer()
@@ -196,6 +199,7 @@ void Window::setKeyCallback()
 			case GLFW_PRESS:
 			{
 				KeyPressedEvent e(key, 0);
+				e.setWindow((void*)data->window);
 				data->callback(e);
 				data->last_key.key = key;
 				data->last_key.repeat_count = 0;
@@ -204,6 +208,7 @@ void Window::setKeyCallback()
 			case GLFW_RELEASE:
 			{
 				KeyReleasedEvent e(key);
+				e.setWindow((void*)data->window);
 				data->callback(e);
 				if (key == data->last_key.key)
 					data->last_key.repeat_count = 0;
@@ -215,6 +220,7 @@ void Window::setKeyCallback()
 				{
 					data->last_key.repeat_count++;
 					KeyPressedEvent e(key, data->last_key.repeat_count);
+					e.setWindow((void*)data->window);
 					data->callback(e);
 				}
 				return;
@@ -233,12 +239,14 @@ void Window::setMuoseButtonCallback()
 			case GLFW_PRESS:
 			{
 				MouseButtonPressedEvent e(button);
+				e.setWindow((void*)data->window);
 				data->callback(e);
 				return;
 			}
 			case GLFW_RELEASE:
 			{
 				MouseButtonReleasedEvent e(button);
+				e.setWindow((void*)data->window);
 				data->callback(e);
 				return;
 			}
@@ -252,6 +260,7 @@ void Window::setResizeCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowResizeEvent e(width, height);
+			e.setWindow((void*)data->window);
 			data->callback(e);
 		});
 }
@@ -273,15 +282,15 @@ void Window::setMouseMoveCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			MouseMoveEvent e(x, y);
+			e.setWindow((void*)data->window);
 			Input::setMousePos({ (float)x, (float)y });
-			//log::core::info("Mouse position X:{0} Y:{1}", x, y);
 			data->callback(e);
 		});
 }
 
 void Window::setWindowFocusCallback()
 {
-	//glfwSetWindowFocusCallback(m_window, &onFocus);
+	glfwSetWindowFocusCallback(m_window, &onFocus);
 }
 
 void Window::setPosCallback()
@@ -290,6 +299,7 @@ void Window::setPosCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowMoveEvent e(x, y);
+			e.setWindow((void*)data->window);
 			data->callback(e);
 		});
 }
@@ -300,6 +310,7 @@ void Window::setCloseCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowCloseEvent e;
+			e.setWindow((void*)data->window);
 			data->callback(e);
 		});
 }

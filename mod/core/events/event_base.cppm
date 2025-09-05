@@ -55,11 +55,16 @@ public:
 	bool isHandled() const { return m_handled; }
 
 
+	void setWindow(void* window) { m_source = window; }
+	void* getWindow() { return m_source; }
+
 protected:
 
 	friend class EventDispatcher;
 
 	bool m_handled = false;
+
+	void* m_source = nullptr;
 };
 
 template<typename T, typename INST>

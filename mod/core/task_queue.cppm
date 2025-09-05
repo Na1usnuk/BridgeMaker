@@ -9,7 +9,7 @@ export class TaskQueue
 {
 public:
 
-	using Task = std::function<void()>;
+	using Task = std::move_only_function<void()>;
 
 public:
 

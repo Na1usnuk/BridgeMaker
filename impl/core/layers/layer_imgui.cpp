@@ -8,7 +8,8 @@ module bm.layer.imgui;
 
 import bm.window;
 import bm.event;
-import bm.gfx.context;
+import bm.log;
+import bm.input;
 
 namespace bm {
 
@@ -34,7 +35,7 @@ void ImGuiLayer::onUpdate()
 
 bool ImGuiLayer::onRender(bm::AppRenderEvent& e)
 {
-	if (gfx::Context::getContext().getCurrent() != *m_window)
+	if (getEventWindow(e) != *m_window)
 		return false;
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -110,7 +111,7 @@ bool ImGuiLayer::onKeyRelease(bm::KeyReleasedEvent& e)
 
 bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
 {
-	if (&gfx::Context::getContext().getCurrent() != m_window) return false;
+	if (&getEventWindow(e) != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseDown[static_cast<int>(e.getMouseButton())] = false;
 
@@ -119,7 +120,7 @@ bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
 
 bool ImGuiLayer::onMousePress(bm::MouseButtonPressedEvent& e)
 {
-	if (&gfx::Context::getContext().getCurrent() != m_window) return false;
+	if (&getEventWindow(e) != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseDown[static_cast<int>(e.getMouseButton())] = true;
 
@@ -128,7 +129,7 @@ bool ImGuiLayer::onMousePress(bm::MouseButtonPressedEvent& e)
 
 bool ImGuiLayer::onMouseMove(bm::MouseMoveEvent& e)
 {
-	if (&gfx::Context::getContext().getCurrent() != m_window) return false;
+	if (&getEventWindow(e) != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = ImVec2(e.getX(), e.getY());
 

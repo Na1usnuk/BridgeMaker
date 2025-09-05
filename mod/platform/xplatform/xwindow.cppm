@@ -17,7 +17,7 @@ namespace bm {
 
 namespace gfx
 {
-		class Context;
+class Context;
 }
 
 export struct Icon
@@ -35,6 +35,7 @@ export struct Icon
 	unsigned char* pixels;
 };
 
+
 export class Window
 {
 public:
@@ -49,6 +50,7 @@ public:
 		bool vsync;
 		Event::EventCallbackFn callback;
 		gfx::Context& context;
+		Window* window = nullptr;
 
 		struct
 		{
@@ -87,8 +89,6 @@ public:
 	void setOpacity(float opacity = 1.f);
 	void setPosition(int x, int y);
 	void setEventCallback(Event::EventCallbackFn fn) { m_data.callback = fn; }
-
-
 	
 	void resize(int width, int height);
 	void hide();
@@ -116,6 +116,12 @@ private:
 	GLFWwindow* m_window;
 	Data m_data;
 };
+
+
+export Window& getEventWindow(Event& e)
+{
+	return *static_cast<Window*>(e.getWindow());
+}
 
 
 namespace gfx

@@ -6,7 +6,6 @@ export import bm.gfx.buffer.vertex;
 export import bm.gfx.vertexarray;
 export import bm.gfx.renderer;
 export import bm.gfx.utility;
-export import bm.gfx.context;
 
 import std;
 

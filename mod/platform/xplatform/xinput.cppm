@@ -34,6 +34,8 @@ private:
 
 	static Window* s_window;
 
+	static std::pair<float, float> s_mouse_pos;
+
 };
 
 //from glfw3.h

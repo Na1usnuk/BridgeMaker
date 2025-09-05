@@ -9,7 +9,6 @@ import bm.gfx.buffer.index;
 import bm.gfx.buffer.vertex;
 import bm.gfx.vertexarray;
 import bm.gfx.shader;
-import bm.gfx.context;
 
 import bm.window;
 

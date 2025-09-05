@@ -8,7 +8,6 @@ import bm.window;
 import bm.log;
 
 import bm.input;
-import bm.gfx.context;
 
 namespace bm 
 {

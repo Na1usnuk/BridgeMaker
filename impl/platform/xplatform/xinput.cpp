@@ -10,6 +10,8 @@ namespace bm {
 
 Window* Input::s_window = nullptr;
 
+std::pair<float, float> Input::s_mouse_pos = { .0f, .0f };
+
 bool Input::isPressed(Key key)
 {
 	return isPressedImpl(*s_window, static_cast<int>(key));
@@ -32,11 +34,12 @@ bool Input::isReleased(Mouse button)
 
 std::pair<float, float> Input::getMousePos()
 {
-	return std::pair<float, float>();
+	return s_mouse_pos;
 }
 
 void Input::setMousePos(const std::pair<float, float>& pos)
 {
+	s_mouse_pos = pos;
 }
 
 bool Input::isPressedImpl(Window& window, int key)
