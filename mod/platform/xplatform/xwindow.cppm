@@ -44,12 +44,11 @@ public:
 	using Icon = ::bm::Icon;
 	struct Data
 	{
-		Data(std::string_view t, int w, int h, bool vs, gfx::Context& ctx) : title(t), width(w), height(h), vsync(vs), context(ctx) {}
+		Data(std::string_view t, int w, int h, bool vs) : title(t), width(w), height(h), vsync(vs) {}
 		std::string title;
 		int width, height;
 		bool vsync;
 		Event::EventCallbackFn callback;
-		gfx::Context& context;
 		Window* window = nullptr;
 
 		struct
@@ -67,7 +66,7 @@ public:
 
 	bool operator==(const Window& oth) const { return m_window == oth.m_window; }
 
-	Window(std::string_view v, int w, int h, bool vs, bool decorated, bool visible, gfx::Context& ctx);
+	Window(std::string_view v, int w, int h, bool vs, bool decorated, bool visible);
 	~Window();
 
 	void onUpdate();
@@ -116,12 +115,6 @@ private:
 	GLFWwindow* m_window;
 	Data m_data;
 };
-
-
-export Window& getEventWindow(Event& e)
-{
-	return *static_cast<Window*>(e.getWindow());
-}
 
 
 namespace gfx

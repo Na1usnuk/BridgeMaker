@@ -7,7 +7,6 @@ import bm.log;
 import bm.gfx.renderer;
 
 import bm.window;
-import bm.window.manager;
 import bm.input;
 import bm.cursor;
 
@@ -24,8 +23,7 @@ import bm.fps_limiter;
 namespace bm 
 {
 
-export template<typename WinManager>
-class Application
+export class Application
 {
 
 public:
@@ -40,35 +38,12 @@ public:
 	}
 
 	gfx::Renderer& getRenderer() { return m_renderer; }
-	WindowTraits<WinManager>::WindowContainer& getWindows() { return m_window_manager.windows(); }
-	
-	//Main window is window that was added first
-	bool isMainWindow() 
-	{ 
-		return isMainWindow(m_ctx.getCurrent()); 
-	}
-
-	bool isMainWindow(Window& window) 
-	{ 
-		return *m_window_manager.windows()[0] == window;
-	}
-
-	//not actually destroy, just put in queue to destroy later (in end of frame)
-	void closeWindow(Window& window)
-	{
-		m_end_of_frame_tasks.push([&window, this]() { this->m_window_manager.close(window); });
-	}
-
-	Window& openWindow(std::string_view title = "Bridge Maker App", int width = 1280, int height = 720, bool vsync = false, bool decorated = true, bool visible = true)
-	{
-		auto& window = m_window_manager.open(title, width, height, vsync, decorated, visible, m_ctx, m_end_of_frame_tasks);
-		window.setEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
-		return window;
-	}
+	Window& getWindow() { return m_window; }
 
 protected:
 
-	Application() : m_is_running(true), m_fps_limit(1000), m_ctx(gfx::Context::getContext()) {}
+	Application() = delete;
+	Application(std::string_view title, int width, int height, bool vsync = false, bool decorated = true, bool visible = true);
 	virtual ~Application() {};
 
 	virtual void processArgs(int argc, char** argv) {}
@@ -95,7 +70,7 @@ private:
 
 	LayerStack m_layers;
 
-	WinManager m_window_manager;
+	Window m_window;
 
 	TaskQueue m_end_of_frame_tasks;
 
@@ -104,16 +79,22 @@ private:
 };
 
 
-template<typename WinManager>
-void Application<WinManager>::onLayersUpdate()
+Application::Application(std::string_view title, int width, int height, bool vsync, bool decorated, bool visible) 
+	: m_is_running(true), m_fps_limit(1000), m_ctx(gfx::Context::getContext()), m_window(title, width, height, vsync, decorated, visible)
+{ 
+	m_window.setEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
+}
+
+
+void Application::onLayersUpdate()
 {
 	for (auto& l : m_layers)
 		if (l->isEnabled())
 			l->onUpdate();
 }
 
-template<typename WinManager>
-void Application<WinManager>::onLayersEvent(Event& e)
+
+void Application::onLayersEvent(Event& e)
 {
 	for (auto layer = m_layers.end(); layer > m_layers.begin();)
 	{
@@ -124,8 +105,8 @@ void Application<WinManager>::onLayersEvent(Event& e)
 	}
 }
 
-template<typename WinManager>
-int Application<WinManager>::run(int argc, char** argv)
+
+int Application::run(int argc, char** argv)
 {
 	processArgs(argc, argv);
 
@@ -135,31 +116,21 @@ int Application<WinManager>::run(int argc, char** argv)
 
 		onUpdate();
 
-		for (auto& w : m_window_manager)
-		{
-			FPSLimiter fps_limit;
+		AppRenderEvent e;
 
-			AppRenderEvent e;
-			e.setWindow((void*)&*w);
-			m_ctx.makeCurrent(*w);
+		m_window.onUpdate(); // poll events
 
-			w->onUpdate(); // poll events
+		onLayersUpdate();
 
-			onLayersUpdate();
+		onEvent(e);
+		onLayersEvent(e);
 
-			onEvent(e);
-			onLayersEvent(e);
+		m_ctx.swapBuffers();
 
-			m_ctx.swapBuffers();
-		}
 		m_end_of_frame_tasks.execute();
 	}
 	return 0;
 }
-
-
-
-export using SingleWindowApp = Application<SingleWindowManager>;
 
 
 }

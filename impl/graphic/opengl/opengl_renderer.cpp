@@ -30,7 +30,7 @@ Renderer::~Renderer()
 
 void Renderer::setView(std::array<int, 4> viewport)
 {
-	auto& current_viewport = m_state_cache[&Context::getContext().getCurrent()].viewport;
+	auto& current_viewport = m_state_cache.viewport;
 
 	if(viewport != current_viewport)
 	{
@@ -41,7 +41,7 @@ void Renderer::setView(std::array<int, 4> viewport)
 
 void Renderer::setBackgroundColor(RGBA_t rgba)
 {
-	auto& current_color = m_state_cache[&Context::getContext().getCurrent()].clear_color;
+	auto& current_color = m_state_cache.clear_color;
 
 	if (rgba != current_color)
 	{
@@ -73,7 +73,7 @@ void Renderer::clearColor(RGB_t rgb)
 
 void Renderer::setPolygonMode(PolygonMode mode)
 {
-	auto& current_mode = m_state_cache[&Context::getContext().getCurrent()].polygon_mode;
+	auto& current_mode = m_state_cache.polygon_mode;
 
 	if(current_mode != mode)
 	{

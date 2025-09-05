@@ -53,7 +53,7 @@ public:
 
 private:
 
-	std::unordered_map<Window*, StateCache> m_state_cache;
+	StateCache m_state_cache;
 
 };
 

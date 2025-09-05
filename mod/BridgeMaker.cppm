@@ -13,5 +13,4 @@ export import bm.log;
 
 export import bm.input;
 export import bm.window;
-export import bm.window.manager;
 export import bm.cursor;

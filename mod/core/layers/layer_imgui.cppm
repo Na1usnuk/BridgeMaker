@@ -55,7 +55,7 @@ public:
 	ImGuiLayer(ImGuiWindowRegistry windows);
 	~ImGuiLayer();
 
-	void setCurrent(Window& window) override;
+	void setWindow(Window& window) override;
 
 	void onUpdate() override;
 	void onEvent(Event& e) override;
@@ -77,7 +77,7 @@ public:
 private:
 
 	ImGuiWindowRegistry m_windows;
-	Window* m_window = nullptr;
+
 };
 
 

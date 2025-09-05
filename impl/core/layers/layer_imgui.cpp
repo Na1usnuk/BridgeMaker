@@ -21,11 +21,10 @@ ImGuiLayer::~ImGuiLayer()
 {
 }
 
-void ImGuiLayer::setCurrent(Window& window)
+void ImGuiLayer::setWindow(Window& window)
 {
 	ImGui_ImplGlfw_InitForOpenGL(window.getNativeWindow(), true);
 	ImGui::SetCurrentContext(ImGui::GetCurrentContext());
-	m_window = &window;
 }
 
 void ImGuiLayer::onUpdate()
@@ -35,8 +34,6 @@ void ImGuiLayer::onUpdate()
 
 bool ImGuiLayer::onRender(bm::AppRenderEvent& e)
 {
-	if (getEventWindow(e) != *m_window)
-		return false;
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -111,7 +108,6 @@ bool ImGuiLayer::onKeyRelease(bm::KeyReleasedEvent& e)
 
 bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
 {
-	if (&getEventWindow(e) != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseDown[static_cast<int>(e.getMouseButton())] = false;
 
@@ -120,7 +116,6 @@ bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
 
 bool ImGuiLayer::onMousePress(bm::MouseButtonPressedEvent& e)
 {
-	if (&getEventWindow(e) != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseDown[static_cast<int>(e.getMouseButton())] = true;
 
@@ -129,7 +124,6 @@ bool ImGuiLayer::onMousePress(bm::MouseButtonPressedEvent& e)
 
 bool ImGuiLayer::onMouseMove(bm::MouseMoveEvent& e)
 {
-	if (&getEventWindow(e) != m_window) return false;
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = ImVec2(e.getX(), e.getY());
 
