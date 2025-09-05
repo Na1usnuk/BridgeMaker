@@ -12,6 +12,7 @@ public:
 	IndexBuffer(const unsigned int* data, unsigned long long count);
 	template<BufferConcept ContainerType>
 	IndexBuffer(const ContainerType& data) : IndexBuffer(data.data(), data.size()) {}
+	IndexBuffer(const std::initializer_list<unsigned int>& data) : IndexBuffer(std::data(data), data.size()) {}
 
 	~IndexBuffer();
 	IndexBuffer(const IndexBuffer&) = delete;

@@ -17,6 +17,7 @@ struct Cache;
 public:
 
 	Shader(const std::filesystem::path& filepath);
+	Shader(std::string_view vertex_src, std::string_view fragment_src);
 	~Shader();
 
 	Shader(const Shader&) = delete;
@@ -48,7 +49,6 @@ private:
 	unsigned int m_id = 0;
 	std::filesystem::path m_filepath;
 	std::unique_ptr<Cache> m_cache;
-
 };
 
 }

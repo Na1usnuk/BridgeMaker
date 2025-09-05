@@ -26,11 +26,16 @@ struct Shader::ProgramSource
 };
 
 Shader::Shader(const std::filesystem::path& filepath)
-    :  m_filepath(filepath)
+    :  m_filepath(filepath), m_cache(std::make_unique<Cache>())
 {
 	core::verify(std::filesystem::exists(filepath), "Shader " + filepath.string() + " do not exist");
 	ProgramSource src = parseShader(filepath);
 	m_id = createProgram(src.vertexSource, src.fragmentSource);
+}
+
+Shader::Shader(std::string_view vertex_src, std::string_view fragment_src) 
+	: m_cache(std::make_unique<Cache>()), m_id(m_id = createProgram(vertex_src, fragment_src))
+{ 
 }
 
 Shader::~Shader()

@@ -1,15 +1,16 @@
-#pragma once 
-
-#include "core/core.hpp"
+module;
 
 #include "glm/vec3.hpp"
 #include "glm/mat4x4.hpp"
 
-BM_START
-GL_START
+export module bm.gfx.camera;
 
 
-class OpenGLCamera
+namespace bm
+{
+
+
+export class Camera
 {
 public:
 
@@ -18,7 +19,7 @@ public:
 
 public:
 
-	OpenGLCamera();
+	Camera();
 
 
 private:
@@ -33,6 +34,4 @@ private:
 };
 
 
-GL_END
-BM_END
-
+}

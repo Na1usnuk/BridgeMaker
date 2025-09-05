@@ -55,7 +55,6 @@ constexpr inline auto glCall(GLFunc func, ARGS&&... args) -> decltype(func(std::
 	}
 }
 
-
 }
 
 

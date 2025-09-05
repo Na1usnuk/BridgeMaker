@@ -7,6 +7,7 @@ import bm.window;
 import bm.gfx.buffer.index;
 import bm.gfx.vertexarray;
 import bm.gfx.shader;
+import bm.gfx.mesh;
 
 namespace bm::gfx
 {
@@ -42,6 +43,8 @@ public:
 
 	void clear();
 	void draw(const VertexArray&, const IndexBuffer&, const Shader&);
+	void draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader) { draw(*vao, *ibo, *shader); }
+	void draw(const Mesh& mesh) { draw(mesh.getVertexArray(), mesh.getIndexBuffer(), mesh.getShader()); }
 	
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
 	void setView(std::array<int, 4> viewport);
