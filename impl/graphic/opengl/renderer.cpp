@@ -50,6 +50,50 @@ void Renderer::setBackgroundColor(const RGBA_t& rgba)
 	}
 }
 
+void Renderer::setDepthTesting(bool value)
+{
+	if (m_state_cache.depth_test == value)
+		return;
+
+	if (value)
+		glCall(glEnable, GL_DEPTH_TEST);
+	else
+		glCall(glDisable, GL_DEPTH_TEST);
+
+	m_state_cache.depth_test = value;
+}
+
+void Renderer::setDepthTestFunc(DepthFunc func)
+{
+	if (m_state_cache.depth_test_func == func)
+		return;
+
+	glCall(glDepthFunc, static_cast<int>(func));
+
+	m_state_cache.depth_test_func = func;
+}
+
+void Renderer::setBlend(bool value)
+{
+	if (m_state_cache.blend == value)
+		return;
+
+	if (value)
+		glCall(glEnable, GL_BLEND);
+	else
+		glCall(glDisable, GL_BLEND);
+
+	m_state_cache.blend = value;
+}
+
+void Renderer::setBlendFunc(BlendSrc src, BlendFunc func)
+{
+	//if (m_state_cache.blend_func == func)
+	//	return;
+
+	glCall(glBlendFunc, static_cast<int>(src), static_cast<int>(func));
+}
+
 void Renderer::setBackgroundColor(const RGB_t& rgb)
 {
 	setBackgroundColor({ rgb[0], rgb[1], rgb[2], 1.f });

@@ -6,7 +6,7 @@ module;
 export module bm.gfx.camera;
 
 
-namespace bm
+namespace bm::gfx
 {
 
 
@@ -19,8 +19,16 @@ public:
 
 public:
 
-	Camera();
+	Camera(float fov, float aspectRation);
 
+
+	void recalculateProjection(float aspectRatio);
+	void recalculateView();
+
+	const mat4& getProjection() const { return m_projection; }
+	const mat4& getView() const { return m_view; }
+
+	//void moveForward(float amount) { }
 
 private:
 
@@ -29,7 +37,10 @@ private:
 	vec3 m_direction;
 	vec3 m_right;
 	vec3 m_up;
-	mat4 m_look_at;
+	mat4 m_view;
+	mat4 m_projection;
+
+	float m_fov;
 
 };
 

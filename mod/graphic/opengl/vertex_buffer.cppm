@@ -14,7 +14,7 @@ import std;
 namespace bm::gfx
 {
 
-export class VertexBufferLayout
+class VertexBufferLayout
 {
 public:
 
@@ -67,6 +67,7 @@ private:
 	unsigned int m_stride;
 };
 
+
 export class VertexBuffer
 {
 public:
@@ -77,6 +78,9 @@ public:
 		STATIC = 0x88E4,
 		DYNAMIC = 0x88E8,
 	};
+
+	using Ptr = std::shared_ptr<VertexBuffer>;
+	using KPtrRef = const Ptr&;
 
 public:
 
@@ -103,6 +107,14 @@ public:
 
 	const VertexBufferLayout& getLayout() const { return m_layout; }
 
+	template<Data D>
+	static Ptr make(D data, std::size_t size, Draw draw_hint = Draw::STATIC) { return std::make_shared<VertexBuffer>(data, size, draw_hint); }
+	static Ptr make(std::size_t size, Draw draw_hint = Draw::STATIC) { return std::make_shared<VertexBuffer>(size, draw_hint); }
+	template<Buffer B>
+	static Ptr make(const B& data, Draw draw_hint = Draw::STATIC) { return std::make_shared<VertexBuffer>(data, draw_hint); }
+	template<Numeric N>
+	static Ptr make(const std::initializer_list<N>& data, Draw draw_hint = Draw::STATIC) {return VertexBuffer::make<std::initializer_list<N>>(data, draw_hint);}
+
 private:
 
 	unsigned int m_id;
@@ -113,9 +125,7 @@ private:
 };
 
 
-export using VertexBufferPtr = std::shared_ptr<VertexBuffer>;
-
-export using LayoutPtr = std::shared_ptr<VertexBufferLayout>;
+export using VertexBufferPtr = VertexBuffer::Ptr;
 
 }
 

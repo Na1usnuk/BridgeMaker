@@ -9,12 +9,15 @@ namespace bm::gfx
 
 export class VertexArray
 {
-private:
+public:
+
+	using Ptr = std::shared_ptr<VertexArray>;
+	using KPtrRef = const Ptr&;
 
 public:
 
 	VertexArray();
-	VertexArray(std::shared_ptr<VertexBuffer> vbo);
+	VertexArray(VertexBufferPtr vbo);
 	~VertexArray();
 	VertexArray(const VertexArray&) = delete;
 	VertexArray& operator=(const VertexArray&) = delete;
@@ -22,11 +25,14 @@ public:
 	VertexArray& operator=(VertexArray&& oth) noexcept;
 
 	void addVertexBuffer(const VertexBuffer& vbo);
-	void addVertexBuffer(std::shared_ptr<VertexBuffer> vbo) { addVertexBuffer(*vbo); }
+	void addVertexBuffer(VertexBufferPtr vbo) { addVertexBuffer(*vbo); }
 
 	void bind() const;
 	void unbind() const;
 	void destroy();
+
+	static Ptr make() { return std::make_shared<VertexArray>(); }
+	static Ptr make(VertexBufferPtr vbo) { return std::make_shared<VertexArray>(vbo); }
 
 private:
 
@@ -34,6 +40,6 @@ private:
 
 };
 
-export using VertexArrayPtr = std::shared_ptr<VertexArray>;
+export using VertexArrayPtr = VertexArray::Ptr;
 
 }

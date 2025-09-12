@@ -65,7 +65,7 @@ void VertexArray::addVertexBuffer(const VertexBuffer& vb)
 		const auto& element = elements[i];
 		glCall(glEnableVertexAttribArray, i);
 		glCall(glVertexAttribPointer, i, element.count, element.type, element.normalized, vb.getLayout().stride(), (const void*)offset);
-		offset += element.count * VertexBufferLayout::Element::getSizeOfType(element.type);
+		offset += element.count * elements[0].getSizeOfType(element.type);
 	}
 }
 

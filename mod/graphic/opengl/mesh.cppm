@@ -11,10 +11,14 @@ namespace bm::gfx
 
 export class Mesh
 {
+public:
+
+	using Ptr = std::shared_ptr<Mesh>;
+	using KPtrRef = const Ptr&;
 
 public:
 
-	Mesh(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader)
+	Mesh(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader)
 		: m_vao(vao), m_ibo(ibo), m_shader(shader)
 	{
 	}
@@ -29,6 +33,9 @@ public:
 	std::shared_ptr<Shader>      getShader()      const { return m_shader; }
 	std::shared_ptr<IndexBuffer> getIndexBuffer() const { return m_ibo; }
 
+	static Ptr make() { return std::make_shared<Mesh>(); }
+	static Ptr make(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader) { return std::make_shared<Mesh>(vao, ibo, shader); }
+
 private:
 
 	std::shared_ptr<Shader> m_shader = nullptr;
@@ -36,5 +43,7 @@ private:
 	std::shared_ptr<IndexBuffer> m_ibo = nullptr;
 
 };
+
+export using MeshPtr = Mesh::Ptr;
 
 }

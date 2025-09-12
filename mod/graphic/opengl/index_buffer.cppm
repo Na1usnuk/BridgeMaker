@@ -15,7 +15,10 @@ export class IndexBuffer
 {
 public:
 
+	using Ptr = std::shared_ptr<IndexBuffer>;
+	using KPtrRef = const Ptr&;
 
+public:
 
 	IndexBuffer(const unsigned int* data, std::size_t count)
 		: m_count(count)
@@ -42,6 +45,11 @@ public:
 
 	unsigned int count() const { return m_count; }
 
+	static Ptr make(const unsigned int* data, std::size_t count) { return std::make_shared<IndexBuffer>(data, count); }
+	template<Buffer C>
+	static Ptr make(const C& data) { return std::make_shared<IndexBuffer>(data); }
+	static Ptr make(const std::initializer_list<unsigned int>& data) { return IndexBuffer::make<std::initializer_list<unsigned int>>(data); }
+
 private:
 
 	unsigned int m_id = 0;
@@ -49,7 +57,7 @@ private:
 	int m_data_t;
 };
 
-export using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
+export using IndexBufferPtr = IndexBuffer::Ptr;
 
 }
 

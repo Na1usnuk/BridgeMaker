@@ -12,11 +12,20 @@ namespace bm::gfx
 
 export class Shader
 {
-struct ProgramSource;
-struct Cache;
+private:
+
+	struct ProgramSource;
+	struct Cache;
+
+public:
+
+	using Ptr = std::shared_ptr<Shader>;
+	using KPtrRef = const Ptr&;
+
 public:
 
 	Shader(const std::filesystem::path& filepath);
+	//Shader(std::string_view src);
 	Shader(std::string_view vertex_src, std::string_view fragment_src);
 	~Shader();
 
@@ -36,12 +45,17 @@ public:
 	void setUniform(std::string_view name, int i);
 	void setUniform(std::string_view name, const glm::mat4& mat);
 
+	static Ptr make(const std::filesystem::path& filepath) { return std::make_shared<Shader>(filepath); }
+	static Ptr make(std::string_view vertex_src, std::string_view fragment_src) { return std::make_shared<Shader>(vertex_src, fragment_src); }
+
 
 private:
 
 	int getUniformLocation(std::string_view);
 	unsigned int compileShader(unsigned int, std::string_view);
-	ProgramSource parseShader(const std::filesystem::path&);
+	ProgramSource parseShader(std::istream& stream);
+	ProgramSource parseFromFile(const std::filesystem::path& path);
+	ProgramSource parseFromString(std::string_view src);
 	unsigned int createProgram(std::string_view, std::string_view);
 
 private:
@@ -50,6 +64,8 @@ private:
 	std::filesystem::path m_filepath;
 	std::unique_ptr<Cache> m_cache;
 };
+
+export using ShaderPtr = Shader::Ptr;
 
 }
 

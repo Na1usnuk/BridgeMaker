@@ -29,9 +29,15 @@ Shader::Shader(const std::filesystem::path& filepath)
     :  m_filepath(filepath), m_cache(std::make_unique<Cache>())
 {
 	core::verify(std::filesystem::exists(filepath), "Shader " + filepath.string() + " do not exist");
-	ProgramSource src = parseShader(filepath);
+	ProgramSource src = parseFromFile(filepath);
 	m_id = createProgram(src.vertexSource, src.fragmentSource);
 }
+
+//Shader::Shader(std::string_view src)
+//{
+//	ProgramSource srcs = parseFromString(src);
+//	m_id = createProgram(srcs.vertexSource, srcs.fragmentSource);
+//}
 
 Shader::Shader(std::string_view vertex_src, std::string_view fragment_src) 
 	: m_cache(std::make_unique<Cache>()), m_id(m_id = createProgram(vertex_src, fragment_src))
@@ -166,10 +172,8 @@ unsigned int Shader::createProgram(std::string_view vertexShader, std::string_vi
 	return prog;
 }
 
-Shader::ProgramSource Shader::parseShader(const std::filesystem::path& filepath)
+Shader::ProgramSource Shader::parseShader(std::istream& stream)
 {
-	std::ifstream stream(filepath);
-
 	enum class shaderType
 	{
 		NONE = -1, VERTEX = 0, FRAGMENT = 1
@@ -194,6 +198,20 @@ Shader::ProgramSource Shader::parseShader(const std::filesystem::path& filepath)
 	}
 	core::verify(!(ss[0].str().empty() || ss[1].str().empty()), "Shaders are empty");
 	return { ss[0].str(), ss[1].str() };
+}
+
+Shader::ProgramSource Shader::parseFromFile(const std::filesystem::path& filepath)
+{
+	std::ifstream file(filepath);
+	core::verify(file.is_open(), "Failed to open shader file: " + filepath.string());
+	return parseShader(file); // OK: file is a named lvalue
+}
+
+Shader::ProgramSource Shader::parseFromString(std::string_view str)
+{
+	std::string full_copy_that_needs_to_be_optimized_later(str);
+	std::stringstream ss(full_copy_that_needs_to_be_optimized_later);
+	return parseShader(ss);
 }
 
 }

@@ -10,6 +10,7 @@ import bm.cursor;
 import bm.input;
 import bm.assert;
 import bm.event;
+import bm.gfx.utility;
 
 namespace bm 
 {
@@ -151,7 +152,6 @@ bool Window::isOpen() const
 
 void Window::create(bool decorated, bool visible)
 {
-
 	log::core::trace("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
 
 	if (!s_isGLFWInitialized)
@@ -324,6 +324,17 @@ namespace gfx
 		auto status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		core::verify(status, "Failed to initialize Glad");
 		log::core::info("Glad initialized");
+
+		const char* renderer = reinterpret_cast<const char*>(glCall(glGetString, GL_RENDERER));
+		const char* vendor = reinterpret_cast<const char*>(glCall(glGetString, GL_VENDOR));
+		const char* version = reinterpret_cast<const char*>(glCall(glGetString, GL_VERSION));
+		const char* glsl_version = reinterpret_cast<const char*>(glCall(glGetString, GL_SHADING_LANGUAGE_VERSION));
+
+		log::core::info("Renderer: {}", renderer);
+		log::core::info("Vendor: {}", vendor);
+		log::core::info("OpenGL version: {}", version);
+		log::core::info("GLSL version: {}", glsl_version);
+
 	}
 
 	void Context::makeCurrent(Window& window)

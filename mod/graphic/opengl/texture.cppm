@@ -9,28 +9,16 @@ export class Texture
 {
 public:
 
-	enum class Type : unsigned int
-	{
-		_1D = 0x0DE0,
-		_2D = 0x0DE1,
-		_3D = 0x806F
-	};
+	using Ptr = std::shared_ptr<Texture>;
+	using KPtrRef = const Ptr&;
 
-	enum class FileType
-	{
-		JPEG = 3, 
-		JPG  = 3, 
-		PNG	 = 4,
-		WEBP = 4
-	};
-
-	enum class Wrappering : unsigned int
+	enum class Wrappering
 	{
 		REPEAT = 0x2901,
 		MiRRORED_REPEAT = 0x8370
 	};
 
-	enum class Filtering : unsigned int
+	enum class Filtering
 	{
 		LINEAR = 0x2601,
 		NEAREST = 0x2600
@@ -39,14 +27,13 @@ public:
 	struct Data
 	{
 		int width, height, depth, bpp;
-		std::string file_path;
-		Type texture_type;
+		std::filesystem::path file_path;
 		unsigned char* buffer;
 	};
 
 public:
 
-	Texture(const std::string& file_path, Type texture_type = Type::_2D);
+	Texture(const std::filesystem::path& filepath);
 	~Texture();
 
 	void bind(unsigned int tex_unit = 0) const;
@@ -55,9 +42,10 @@ public:
 	static void setDefaultWrappering(Wrappering wrap = Wrappering::REPEAT);
 	static void setDefaultFiltering(Filtering wrap = Filtering::NEAREST);
 
-	void setBorder(bool wrap_s, bool wrap_t, std::array<float, 4> color = {.0f, .0f, .0f, 1.f}) const;
 	void setWrappering(bool wrap_s, bool wrap_t, Wrappering wrappering) const;
 	void setFiltering(bool wrap_s, bool wrap_t, Filtering filtering) const;
+
+	static Ptr make(const std::filesystem::path& filepath) { return std::make_shared<Texture>(filepath); }
 
 private:
 
@@ -67,5 +55,7 @@ private:
 	static Texture::Wrappering s_default_wrappering;
 	static Texture::Filtering s_default_filtering;
 };
+
+export using TexturePtr = Texture::Ptr;
 
 }
