@@ -201,16 +201,16 @@ add_library(BridgeMaker)
 #target_precompile_headers(BridgeMaker PUBLIC ${PCH_HEADER})
 
 target_sources(BridgeMaker
-	PRIVATE
+	PUBLIC
 		${BM_SRCS}
 		${BM_PLATFORM_SRCS}
 		${BM_GRAPHIC_SRCS}
-	PRIVATE
+	PUBLIC
 	FILE_SET HEADERS BASE_DIRS include FILES
 		${BM_HEADERS}
 		${BM_PLATFORM_HEADERS}
 		${BM_GRAPHIC_HEADERS}
-	PRIVATE
+	PUBLIC
 	FILE_SET CXX_MODULES BASE_DIRS impl mod FILES
 		${BM_MODULES}
 		${BM_IMPLS}

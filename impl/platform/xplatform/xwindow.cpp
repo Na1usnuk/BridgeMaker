@@ -171,6 +171,7 @@ void Window::create(bool decorated, bool visible)
 	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::getContext().shareContext());
 	core::verify(m_window, "Failed to create window");
 
+	m_data.window = this;
 
 	gfx::Context::getContext().makeCurrent(*this);
 	gfx::Context::getContext().init();
@@ -253,6 +254,7 @@ void Window::setResizeCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			WindowResizeEvent e(width, height);
+			data->window->resize(width, height);
 			data->callback(e);
 		});
 }

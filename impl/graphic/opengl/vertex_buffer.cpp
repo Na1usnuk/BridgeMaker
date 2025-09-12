@@ -11,16 +11,6 @@ namespace bm::gfx
 {
 
 
-
-VertexBuffer::VertexBuffer(const void* data, std::size_t size, Draw draw_hint)
-	: m_size(size)
-{
-	glCall(glGenBuffers, 1, &m_id);
-	glCall(glBindBuffer, GL_ARRAY_BUFFER, m_id);
-	glCall(glBufferData, GL_ARRAY_BUFFER, GLsizeiptr(size), data, static_cast<int>(draw_hint));
-}
-
-
 VertexBuffer::~VertexBuffer()
 {
 }

@@ -28,7 +28,7 @@ Renderer::~Renderer()
 }
 
 
-void Renderer::setView(std::array<int, 4> viewport)
+void Renderer::setView(const std::array<int, 4>& viewport)
 {
 	auto& current_viewport = m_state_cache.viewport;
 
@@ -39,7 +39,7 @@ void Renderer::setView(std::array<int, 4> viewport)
 	}
 }
 
-void Renderer::setBackgroundColor(RGBA_t rgba)
+void Renderer::setBackgroundColor(const RGBA_t& rgba)
 {
 	auto& current_color = m_state_cache.clear_color;
 
@@ -50,7 +50,7 @@ void Renderer::setBackgroundColor(RGBA_t rgba)
 	}
 }
 
-void Renderer::setBackgroundColor(RGB_t rgb)
+void Renderer::setBackgroundColor(const RGB_t& rgb)
 {
 	setBackgroundColor({ rgb[0], rgb[1], rgb[2], 1.f });
 }
@@ -60,13 +60,13 @@ void Renderer::clear()
 	glCall(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::clearColor(RGBA_t rgba)
+void Renderer::clearColor(const RGBA_t& rgba)
 {
 	setBackgroundColor(rgba);
 	clear();
 }
 
-void Renderer::clearColor(RGB_t rgb)
+void Renderer::clearColor(const RGB_t& rgb)
 {
 	clearColor({ rgb[0], rgb[1], rgb[2], 1.f });
 }

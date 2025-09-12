@@ -1,6 +1,12 @@
+module;
+
+#include "glad/glad.h"
+
 export module bm.gfx.buffer.index;
 
 import bm.gfx.utility;
+
+import std;
 
 namespace bm::gfx
 {
@@ -9,10 +15,19 @@ export class IndexBuffer
 {
 public:
 
-	IndexBuffer(const unsigned int* data, unsigned long long count);
-	template<BufferConcept ContainerType>
-	IndexBuffer(const ContainerType& data) : IndexBuffer(data.data(), data.size()) {}
-	IndexBuffer(const std::initializer_list<unsigned int>& data) : IndexBuffer(std::data(data), data.size()) {}
+
+
+	IndexBuffer(const unsigned int* data, std::size_t count)
+		: m_count(count)
+	{
+		glCall(glGenBuffers, 1, &m_id);
+		glCall(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_id);
+		glCall(glBufferData, GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+	}
+
+	template<Buffer C>
+	IndexBuffer(const C& data) : IndexBuffer(std::data(data), data.size()) {}
+
 
 	~IndexBuffer();
 	IndexBuffer(const IndexBuffer&) = delete;
@@ -31,7 +46,10 @@ private:
 
 	unsigned int m_id = 0;
 	unsigned long long m_count = 0;
+	int m_data_t;
 };
+
+export using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
 
 }
 

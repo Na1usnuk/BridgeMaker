@@ -14,39 +14,6 @@ import std;
 namespace bm::gfx
 {
 
-export class VertexBuffer
-{
-public:
-
-	enum class Draw
-	{
-		// Magic numbers from opengl
-		STATIC = 0x88E4,
-		DYNAMIC = 0x88E8,
-	};
-
-public:
-
-	VertexBuffer(const void* data, std::size_t size, Draw draw_hint = Draw::STATIC);
-	VertexBuffer(std::size_t size, Draw draw_hint = Draw::STATIC) : VertexBuffer(nullptr, size, draw_hint) {}
-	template<BufferConcept ContainerType>
-	VertexBuffer(const ContainerType& data, Draw draw_hint = Draw::STATIC) : VertexBuffer(data.data(), data.size() * sizeof(typename ContainerType::value_type), draw_hint) {}
-	~VertexBuffer();
-
-	void bind() const;
-	void unbind() const;
-	void destroy();
-	void populate(const void* data);
-
-private:
-
-	unsigned int m_id;
-	std::size_t m_size;
-
-};
-
-
-
 export class VertexBufferLayout
 {
 public:
@@ -99,6 +66,56 @@ private:
 	std::vector<Element> m_elements;
 	unsigned int m_stride;
 };
+
+export class VertexBuffer
+{
+public:
+
+	enum class Draw
+	{
+		// Magic numbers from opengl
+		STATIC = 0x88E4,
+		DYNAMIC = 0x88E8,
+	};
+
+public:
+
+	template<Data D>
+	VertexBuffer(D data, std::size_t size, Draw draw_hint)
+		: m_size(size)
+	{
+		glCall(glGenBuffers, 1, &m_id);
+		glCall(glBindBuffer, GL_ARRAY_BUFFER, m_id);
+		glCall(glBufferData, GL_ARRAY_BUFFER, size * sizeof(D), static_cast<const void*>(data), static_cast<int>(draw_hint));
+	}
+	VertexBuffer(std::size_t size, Draw draw_hint = Draw::STATIC) : VertexBuffer(nullptr, size, draw_hint) {}
+	template<Buffer B>
+	VertexBuffer(const B& data, Draw draw_hint = Draw::STATIC) : VertexBuffer(std::data(data), data.size() * sizeof(typename B::value_type), draw_hint) {}
+	~VertexBuffer();
+
+	void bind() const;
+	void unbind() const;
+	void destroy();
+	void populate(const void* data);
+
+	template<typename T>
+	void pushLayout(std::size_t count) { m_layout.push<T>(count); }
+
+	const VertexBufferLayout& getLayout() const { return m_layout; }
+
+private:
+
+	unsigned int m_id;
+	std::size_t m_size;
+
+	VertexBufferLayout m_layout;
+
+};
+
+
+export using VertexBufferPtr = std::shared_ptr<VertexBuffer>;
+
+export using LayoutPtr = std::shared_ptr<VertexBufferLayout>;
 
 }
 

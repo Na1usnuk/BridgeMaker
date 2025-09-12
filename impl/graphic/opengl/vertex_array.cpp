@@ -19,9 +19,9 @@ VertexArray::VertexArray()
 	bind();
 }
 
-VertexArray::VertexArray(std::shared_ptr<VertexBuffer> vbo, std::shared_ptr<VertexBufferLayout> layout) : VertexArray()
+VertexArray::VertexArray(std::shared_ptr<VertexBuffer> vbo) : VertexArray()
 {
-	addVertexBuffer(vbo, layout);
+	addVertexBuffer(vbo);
 }
 
 VertexArray::~VertexArray()
@@ -52,19 +52,19 @@ void VertexArray::destroy()
 	log::core::trace("VertexArray {0} deleted", m_id);
 }
 
-void VertexArray::addVertexBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
+void VertexArray::addVertexBuffer(const VertexBuffer& vb)
 {
 	bind();
 	vb.bind();
 
-	const auto& elements = layout.elements();
+	const auto& elements = vb.getLayout().elements();
 	unsigned long long offset = 0;
 
 	for (unsigned int i = 0; i < elements.size(); ++i)
 	{
 		const auto& element = elements[i];
 		glCall(glEnableVertexAttribArray, i);
-		glCall(glVertexAttribPointer, i, element.count, element.type, element.normalized, layout.stride(), (const void*)offset);
+		glCall(glVertexAttribPointer, i, element.count, element.type, element.normalized, vb.getLayout().stride(), (const void*)offset);
 		offset += element.count * VertexBufferLayout::Element::getSizeOfType(element.type);
 	}
 }

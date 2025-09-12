@@ -61,27 +61,32 @@ protected:
 
 };
 
-template<typename T, typename INST>
-auto bindEventFunc(T func, INST* instance)
+
+export template<typename T, typename EVENT>
+constexpr std::function<bool(EVENT&)> bindEventFn(bool(T::* func)(EVENT&), T* instance)
 {
-	return std::bind(func, instance, std::placeholders::_1);
+	return [func, instance](EVENT& e) -> bool
+		{
+			return (instance->*func)(e);
+		};
 }
+
 
 class EventDispatcher
 {
-	template<typename T>
-	using EventFn = std::function<bool(T&)>;
+	template<typename EVENT>
+	using EventFn = std::function<bool(EVENT&)>;
 
 public:
 
 	EventDispatcher(Event& event) : m_event(event) {}
 
-	template<typename T>
-	bool dispatch(EventFn<T> func)
+	template<typename EVENT>
+	bool dispatch(EventFn<EVENT> func)
 	{
-		if (m_event.getType() == T::getStaticType())
+		if (m_event.getType() == EVENT::getStaticType())
 		{
-			m_event.m_handled = func(*(T*)&m_event);
+			m_event.m_handled = func(*(EVENT*)&m_event);
 			return true;
 		}
 		return false;

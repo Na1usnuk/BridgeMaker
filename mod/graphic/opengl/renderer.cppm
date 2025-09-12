@@ -8,6 +8,7 @@ import bm.gfx.buffer.index;
 import bm.gfx.vertexarray;
 import bm.gfx.shader;
 import bm.gfx.mesh;
+import bm.gfx.texture;
 
 namespace bm::gfx
 {
@@ -45,13 +46,14 @@ public:
 	void draw(const VertexArray&, const IndexBuffer&, const Shader&);
 	void draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader) { draw(*vao, *ibo, *shader); }
 	void draw(const Mesh& mesh) { draw(mesh.getVertexArray(), mesh.getIndexBuffer(), mesh.getShader()); }
+	void draw(const std::shared_ptr<Mesh>& mesh) { draw(*mesh); }
 	
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
-	void setView(std::array<int, 4> viewport);
-	void setBackgroundColor(RGBA_t rgba = {0.f, 0.f, 0.f, 1.f});
-	void setBackgroundColor(RGB_t rgb = {0.f, 0.f, 0.f});
-	void clearColor(RGBA_t rgba = { 0.f, 0.f, 0.f, 1.f });
-	void clearColor(RGB_t rgb = { 0.f, 0.f, 0.f });
+	void setView(const std::array<int, 4>& viewport);
+	void setBackgroundColor(const RGBA_t& rgba);
+	void setBackgroundColor(const RGB_t& rgb);
+	void clearColor(const RGBA_t& rgba);
+	void clearColor(const RGB_t& rgb);
 
 
 private:

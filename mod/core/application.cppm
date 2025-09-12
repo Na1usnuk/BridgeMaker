@@ -1,4 +1,4 @@
-export module bm.application;
+export module bm.app;
 
 import std;
 
@@ -29,13 +29,7 @@ export class Application
 public:
 
 	int run(int argc, char** argv);
-
-	template<typename App>
-	static App& getApplication()
-	{
-		static App app;
-		return app;
-	}
+	static Application& get() { return *s_app; }
 
 	gfx::Renderer& getRenderer() { return m_renderer; }
 	Window& getWindow() { return m_window; }
@@ -44,7 +38,7 @@ protected:
 
 	Application() = delete;
 	Application(std::string_view title, int width, int height, bool vsync = false, bool decorated = true, bool visible = true);
-	virtual ~Application() {};
+	virtual ~Application();
 
 	virtual void processArgs(int argc, char** argv) {}
 
@@ -76,62 +70,9 @@ private:
 
 	bool m_is_running;
 	unsigned short m_fps_limit;
+
+	static Application* s_app;
 };
-
-
-Application::Application(std::string_view title, int width, int height, bool vsync, bool decorated, bool visible) 
-	: m_is_running(true), m_fps_limit(1000), m_ctx(gfx::Context::getContext()), m_window(title, width, height, vsync, decorated, visible)
-{ 
-	m_window.setEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
-}
-
-
-void Application::onLayersUpdate()
-{
-	for (auto& l : m_layers)
-		if (l->isEnabled())
-			l->onUpdate();
-}
-
-
-void Application::onLayersEvent(Event& e)
-{
-	for (auto layer = m_layers.end(); layer > m_layers.begin();)
-	{
-		if (!(*--layer)->isEnabled()) continue;
-		(*layer)->onEvent(e);
-		if (e.isHandled())
-			break;
-	}
-}
-
-
-int Application::run(int argc, char** argv)
-{
-	processArgs(argc, argv);
-
-	while (m_is_running)
-	{
-		FPSLimiter fps_limiter(m_fps_limit);
-
-		onUpdate();
-
-		AppRenderEvent e;
-
-		m_window.onUpdate(); // poll events
-
-		onLayersUpdate();
-
-		onEvent(e);
-		onLayersEvent(e);
-
-		m_ctx.swapBuffers();
-
-		m_end_of_frame_tasks.execute();
-	}
-	return 0;
-}
-
 
 }
 

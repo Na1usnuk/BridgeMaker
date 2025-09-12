@@ -11,6 +11,10 @@ import bm.event;
 import bm.log;
 import bm.input;
 
+import bm.layer.base;
+
+import std;
+
 namespace bm {
 
 ImGuiLayer::ImGuiLayer(ImGuiWindowRegistry windows) : m_windows(std::move(windows))
@@ -49,18 +53,18 @@ void ImGuiLayer::onEvent(Event& e)
 	bm::EventDispatcher d(e);
 	//log::core::info("Event occured in ImGuiLayer");
 
-	d.dispatch<bm::WindowCloseEvent>(bm::bindEventFunc(&ImGuiLayer::onWindowClose, this));
-	d.dispatch<bm::WindowMoveEvent>(bm::bindEventFunc(&ImGuiLayer::onWindowMove, this));
-	d.dispatch<bm::WindowResizeEvent>(bm::bindEventFunc(&ImGuiLayer::onWindowResize, this));
+	d.dispatch<bm::WindowCloseEvent>(bm::bindEventFn(&ImGuiLayer::onWindowClose, this));
+	d.dispatch<bm::WindowMoveEvent>(bm::bindEventFn(&ImGuiLayer::onWindowMove, this));
+	d.dispatch<bm::WindowResizeEvent>(bm::bindEventFn(&ImGuiLayer::onWindowResize, this));
 
-	d.dispatch<bm::KeyPressedEvent>(bm::bindEventFunc(&ImGuiLayer::onKeyPress, this));
-	d.dispatch<bm::KeyReleasedEvent>(bm::bindEventFunc(&ImGuiLayer::onKeyRelease, this));
+	d.dispatch<bm::KeyPressedEvent>(bm::bindEventFn(&ImGuiLayer::onKeyPress, this));
+	d.dispatch<bm::KeyReleasedEvent>(bm::bindEventFn(&ImGuiLayer::onKeyRelease, this));
 
-	d.dispatch<bm::MouseButtonPressedEvent>(bm::bindEventFunc(&ImGuiLayer::onMousePress, this));
-	d.dispatch<bm::MouseButtonReleasedEvent>(bm::bindEventFunc(&ImGuiLayer::onMouseRelease, this));
-	d.dispatch<bm::MouseMoveEvent>(bm::bindEventFunc(&ImGuiLayer::onMouseMove, this));
+	d.dispatch<bm::MouseButtonPressedEvent>(bm::bindEventFn(&ImGuiLayer::onMousePress, this));
+	d.dispatch<bm::MouseButtonReleasedEvent>(bm::bindEventFn(&ImGuiLayer::onMouseRelease, this));
+	d.dispatch<bm::MouseMoveEvent>(bm::bindEventFn(&ImGuiLayer::onMouseMove, this));
 
-	d.dispatch<bm::AppRenderEvent>(bm::bindEventFunc(&ImGuiLayer::onRender, this));
+	d.dispatch<bm::AppRenderEvent>(bm::bindEventFn(&ImGuiLayer::onRender, this));
 }
 
 void ImGuiLayer::onAttach()

@@ -14,15 +14,15 @@ private:
 public:
 
 	VertexArray();
-	VertexArray(std::shared_ptr<VertexBuffer> vbo, std::shared_ptr<VertexBufferLayout> layout);
+	VertexArray(std::shared_ptr<VertexBuffer> vbo);
 	~VertexArray();
 	VertexArray(const VertexArray&) = delete;
 	VertexArray& operator=(const VertexArray&) = delete;
 	VertexArray(VertexArray&& oth) noexcept;
 	VertexArray& operator=(VertexArray&& oth) noexcept;
 
-	void addVertexBuffer(const VertexBuffer& vbo, const VertexBufferLayout& layout);
-	void addVertexBuffer(std::shared_ptr<VertexBuffer> vbo, std::shared_ptr<VertexBufferLayout> layout) { addVertexBuffer(*vbo, *layout); }
+	void addVertexBuffer(const VertexBuffer& vbo);
+	void addVertexBuffer(std::shared_ptr<VertexBuffer> vbo) { addVertexBuffer(*vbo); }
 
 	void bind() const;
 	void unbind() const;
@@ -33,5 +33,7 @@ private:
 	unsigned int m_id = 0;
 
 };
+
+export using VertexArrayPtr = std::shared_ptr<VertexArray>;
 
 }

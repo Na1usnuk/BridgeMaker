@@ -1,5 +1,7 @@
 export module bm.fps_limiter;
 
+import bm.log;
+
 import std;
 
 namespace bm
@@ -22,7 +24,7 @@ namespace bm
 	private:
 
 		std::chrono::high_resolution_clock::time_point m_start;
-		std::chrono::microseconds m_frame_duration;
+		std::chrono::milliseconds m_frame_duration;
 
 	};
 }

@@ -13,8 +13,8 @@ public:
 
 	WindowResizeEvent(int x, int y) : m_width(x), m_height(y) {}
 
-	float getWidth() const { return m_width; }
-	float getHeight() const { return m_height; }
+	int getWidth() const { return m_width; }
+	int getHeight() const { return m_height; }
 
 
 	std::string toString() const override

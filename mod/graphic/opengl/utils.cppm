@@ -12,13 +12,19 @@ import std;
 namespace bm::gfx 
 {
 
+export template<typename T>
+concept Numeric = std::is_integral_v<T> || std::is_floating_point_v<T>;
+
 export template<typename Container>
-concept BufferConcept = requires (Container c)
+concept Buffer = requires (Container c)
 {
-	{ c.data() } -> std::convertible_to<const void*>;
+	{ std::data(c) } -> std::convertible_to<const void*>;
 	{ c.size() } -> std::convertible_to<std::size_t>;
 	typename Container::value_type;
 };
+
+export template<typename T>
+concept Data = std::is_convertible_v<T, const void*>;
 
 void glClearError()
 {
