@@ -31,7 +31,7 @@ void ImGuiLayer::setWindow(Window& window)
 	ImGui::SetCurrentContext(ImGui::GetCurrentContext());
 }
 
-void ImGuiLayer::onUpdate()
+void ImGuiLayer::onUpdate(float delta_time)
 {
 
 }

@@ -29,7 +29,7 @@ namespace bm
 		{
 		}
 
-		void onUpdate();
+		void onUpdate(float delta_time);
 
 		void onEvent(Event& e);
 		bool onKeyPress(KeyPressedEvent& e);
@@ -49,8 +49,9 @@ namespace bm
 
 	};
 
-	void BasicCameraMovement::onUpdate()
+	void BasicCameraMovement::onUpdate(float delta_time)
 	{
+		float speed = m_speed * delta_time;
 		switch (m_move_state)
 		{
 		case MoveState::None:
@@ -60,22 +61,22 @@ namespace bm
 		}
 		case MoveState::Left:
 		{
-			m_camera->moveLeft(m_speed);
+			m_camera->moveLeft(speed);
 			break;
 		}
 		case MoveState::Right:
 		{
-			m_camera->moveRight(m_speed);
+			m_camera->moveRight(speed);
 			break;
 		}
 		case MoveState::Forward:
 		{
-			m_camera->moveUp(m_speed);
+			m_camera->moveUp(speed);
 			break;
 		}
 		case MoveState::Back:
 		{
-			m_camera->moveDown(m_speed);
+			m_camera->moveDown(speed);
 			break;
 		}
 		default:

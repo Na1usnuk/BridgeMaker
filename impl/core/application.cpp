@@ -2,6 +2,8 @@ module bm.app;
 
 import std;
 
+import bm.deltatime;
+
 namespace bm
 {
 
@@ -21,11 +23,11 @@ namespace bm
 	}
 
 
-	void Application::onLayersUpdate()
+	void Application::onLayersUpdate(float delta_time)
 	{
 		for (auto& l : m_layers)
 			if (l->isEnabled())
-				l->onUpdate();
+				l->onUpdate(delta_time);
 	}
 
 
@@ -45,17 +47,19 @@ namespace bm
 	{
 		processArgs(argc, argv);
 
+		DeltaTime timestamp;
+
 		while (m_is_running)
 		{
-			FPSLimiter fps_limiter(m_fps_limit);
-
-			onUpdate();
+			timestamp.setFPSLimit(m_fps_limit);
+			timestamp.update();
+			onUpdate(timestamp.getDeltaTime());
 
 			AppRenderEvent e;
 
 			m_window.onUpdate(); // poll events
 
-			onLayersUpdate();
+			onLayersUpdate(timestamp.getDeltaTime());
 
 			onEvent(e);
 			onLayersEvent(e);
@@ -63,6 +67,8 @@ namespace bm
 			m_ctx.swapBuffers();
 
 			m_end_of_frame_tasks.execute();
+
+			timestamp.wait();
 		}
 		return 0;
 	}

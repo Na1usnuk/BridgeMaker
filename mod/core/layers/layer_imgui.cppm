@@ -57,7 +57,7 @@ public:
 
 	void setWindow(Window& window) override;
 
-	void onUpdate() override;
+	void onUpdate(float delta_time) override;
 	void onEvent(Event& e) override;
 	void onAttach() override;
 	void onDetach() override;

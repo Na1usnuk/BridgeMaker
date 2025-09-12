@@ -18,7 +18,7 @@ import bm.event.app;
 
 import bm.taskqueue;
 
-import bm.fps_limiter;
+
 
 namespace bm 
 {
@@ -42,10 +42,10 @@ protected:
 
 	virtual void processArgs(int argc, char** argv) {}
 
-	virtual void onUpdate() {}
-	virtual void onEvent(Event&) {};
+	virtual void onUpdate(float delta_time) = 0;
+	virtual void onEvent(Event&) = 0;
 	void onLayersEvent(Event& e);
-	void onLayersUpdate();
+	void onLayersUpdate(float delta_time);
 
 	void pushLayer(LayerStack::ptr_t layer) { m_layers.pushLayer(layer); }
 	void pushOverlay(LayerStack::ptr_t overlay) { m_layers.pushOverlay(overlay); }
