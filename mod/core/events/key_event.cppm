@@ -12,15 +12,15 @@ class  KeyEvent : public Event
 {
 public:
 
-	Input::Key getKeyCode() const { return m_keyCode; }
+	Input::Key getKey() const { return m_key; }
 
 	int getCategoryFlags() const override { return Category::Keyboard | Category::Input; }
 
 protected:
 
-	KeyEvent(int keyCode) : m_keyCode(static_cast<Input::Key>(keyCode)) {}
+	KeyEvent(int key) : m_key(static_cast<Input::Key>(key)) {}
 
-	Input::Key m_keyCode;
+	Input::Key m_key;
 };
 
 
@@ -39,7 +39,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << static_cast<int>(m_keyCode) << " (" << m_repeatCount << " repeats)";
+			ss << "KeyPressedEvent: " << static_cast<int>(m_key) << " (" << m_repeatCount << " repeats)";
 			return ss.str();
 		}
 		else
@@ -76,7 +76,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << static_cast<int>(m_keyCode);
+			ss << "KeyReleasedEvent: " << static_cast<int>(m_key);
 			return ss.str();
 		}
 		else

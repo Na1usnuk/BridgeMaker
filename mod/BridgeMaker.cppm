@@ -18,6 +18,10 @@ export import bm.cursor;
 
 export import bm.utility;
 
+export import bm.assert;
+
+export import bm.camerainp;
+
 namespace bm
 {
 	export void init()

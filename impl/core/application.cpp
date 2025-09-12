@@ -12,6 +12,7 @@ namespace bm
 	{
 		s_app = this;
 		m_window.setEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
+		m_renderer.setView({ 0, 0, width, height });
 	}
 
 	Application::~Application()
