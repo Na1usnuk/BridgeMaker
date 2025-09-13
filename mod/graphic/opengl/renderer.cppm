@@ -93,9 +93,10 @@ public:
 	{
 		for (const auto& obj : scene.getObjects())
 		{
-			obj->getShader()->setUniform("u_model", obj->getModel());
-			obj->getShader()->setUniform("u_view", camera.getView());
-			obj->getShader()->setUniform("u_projection", camera.getProjection());
+			auto shader = obj->getShader();
+			shader->setUniform("u_model", obj->getModel());
+			shader->setUniform("u_view", camera.getView());
+			shader->setUniform("u_projection", camera.getProjection());
 			draw(obj);
 		}
 	}

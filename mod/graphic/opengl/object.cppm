@@ -31,7 +31,15 @@ namespace bm::gfx
 		void rotateY(float degres);
 		void rotateZ(float degres);
 		void rotate(const glm::vec3& degres);
-		void scale(float amount);
+
+		void scaleX(float by);
+		void scaleY(float by);
+		void scaleZ(float by);
+		void scale(const glm::vec3& by);
+
+		void moveX(float to);
+		void moveY(float to);
+		void moveZ(float to);
 		void move(const glm::vec3& to);
 
 		void apply();
@@ -64,14 +72,44 @@ namespace bm::gfx
 		m_model = glm::scale(m_model, m_scale);
 	}
 
-	void Object::scale(float x)
+	void Object::scale(const glm::vec3& by)
 	{
-		m_scale *= glm::vec3(x);
+		m_scale *= by;
+	}
+
+	void Object::scaleX(float by)
+	{
+		m_scale.x *= by;
+	}
+
+	void Object::scaleY(float by)
+	{
+		m_scale.y *= by;
+	}
+
+	void Object::scaleZ(float by)
+	{
+		m_scale.z *= by;
 	}
 
 	void Object::move(const glm::vec3& to)
 	{
 		m_translate += to;
+	}
+
+	void Object::moveX(float to)
+	{
+		m_translate.x += to;
+	}
+
+	void Object::moveY(float to)
+	{
+		m_translate.y += to;
+	}
+
+	void Object::moveZ(float to)
+	{
+		m_translate.z += to;
 	}
 
 	void Object::rotateX(float degres)
