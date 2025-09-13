@@ -2,7 +2,7 @@ export module bm.gfx.scene;
 
 import std;
 
-import bm.gfx.mesh;
+import bm.gfx.obj;
 
 namespace bm::gfx
 {
@@ -14,16 +14,16 @@ namespace bm::gfx
 		Scene() = default;
 		~Scene() = default;
 
-		void add(Mesh::KPtrRef mesh)
+		void add(Object::KPtrRef mesh)
 		{
-			m_meshes.push_back(mesh);
+			m_objects.push_back(mesh);
 		}
 
-		const std::vector<Mesh::Ptr>& getMeshes() const { return m_meshes; }
+		const std::vector<ObjectPtr>& getObjects() const { return m_objects; }
 
 	private:
 
-		std::vector<Mesh::Ptr> m_meshes;
+		std::vector<ObjectPtr> m_objects;
 
 	};
 

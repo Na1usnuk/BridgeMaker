@@ -91,11 +91,12 @@ public:
 	void draw(const std::shared_ptr<Mesh>& mesh) { draw(*mesh); }
 	void draw(const Scene& scene, const Camera& camera)
 	{
-		for (const auto& mesh : scene.getMeshes())
+		for (const auto& obj : scene.getObjects())
 		{
-			mesh->getShader()->setUniform("u_view", camera.getView());
-			mesh->getShader()->setUniform("u_projection", camera.getProjection());
-			draw(mesh);
+			obj->getShader()->setUniform("u_model", obj->getModel());
+			obj->getShader()->setUniform("u_view", camera.getView());
+			obj->getShader()->setUniform("u_projection", camera.getProjection());
+			draw(obj);
 		}
 	}
 	
