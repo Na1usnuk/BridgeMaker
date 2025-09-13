@@ -24,11 +24,11 @@ protected:
 };
 
 
-class  KeyPressedEvent : public KeyEvent
+class  KeyPressEvent : public KeyEvent
 {
 public:
 
-	KeyPressedEvent(int keyCode, int repeatCount) :
+	KeyPressEvent(int keyCode, int repeatCount) :
 		KeyEvent(keyCode), m_repeatCount(repeatCount) {
 	}
 
@@ -39,7 +39,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "KeyPressedEvent: " << static_cast<int>(m_key) << " (" << m_repeatCount << " repeats)";
+			ss << "KeyPressEvent: " << static_cast<int>(m_key) << " (" << m_repeatCount << " repeats)";
 			return ss.str();
 		}
 		else
@@ -49,7 +49,7 @@ public:
 	const char* getName() const override
 	{
 		if constexpr (config::is_debug)
-			return "KeyPressedEvent";
+			return "KeyPressEvent";
 		else
 			return "";
 	}
@@ -63,11 +63,11 @@ private:
 };
 
 
-class  KeyReleasedEvent : public KeyEvent
+class  KeyReleaseEvent : public KeyEvent
 {
 public:
 
-	KeyReleasedEvent(int keyCode) :
+	KeyReleaseEvent(int keyCode) :
 		KeyEvent(keyCode) {
 	}
 
@@ -76,7 +76,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << static_cast<int>(m_key);
+			ss << "KeyReleaseEvent: " << static_cast<int>(m_key);
 			return ss.str();
 		}
 		else
@@ -86,7 +86,7 @@ public:
 	const char* getName() const override
 	{
 		if constexpr (config::is_debug)
-			return "KeyReleasedEvent";
+			return "KeyReleaseEvent";
 		else
 			return "";
 	}

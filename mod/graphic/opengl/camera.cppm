@@ -24,21 +24,26 @@ public:
 	Camera(float fov, float aspectRation);
 
 
-	void recalculateProjection(float fov, float aspectRatio);
+	void recalculateProjection();
 	void recalculateView();
 
 	const mat4& getProjection() const { return m_projection; }
 	const mat4& getView() const { return m_view; }
 
-	void moveForward(float amount) {m_pos -= amount * m_front; }
-	void moveBack(float amount) { m_pos += amount * m_front; }
-	void moveLeft(float amount) {
-		m_pos += glm::normalize(glm::cross(m_front, m_up)) * amount;
-	}
-	void moveRight(float amount) { m_pos -= glm::normalize(glm::cross(m_front, m_up)) * amount; }
-	void moveUp(float amount) { m_pos.y -= amount; }
-	void moveDown(float amount) { m_pos.y += amount; }
+	void moveForward(float amount) {m_pos += amount * m_front; }
+	void moveBack(float amount) { m_pos -= amount * m_front; }
+	void moveLeft(float amount) {m_pos -= glm::normalize(glm::cross(m_front, m_up)) * amount;}
+	void moveRight(float amount) { m_pos += glm::normalize(glm::cross(m_front, m_up)) * amount; }
+	void moveUp(float amount) { m_pos.y += amount; }
+	void moveDown(float amount) { m_pos.y -= amount; }
 
+	void setFOV(float fov) { m_fov = fov; }
+	float getFOV() const { return m_fov; }
+
+	float getYaw() const { return m_yaw; }
+	float getPitch() const { return m_pitch; }
+	void setYaw(float yaw) { m_yaw = yaw; }
+	void setPitch(float pitch) { m_pitch = pitch; }
 
 private:
 
@@ -51,7 +56,9 @@ private:
 	mat4 m_projection;
 
 	float m_fov;
-
+	float m_aspect_ratio;
+	float m_yaw;
+	float m_pitch;
 };
 
 

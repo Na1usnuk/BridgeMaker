@@ -137,6 +137,14 @@ void Window::setPosition(int x, int y)
 	glfwSetWindowPos(m_window, x, y);
 }
 
+void Window::setCaptureCursor(bool value)
+{
+	if(value)
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	else 
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
 void Window::close()
 {
 	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
@@ -197,7 +205,7 @@ void Window::setKeyCallback()
 			{
 			case GLFW_PRESS:
 			{
-				KeyPressedEvent e(key, 0);
+				KeyPressEvent e(key, 0);
 				data->callback(e);
 				data->last_key.key = key;
 				data->last_key.repeat_count = 0;
@@ -205,7 +213,7 @@ void Window::setKeyCallback()
 			}
 			case GLFW_RELEASE:
 			{
-				KeyReleasedEvent e(key);
+				KeyReleaseEvent e(key);
 				data->callback(e);
 				if (key == data->last_key.key)
 					data->last_key.repeat_count = 0;
@@ -216,7 +224,7 @@ void Window::setKeyCallback()
 				if (key == data->last_key.key)
 				{
 					data->last_key.repeat_count++;
-					KeyPressedEvent e(key, data->last_key.repeat_count);
+					KeyPressEvent e(key, data->last_key.repeat_count);
 					data->callback(e);
 				}
 				return;
@@ -234,13 +242,13 @@ void Window::setMuoseButtonCallback()
 			{
 			case GLFW_PRESS:
 			{
-				MouseButtonPressedEvent e(button);
+				MouseButtonPressEvent e(button);
 				data->callback(e);
 				return;
 			}
 			case GLFW_RELEASE:
 			{
-				MouseButtonReleasedEvent e(button);
+				MouseButtonReleaseEvent e(button);
 				data->callback(e);
 				return;
 			}
@@ -259,6 +267,17 @@ void Window::setResizeCallback()
 		});
 }
 
+void Window::setMouseScrollCallback()
+{
+	glfwSetScrollCallback(m_window, [](GLFWwindow* window, double offset_x, double offset_y) 
+		{
+			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+			MouseScrollEvent e(offset_x, offset_y);
+			data->callback(e);
+		});
+}
+
+
 void Window::setAllCallbacks()
 {
 	setKeyCallback();
@@ -268,6 +287,7 @@ void Window::setAllCallbacks()
 	setPosCallback();
 	setMouseMoveCallback();
 	setWindowFocusCallback();
+	setMouseScrollCallback();
 }
 
 void Window::setMouseMoveCallback()

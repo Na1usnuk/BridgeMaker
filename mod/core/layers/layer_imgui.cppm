@@ -67,10 +67,10 @@ public:
 	bool onWindowClose(bm::WindowCloseEvent& e);
 	bool onWindowMove(bm::WindowMoveEvent& e);
 	bool onWindowResize(bm::WindowResizeEvent& e);
-	bool onKeyPress(bm::KeyPressedEvent& e);
-	bool onKeyRelease(bm::KeyReleasedEvent& e);
-	bool onMouseRelease(bm::MouseButtonReleasedEvent& e);
-	bool onMousePress(bm::MouseButtonPressedEvent& e);
+	bool onKeyPress(bm::KeyPressEvent& e);
+	bool onKeyRelease(bm::KeyReleaseEvent& e);
+	bool onMouseRelease(bm::MouseButtonReleaseEvent& e);
+	bool onMousePress(bm::MouseButtonPressEvent& e);
 	bool onMouseMove(bm::MouseMoveEvent& e);
 
 

@@ -5,6 +5,8 @@ import bm.event;
 import bm.input;
 import bm.log;
 
+import std;
+
 namespace bm
 {
 
@@ -25,15 +27,21 @@ namespace bm
 
 	public:
 
-		BasicCameraMovement(gfx::Camera* camera_to_control = nullptr, float speed = 1.0f) : m_camera(camera_to_control), m_speed(speed)
+		BasicCameraMovement(gfx::Camera* camera_to_control = nullptr, float speed = 1.0f, float sensetivity = .5f) 
+			: m_camera(camera_to_control), 
+			  m_speed(speed), 
+			  m_sensetivity(sensetivity),
+			  m_last_mouse_pos(Input::getMousePos())
 		{
 		}
 
 		void onUpdate(float delta_time);
 
 		void onEvent(Event& e);
-		bool onKeyPress(KeyPressedEvent& e);
-		bool onKeyRelease(KeyReleasedEvent& e);
+		bool onKeyPress(KeyPressEvent& e);
+		bool onKeyRelease(KeyReleaseEvent& e);
+		bool onMouseMove(MouseMoveEvent& e);
+		bool onScroll(MouseScrollEvent& e);
 
 		void setSpeed(float speed) { m_speed = speed; }
 		float getSpeed() const { return m_speed; }
@@ -44,49 +52,16 @@ namespace bm
 
 		gfx::Camera* m_camera;
 		float m_speed; 
+		float m_sensetivity;
+
+		std::pair<float, float> m_last_mouse_pos;
+
+		bool m_first_mouse_event = true;
+		bool m_need_view_recalculation = false;
 
 		MoveState m_move_state = MoveState::None;
 
 	};
-
-	void BasicCameraMovement::onUpdate(float delta_time)
-	{
-		float speed = m_speed * delta_time;
-		switch (m_move_state)
-		{
-		case MoveState::None:
-		{
-			return;
-			break;
-		}
-		case MoveState::Left:
-		{
-			m_camera->moveLeft(speed);
-			break;
-		}
-		case MoveState::Right:
-		{
-			m_camera->moveRight(speed);
-			break;
-		}
-		case MoveState::Forward:
-		{
-			m_camera->moveUp(speed);
-			break;
-		}
-		case MoveState::Back:
-		{
-			m_camera->moveDown(speed);
-			break;
-		}
-		default:
-		{
-			return;
-			break;
-		}
-		}
-		m_camera->recalculateView();
-	}
 
 	void BasicCameraMovement::onEvent(Event& e)
 	{
@@ -95,11 +70,93 @@ namespace bm
 
 		EventDispatcher d(e);
 
-		d.dispatch<KeyPressedEvent>(bindEventFn(&BasicCameraMovement::onKeyPress, this));
-		d.dispatch<KeyReleasedEvent>(bindEventFn(&BasicCameraMovement::onKeyRelease, this));
+		d.dispatch<KeyPressEvent>(bindEventFn(&BasicCameraMovement::onKeyPress, this));
+		d.dispatch<KeyReleaseEvent>(bindEventFn(&BasicCameraMovement::onKeyRelease, this));
+
+		d.dispatch<MouseMoveEvent>(bindEventFn(&BasicCameraMovement::onMouseMove, this));
+
+		d.dispatch<MouseScrollEvent>(bindEventFn(&BasicCameraMovement::onScroll, this));
 	}
 
-	bool BasicCameraMovement::onKeyPress(KeyPressedEvent& e)
+	bool BasicCameraMovement::onScroll(MouseScrollEvent& e)
+	{
+		m_camera->setFOV(std::clamp(m_camera->getFOV() - e.getY(), 1.f, 65.f));
+		m_camera->recalculateProjection();
+
+		return false;
+	}
+
+	bool BasicCameraMovement::onMouseMove(MouseMoveEvent& e)
+	{
+		if (m_first_mouse_event)
+		{
+			m_last_mouse_pos = { e.getX(), e.getY() };
+			m_first_mouse_event = false;
+		}
+
+		float delta_x = (e.getX() - m_last_mouse_pos.first) * m_sensetivity;
+		float delta_y = (m_last_mouse_pos.second - e.getY()) * m_sensetivity;
+		m_last_mouse_pos = { e.getX(), e.getY() };
+
+		m_camera->setYaw(m_camera->getYaw() + delta_x);
+		m_camera->setPitch(std::clamp(m_camera->getPitch() + delta_y, -89.0f, 89.0f));
+
+		m_need_view_recalculation = true;
+
+		return true;
+	}
+
+	void BasicCameraMovement::onUpdate(float delta_time)
+	{
+		float speed = m_speed * delta_time;
+		switch (m_move_state)
+		{
+		case MoveState::Left:
+		{
+			m_camera->moveLeft(speed);
+			m_need_view_recalculation = true;
+			break;
+		}
+		case MoveState::Right:
+		{
+			m_camera->moveRight(speed);
+			m_need_view_recalculation = true;
+			break;
+		}
+		case MoveState::Forward:
+		{
+			m_camera->moveForward(speed);
+			m_need_view_recalculation = true;
+			break;
+		}
+		case MoveState::Back:
+		{
+			m_camera->moveBack(speed);
+			m_need_view_recalculation = true;
+			break;
+		}
+		case MoveState::Up:
+		{
+			m_camera->moveUp(speed);
+			m_need_view_recalculation = true;
+			break;
+		}
+		case MoveState::Down:
+		{
+			m_camera->moveDown(speed);
+			m_need_view_recalculation = true;
+			break;
+		}
+		}
+		if(m_need_view_recalculation)
+		{
+			m_camera->recalculateView();
+			m_need_view_recalculation = false;
+		}
+	}
+
+
+	bool BasicCameraMovement::onKeyPress(KeyPressEvent& e)
 	{
 		switch (e.getKey())
 		{
@@ -138,7 +195,7 @@ namespace bm
 		return true;
 	}
 
-	bool BasicCameraMovement::onKeyRelease(KeyReleasedEvent& e)
+	bool BasicCameraMovement::onKeyRelease(KeyReleaseEvent& e)
 	{
 		m_move_state = MoveState::None;
 		return true;

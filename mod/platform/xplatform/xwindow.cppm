@@ -79,7 +79,7 @@ public:
 	int                 getWidth() const { return m_data.width; }
 	int	                getHeight() const { return m_data.height; }
 	bool                getVSync() const { return m_data.vsync; };
-	NativeWindow     getNativeWindow() const { return m_window; }
+	NativeWindow        getNativeWindow() const { return m_window; }
 
 	void setVSync(bool enabled);
 	void setTitle(std::string_view title);
@@ -88,6 +88,8 @@ public:
 	void setOpacity(float opacity = 1.f);
 	void setPosition(int x, int y);
 	void setEventCallback(Event::EventCallbackFn fn) { m_data.callback = fn; }
+
+	void setCaptureCursor(bool value);
 	
 	void resize(int width, int height);
 	void hide();
@@ -109,6 +111,7 @@ private:
 	void setAllCallbacks();
 	void setMouseMoveCallback();
 	void setWindowFocusCallback();
+	void setMouseScrollCallback();
 
 private:
 

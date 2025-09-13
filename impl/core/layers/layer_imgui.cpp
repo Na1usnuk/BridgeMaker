@@ -57,11 +57,11 @@ void ImGuiLayer::onEvent(Event& e)
 	d.dispatch<bm::WindowMoveEvent>(bm::bindEventFn(&ImGuiLayer::onWindowMove, this));
 	d.dispatch<bm::WindowResizeEvent>(bm::bindEventFn(&ImGuiLayer::onWindowResize, this));
 
-	d.dispatch<bm::KeyPressedEvent>(bm::bindEventFn(&ImGuiLayer::onKeyPress, this));
-	d.dispatch<bm::KeyReleasedEvent>(bm::bindEventFn(&ImGuiLayer::onKeyRelease, this));
+	d.dispatch<bm::KeyPressEvent>(bm::bindEventFn(&ImGuiLayer::onKeyPress, this));
+	d.dispatch<bm::KeyReleaseEvent>(bm::bindEventFn(&ImGuiLayer::onKeyRelease, this));
 
-	d.dispatch<bm::MouseButtonPressedEvent>(bm::bindEventFn(&ImGuiLayer::onMousePress, this));
-	d.dispatch<bm::MouseButtonReleasedEvent>(bm::bindEventFn(&ImGuiLayer::onMouseRelease, this));
+	d.dispatch<bm::MouseButtonPressEvent>(bm::bindEventFn(&ImGuiLayer::onMousePress, this));
+	d.dispatch<bm::MouseButtonReleaseEvent>(bm::bindEventFn(&ImGuiLayer::onMouseRelease, this));
 	d.dispatch<bm::MouseMoveEvent>(bm::bindEventFn(&ImGuiLayer::onMouseMove, this));
 
 	d.dispatch<bm::AppRenderEvent>(bm::bindEventFn(&ImGuiLayer::onRender, this));
@@ -100,17 +100,17 @@ bool ImGuiLayer::onWindowResize(bm::WindowResizeEvent& e)
 	return false;
 }
 
-bool ImGuiLayer::onKeyPress(bm::KeyPressedEvent& e)
+bool ImGuiLayer::onKeyPress(bm::KeyPressEvent& e)
 {
 	return false;
 }
 
-bool ImGuiLayer::onKeyRelease(bm::KeyReleasedEvent& e)
+bool ImGuiLayer::onKeyRelease(bm::KeyReleaseEvent& e)
 {
 	return false;
 }
 
-bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
+bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleaseEvent& e)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseDown[static_cast<int>(e.getMouseButton())] = false;
@@ -118,7 +118,7 @@ bool ImGuiLayer::onMouseRelease(bm::MouseButtonReleasedEvent& e)
 	return ImGui::IsAnyItemHovered();
 }
 
-bool ImGuiLayer::onMousePress(bm::MouseButtonPressedEvent& e)
+bool ImGuiLayer::onMousePress(bm::MouseButtonPressEvent& e)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseDown[static_cast<int>(e.getMouseButton())] = true;

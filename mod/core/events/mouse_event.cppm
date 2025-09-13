@@ -104,11 +104,11 @@ protected:
 };
 
 
-class  MouseButtonPressedEvent : public MouseButtonEvent
+class  MouseButtonPressEvent : public MouseButtonEvent
 {
 public:
 
-	MouseButtonPressedEvent(int button) :
+	MouseButtonPressEvent(int button) :
 		MouseButtonEvent(button) {
 	}
 
@@ -117,7 +117,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "MouseButtonPressedEvent: " << static_cast<int>(m_button);
+			ss << "MouseButtonPressEvent: " << static_cast<int>(m_button);
 			return ss.str();
 		}
 		else
@@ -127,7 +127,7 @@ public:
 	const char* getName() const override
 	{
 		if constexpr (config::is_debug)
-			return "MouseButtonPressedEvent";
+			return "MouseButtonPressEvent";
 		else
 			return "";
 	}
@@ -138,11 +138,11 @@ public:
 };
 
 
-class  MouseButtonReleasedEvent : public MouseButtonEvent
+class  MouseButtonReleaseEvent : public MouseButtonEvent
 {
 public:
 
-	MouseButtonReleasedEvent(int button) :
+	MouseButtonReleaseEvent(int button) :
 		MouseButtonEvent(button) {
 	}
 
@@ -151,7 +151,7 @@ public:
 		if constexpr (config::is_debug)
 		{
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << static_cast<int>(m_button);
+			ss << "MouseButtonReleaseEvent: " << static_cast<int>(m_button);
 			return ss.str();
 		}
 		else
@@ -161,7 +161,7 @@ public:
 	const char* getName() const override
 	{
 		if constexpr (config::is_debug)
-			return "MouseButtonReleasedEvent";
+			return "MouseButtonReleaseEvent";
 		else
 			return "";
 	}
