@@ -20,7 +20,7 @@ public:
 
 	void pushLayer(ptr_t layer)
 	{
-		m_inserter = m_layers.emplace(m_inserter, layer);
+		m_inserter = m_layers.emplace(m_layers.begin() + m_insert_index++, layer);
 		layer->onAttach();
 	}
 
@@ -45,7 +45,7 @@ public:
 		if (finded != m_layers.end())
 		{
 			m_layers.erase(finded);
-			--m_inserter;
+			--m_insert_index;
 		}
 		layer->onDetach();
 	}
@@ -58,7 +58,7 @@ public:
 private:
 
 	std::vector<ptr_t> m_layers;
-	std::vector<ptr_t>::iterator m_inserter;
+	std::vector<ptr_t>::size_type m_insert_index = 0;
 };
 
 
