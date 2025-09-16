@@ -2,6 +2,7 @@ module;
 
 #include "glad/glad.h"
 #include "glm/mat4x4.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
 module bm.gfx.shader;
 
@@ -28,21 +29,18 @@ struct Shader::ProgramSource
 Shader::Shader(const std::filesystem::path& filepath)
     :  m_filepath(filepath), m_cache(std::make_unique<Cache>())
 {
-	core::verify(std::filesystem::exists(filepath), "Shader " + filepath.string() + " do not exist");
+	core::verify(std::filesystem::exists(filepath), "File " + filepath.string() + " do not exist!");
 	ProgramSource src = parseFromFile(filepath);
 	m_id = createProgram(src.vertexSource, src.fragmentSource);
 }
 
-//Shader::Shader(std::string_view src)
-//{
-//	ProgramSource srcs = parseFromString(src);
-//	m_id = createProgram(srcs.vertexSource, srcs.fragmentSource);
-//}
-
-Shader::Shader(std::string_view vertex_src, std::string_view fragment_src) 
-	: m_cache(std::make_unique<Cache>()), m_id(m_id = createProgram(vertex_src, fragment_src))
-{ 
+Shader::Shader(std::string_view src)
+	: m_cache(std::make_unique<Cache>())
+{
+	ProgramSource srcs = parseFromString(src);
+	m_id = createProgram(srcs.vertexSource, srcs.fragmentSource);
 }
+
 
 Shader::~Shader()
 {
@@ -114,6 +112,12 @@ void Shader::setUniform(std::string_view name, const glm::mat4& mat)
 {
 	bind();
 	glCall(glUniformMatrix4fv, getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::setUniform(std::string_view name, const glm::vec3& vec)
+{
+	bind();
+	glCall(glUniform3fv, getUniformLocation(name), 1, glm::value_ptr(vec));
 }
 
 int Shader::getUniformLocation(std::string_view name)

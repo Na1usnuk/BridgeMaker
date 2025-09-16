@@ -25,9 +25,9 @@ public:
 
 	Mesh() = default;
 
-	void setVertexArray(const std::shared_ptr<VertexArray>& vao) { m_vao = vao; }
-	void setShader(const std::shared_ptr<Shader>& shader) { m_shader = shader; }
-	void setIndexBuffer(const std::shared_ptr<IndexBuffer>& ibo) { m_ibo = ibo; }
+	void setVertexArray(VertexArray::KPtrRef vao) { m_vao = vao; }
+	void setShader(Shader::KPtrRef shader) { m_shader = shader; }
+	void setIndexBuffer(IndexBuffer::KPtrRef ibo) { m_ibo = ibo; }
 
 	std::shared_ptr<VertexArray> getVertexArray() const { return m_vao; }
 	std::shared_ptr<Shader>      getShader()      const { return m_shader; }
@@ -38,9 +38,9 @@ public:
 
 private:
 
-	std::shared_ptr<Shader> m_shader = nullptr;
-	std::shared_ptr<VertexArray> m_vao = nullptr;
-	std::shared_ptr<IndexBuffer> m_ibo = nullptr;
+	ShaderPtr m_shader = nullptr;
+	VertexArrayPtr m_vao = nullptr;
+	IndexBufferPtr m_ibo = nullptr;
 
 };
 

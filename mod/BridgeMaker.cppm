@@ -20,6 +20,7 @@ export import bm.utility;
 
 export import bm.assert;
 
+export import bm.gfx.camera;
 export import bm.camerainp;
 
 namespace bm

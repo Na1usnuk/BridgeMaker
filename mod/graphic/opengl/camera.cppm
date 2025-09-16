@@ -1,34 +1,25 @@
-module;
-
-#include "glm/vec3.hpp"
-#include "glm/mat4x4.hpp"
-#include "glm/glm.hpp"
-
 export module bm.gfx.camera;
+
+export import "glm/vec3.hpp";
+export import "glm/mat4x4.hpp";
+export import "glm/glm.hpp";
 
 import bm.log;
 
 namespace bm::gfx
 {
-
-
 export class Camera
 {
-
-
-	using vec3 = glm::vec3;
-	using mat4 = glm::mat4;
-
 public:
 
-	Camera(float fov, float aspectRation);
-
+	Camera(const glm::vec3& position);
+	virtual ~Camera() {}
 
 	void recalculateProjection();
 	void recalculateView();
 
-	const mat4& getProjection() const { return m_projection; }
-	const mat4& getView() const { return m_view; }
+	const glm::mat4& getProjection() const { return m_projection; }
+	const glm::mat4& getView() const { return m_view; }
 
 	void moveForward(float amount) {m_pos += amount * m_front; }
 	void moveBack(float amount) { m_pos -= amount * m_front; }
@@ -37,23 +28,33 @@ public:
 	void moveUp(float amount) { m_pos.y += amount; }
 	void moveDown(float amount) { m_pos.y -= amount; }
 
+	void setPosition(const glm::vec3& position) { m_pos = position; }
+	const glm::vec3& getPosition() const { return m_pos; }
+
 	void setFOV(float fov) { m_fov = fov; }
 	float getFOV() const { return m_fov; }
 
+	void setAspectRatio(float ratio) { m_aspect_ratio = ratio; }
+	float getAspectRatio() const { return m_aspect_ratio; }
+
 	float getYaw() const { return m_yaw; }
 	float getPitch() const { return m_pitch; }
+
 	void setYaw(float yaw) { m_yaw = yaw; }
 	void setPitch(float pitch) { m_pitch = pitch; }
 
+	const glm::vec3& getDirection() const { return m_front; }
+	const glm::vec3& getRight() const { return m_right; }
+
 private:
 
-	vec3 m_pos;
-	vec3 m_right;
-	vec3 m_up;
-	vec3 m_front;
+	glm::vec3 m_pos;
+	glm::vec3 m_right;
+	glm::vec3 m_up;
+	glm::vec3 m_front;
 
-	mat4 m_view;
-	mat4 m_projection;
+	glm::mat4 m_view;
+	glm::mat4 m_projection;
 
 	float m_fov;
 	float m_aspect_ratio;

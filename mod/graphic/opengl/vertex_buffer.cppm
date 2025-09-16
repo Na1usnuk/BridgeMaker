@@ -84,23 +84,24 @@ public:
 
 public:
 
-	template<Data D>
-	VertexBuffer(D data, std::size_t size, Draw draw_hint)
+	//template<Data D>
+	VertexBuffer(const void* data, std::size_t size, Draw draw_hint = Draw::STATIC)
 		: m_size(size)
 	{
 		glCall(glGenBuffers, 1, &m_id);
 		glCall(glBindBuffer, GL_ARRAY_BUFFER, m_id);
-		glCall(glBufferData, GL_ARRAY_BUFFER, size * sizeof(D), static_cast<const void*>(data), static_cast<int>(draw_hint));
+		glCall(glBufferData, GL_ARRAY_BUFFER, size, data, static_cast<int>(draw_hint));
 	}
 	VertexBuffer(std::size_t size, Draw draw_hint = Draw::STATIC) : VertexBuffer(nullptr, size, draw_hint) {}
 	template<Buffer B>
-	VertexBuffer(const B& data, Draw draw_hint = Draw::STATIC) : VertexBuffer(std::data(data), data.size() * sizeof(typename B::value_type), draw_hint) {}
+	VertexBuffer(const B& data, Draw draw_hint = Draw::STATIC) : VertexBuffer(std::data(data), data.size() * sizeof(B::value_type), draw_hint) {}
 	~VertexBuffer();
 
 	void bind() const;
 	void unbind() const;
 	void destroy();
 	void populate(const void* data);
+	std::size_t size() const { return m_size; }
 
 	template<typename T>
 	void pushLayout(std::size_t count) { m_layout.push<T>(count); }

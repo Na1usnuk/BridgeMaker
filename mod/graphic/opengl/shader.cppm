@@ -1,6 +1,7 @@
 module;
 
 #include "glm/mat4x4.hpp"
+#include "glm/vec3.hpp"
 
 export module bm.gfx.shader;
 
@@ -25,8 +26,7 @@ public:
 public:
 
 	Shader(const std::filesystem::path& filepath);
-	//Shader(std::string_view src);
-	Shader(std::string_view vertex_src, std::string_view fragment_src);
+	Shader(std::string_view src);
 	~Shader();
 
 	Shader(const Shader&) = delete;
@@ -43,10 +43,11 @@ public:
 	void setUniform(std::string_view name, float f0, float f1, float f2);
 	void setUniform(std::string_view name, float f);
 	void setUniform(std::string_view name, int i);
+	void setUniform(std::string_view name, const glm::vec3& vec);
 	void setUniform(std::string_view name, const glm::mat4& mat);
 
-	static Ptr make(const std::filesystem::path& filepath) { return std::make_shared<Shader>(filepath); }
-	static Ptr make(std::string_view vertex_src, std::string_view fragment_src) { return std::make_shared<Shader>(vertex_src, fragment_src); }
+	template<typename... Args>
+	static Ptr make(Args&&... args) { return std::make_shared<Shader>(std::forward<Args>(args)...); }
 
 
 private:

@@ -7,13 +7,16 @@ import bm.gfx.vertexarray;
 import bm.gfx.utility;
 import bm.gfx.obj;
 
+import bm.gfx.renderer;
+
 import std;
 
 
 namespace bm::gfx
 {
 
-export  constexpr const char* const basic_vertex_shader = R"(
+export  constexpr const char* const basic_shader = R"(
+            #shader vertex
             #version 330 core
             layout (location = 0) in vec3 vertices;
             uniform mat4 u_model;
@@ -23,18 +26,17 @@ export  constexpr const char* const basic_vertex_shader = R"(
             {
                 gl_Position = u_projection * u_view * u_model * vec4(vertices, 1);
             }
-        )";
 
-export  constexpr const char* const basic_fragment_shader = R"(
+            #shader fragment
             #version 330 core
             out vec4 o_fragment;
             uniform sampler2D samp;
+            uniform vec3 u_color;
             void main()
             {
-                o_fragment = vec4(1,1,1,1);
+                o_fragment = vec4(u_color, 1);
             }
         )";
-
 
 export class Triangle : public Object
 {
@@ -55,7 +57,7 @@ public:
 
         static auto vao = VertexArray::make(vbo);
 
-        static auto shader = Shader::make(basic_vertex_shader, basic_fragment_shader);
+        static auto shader = Shader::make(basic_shader);
 
         setShader(shader);
         setVertexArray(vao);
@@ -88,7 +90,7 @@ public:
         vbo->pushLayout<float>(3);
         static auto ibo = IndexBuffer::make(indices, sizeof(indices));
         static auto vao = VertexArray::make(vbo);
-        static auto shader = Shader::make(basic_vertex_shader, basic_fragment_shader);
+        static auto shader = Shader::make(basic_shader);
 
         setShader(shader);
         setVertexArray(vao);
@@ -168,12 +170,58 @@ public:
 
         static auto vao = VertexArray::make(vbo);
 
-        static auto shader = Shader::make(basic_vertex_shader, basic_fragment_shader);
+        static auto shader = Shader::make(basic_shader);
 
         setShader(shader);
         setVertexArray(vao);
         setIndexBuffer(ibo);
     }
+};
+
+
+export class Grid : public Object
+{
+public:
+
+    Grid(float size_of_line = 1000.f, float size_of_square_side = 0.2f)
+    {
+        const unsigned int lines_count = size_of_line / size_of_square_side; // Lines count in one direction
+
+        std::vector<float> vertices;
+        vertices.reserve(6 * 2 * lines_count); // 3 floats for line positions and lines count in both directions
+
+        const float size_from_origin = size_of_line / 2.f;
+
+        for (unsigned int i = 0; i < lines_count; ++i)
+        {
+            const float gap = size_from_origin - i * size_of_square_side;
+
+            //line on x
+            vertices.push_back(-size_from_origin);
+            vertices.push_back(0.f);
+            vertices.push_back(gap);
+            vertices.push_back(size_from_origin);
+            vertices.push_back(0.f);
+            vertices.push_back(gap);
+
+            //line on y
+            vertices.push_back(gap);
+            vertices.push_back(0.f);
+            vertices.push_back(-size_from_origin);
+            vertices.push_back(gap);
+            vertices.push_back(0.f);
+            vertices.push_back(size_from_origin);
+        }
+
+        auto vbo = VertexBuffer::make(vertices);
+        vbo->pushLayout<float>(3);
+        auto vao = VertexArray::make(vbo, VertexArray::DrawAs::LINES);
+        auto shader = Shader::make(basic_shader);
+
+        setShader(shader);
+        setVertexArray(vao);
+    }
+
 };
 
 

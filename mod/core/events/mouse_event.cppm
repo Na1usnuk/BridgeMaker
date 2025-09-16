@@ -91,7 +91,7 @@ class  MouseButtonEvent : public Event
 {
 public:
 
-	Input::Mouse getMouseButton() const { return m_button; }
+	Input::Mouse getKey() const { return m_button; }
 
 	int getCategoryFlags() const override { return Category::Mouse | Category::Input; }
 

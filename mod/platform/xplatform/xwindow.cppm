@@ -131,7 +131,7 @@ namespace gfx
 
 		void init();
 		void destroy();
-		void makeCurrent(Window& window);
+		void setCurrent(Window& window);
 		Window& getCurrent();
 		void swapBuffers();
 		Window::NativeWindow shareContext();

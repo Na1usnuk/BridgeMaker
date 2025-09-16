@@ -42,13 +42,20 @@ namespace bm::gfx
 		void moveZ(float to);
 		void move(const glm::vec3& to);
 
+		//not acumulative versions
+		void setRotation(const glm::vec3& degres);
+		void setPosition(const glm::vec3& to);
+		void setScale(const glm::vec3& by);
+
+		void setColor(glm::vec3 color) { m_color = color; }
+		const glm::vec3& getColor() const { return m_color; }
+
 		void apply();
 
 		const glm::mat4& getModel() const { return m_model; }
 
-		template<DerivedFromObject T>
-		static std::shared_ptr<T> make() { return std::make_shared<T>(); }
-		static Ptr make() { return std::make_shared<Object>(); }
+		template<DerivedFromObject T, typename... Args>
+		static std::shared_ptr<T> make(Args&&... args) { return std::make_shared<T>(std::forward<Args>(args)...); }
 
 	private:
 
@@ -57,6 +64,8 @@ namespace bm::gfx
 		glm::vec3 m_rotate = glm::vec3(0.f);
 		glm::vec3 m_scale = glm::vec3(1.f);
 		glm::vec3 m_translate = glm::vec3(0.f);
+
+		glm::vec3 m_color;
 
 	};
 
@@ -70,6 +79,21 @@ namespace bm::gfx
 		m_model = glm::rotate(m_model, glm::radians(m_rotate.y), glm::vec3(0.f, 1.f, 0.f));
 		m_model = glm::rotate(m_model, glm::radians(m_rotate.x), glm::vec3(1.f, 0.f, 0.f));
 		m_model = glm::scale(m_model, m_scale);
+	}
+
+	void Object::setRotation(const glm::vec3& degres)
+	{
+		m_rotate = degres;
+	}
+
+	void Object::setPosition(const glm::vec3& position)
+	{
+		m_translate = position;
+	}
+
+	void Object::setScale(const glm::vec3& by)
+	{
+		m_scale = by;
 	}
 
 	void Object::scale(const glm::vec3& by)

@@ -12,12 +12,12 @@ import bm.cursor;
 
 import bm.layer.stack;
 import bm.layer.base;
+import bm.layer.imgui;
 
 import bm.event.base;
 import bm.event.app;
 
 import bm.taskqueue;
-
 
 
 namespace bm 
@@ -33,6 +33,7 @@ public:
 
 	gfx::Renderer& getRenderer() { return m_renderer; }
 	Window& getWindow() { return m_window; }
+	gfx::Context& getContext() { return m_ctx; }
 
 protected:
 
@@ -42,10 +43,9 @@ protected:
 
 	virtual void processArgs(int argc, char** argv) {}
 
-	virtual void onUpdate(float delta_time) = 0;
-	virtual void onEvent(Event&) = 0;
-	void onLayersEvent(Event& e);
-	void onLayersUpdate(float delta_time);
+	virtual void onUpdate(float delta_time) {}
+	virtual void onEvent(Event&) {}
+	virtual void onImGuiRender() {}
 
 	void pushLayer(LayerStack::ptr_t layer) { m_layers.pushLayer(layer); }
 	void pushOverlay(LayerStack::ptr_t overlay) { m_layers.pushOverlay(overlay); }
@@ -59,12 +59,24 @@ protected:
 
 private:
 
+	void onLayersEvent(Event& e);
+	void onLayersUpdate(float delta_time);
+	void onLayersImGuiRender();
+
+	void onEventImpl(Event& e);
+	void onUpdateImpl(float delta_time);
+	void onImGuiRenderImpl();
+
+private:
+
 	gfx::Renderer m_renderer;
-	gfx::Context& m_ctx;
 
 	LayerStack m_layers;
+	std::weak_ptr<ImGuiLayer> m_imgui_layer;
 
 	Window m_window;
+
+	gfx::Context& m_ctx;
 
 	TaskQueue m_end_of_frame_tasks;
 

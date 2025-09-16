@@ -4,6 +4,7 @@ import bm.gfx.camera;
 import bm.event;
 import bm.input;
 import bm.log;
+import bm.app;
 
 import std;
 
@@ -27,7 +28,7 @@ namespace bm
 
 	public:
 
-		BasicCameraMovement(gfx::Camera* camera_to_control = nullptr, float speed = 1.0f, float sensetivity = .5f) 
+		BasicCameraMovement(gfx::Camera* camera_to_control = nullptr, float speed = 3.0f, float sensetivity = .5f) 
 			: m_camera(camera_to_control), 
 			  m_speed(speed), 
 			  m_sensetivity(sensetivity),
@@ -42,9 +43,13 @@ namespace bm
 		bool onKeyRelease(KeyReleaseEvent& e);
 		bool onMouseMove(MouseMoveEvent& e);
 		bool onScroll(MouseScrollEvent& e);
+		bool onMouseClick(MouseButtonPressEvent& e);
+		bool onMouseRelease(MouseButtonReleaseEvent& e);
 
 		void setSpeed(float speed) { m_speed = speed; }
 		float getSpeed() const { return m_speed; }
+		void setSensetivity(float sensetivity) { m_sensetivity = sensetivity; }
+		float getSensetivity() { return m_sensetivity; }
 
 		void setCamera(gfx::Camera* camera_to_control) { m_camera = camera_to_control; }
 
@@ -58,6 +63,7 @@ namespace bm
 
 		bool m_first_mouse_event = true;
 		bool m_need_view_recalculation = false;
+		bool m_camera_active = false;
 
 		MoveState m_move_state = MoveState::None;
 
@@ -74,12 +80,37 @@ namespace bm
 		d.dispatch<KeyReleaseEvent>(bindEventFn(&BasicCameraMovement::onKeyRelease, this));
 
 		d.dispatch<MouseMoveEvent>(bindEventFn(&BasicCameraMovement::onMouseMove, this));
-
 		d.dispatch<MouseScrollEvent>(bindEventFn(&BasicCameraMovement::onScroll, this));
+		d.dispatch<MouseButtonPressEvent>(bindEventFn(&BasicCameraMovement::onMouseClick, this));
+		d.dispatch<MouseButtonReleaseEvent>(bindEventFn(&BasicCameraMovement::onMouseRelease, this));
+	}
+
+	bool BasicCameraMovement::onMouseClick(MouseButtonPressEvent& e)
+	{
+		if (Input::Mouse::RIGHT != e.getKey())
+			return false;
+
+		Application::get().getWindow().setCaptureCursor(true);
+		m_camera_active = true;
+		return true;
+	}
+
+	bool BasicCameraMovement::onMouseRelease(MouseButtonReleaseEvent& e)
+	{
+		if (Input::Mouse::RIGHT != e.getKey())
+			return false;
+
+		//Application::get().getWindow().setCaptureCursor(false);
+		m_camera_active = true;
+		m_first_mouse_event = true;
+		return true;
 	}
 
 	bool BasicCameraMovement::onScroll(MouseScrollEvent& e)
 	{
+		if (!m_camera_active)
+			return false;
+
 		m_camera->setFOV(std::clamp(m_camera->getFOV() - e.getY(), 1.f, 65.f));
 		m_camera->recalculateProjection();
 
@@ -88,6 +119,12 @@ namespace bm
 
 	bool BasicCameraMovement::onMouseMove(MouseMoveEvent& e)
 	{
+		if (!m_camera_active)
+		{
+			m_last_mouse_pos = { e.getX(), e.getY() };
+			return false;
+		}
+
 		if (m_first_mouse_event)
 		{
 			m_last_mouse_pos = { e.getX(), e.getY() };
@@ -108,6 +145,9 @@ namespace bm
 
 	void BasicCameraMovement::onUpdate(float delta_time)
 	{
+		if (!m_camera_active)
+			return;
+
 		float speed = m_speed * delta_time;
 		switch (m_move_state)
 		{
@@ -158,6 +198,8 @@ namespace bm
 
 	bool BasicCameraMovement::onKeyPress(KeyPressEvent& e)
 	{
+		if (!m_camera_active)
+			return false;
 		switch (e.getKey())
 		{
 		case Input::Key::W:

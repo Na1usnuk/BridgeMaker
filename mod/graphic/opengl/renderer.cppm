@@ -11,6 +11,7 @@ import bm.gfx.mesh;
 import bm.gfx.texture;
 import bm.gfx.scene;
 import bm.gfx.camera;
+import bm.gfx.obj;
 
 namespace bm::gfx
 {
@@ -85,20 +86,29 @@ public:
 	~Renderer();
 
 	void clear();
-	void draw(const VertexArray&, const IndexBuffer&, const Shader&);
-	void draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader) { draw(*vao, *ibo, *shader); }
-	void draw(const Mesh& mesh) { draw(mesh.getVertexArray(), mesh.getIndexBuffer(), mesh.getShader()); }
-	void draw(const std::shared_ptr<Mesh>& mesh) { draw(*mesh); }
+	void draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader);
+	void draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<Shader>& shader);
+	void draw(const std::shared_ptr<Mesh>& mesh) 
+	{ 
+		if (mesh->getIndexBuffer() != nullptr)
+			draw(mesh->getVertexArray(), mesh->getIndexBuffer(), mesh->getShader());
+		else
+			draw(mesh->getVertexArray(), mesh->getShader());
+	}
+	void draw(const std::shared_ptr<Object>& obj, const Camera& camera)
+	{
+		auto shader = obj->getShader();
+		shader->setUniform("u_model", obj->getModel());
+		shader->setUniform("u_view", camera.getView());
+		shader->setUniform("u_projection", camera.getProjection());
+		shader->setUniform("u_color", obj->getColor());
+
+		draw(std::static_pointer_cast<Mesh>(obj));
+	}
 	void draw(const Scene& scene, const Camera& camera)
 	{
 		for (const auto& obj : scene.getObjects())
-		{
-			auto shader = obj->getShader();
-			shader->setUniform("u_model", obj->getModel());
-			shader->setUniform("u_view", camera.getView());
-			shader->setUniform("u_projection", camera.getProjection());
-			draw(obj);
-		}
+			draw(obj, camera);
 	}
 	
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);

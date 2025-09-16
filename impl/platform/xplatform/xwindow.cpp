@@ -168,7 +168,7 @@ void Window::create(bool decorated, bool visible)
 		core::verify(success, "Failed to initialize GLFW");
 		log::core::info("GLFW initialized");
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		s_isGLFWInitialized = true;
 	}
@@ -181,7 +181,7 @@ void Window::create(bool decorated, bool visible)
 
 	m_data.window = this;
 
-	gfx::Context::getContext().makeCurrent(*this);
+	gfx::Context::getContext().setCurrent(*this);
 	gfx::Context::getContext().init();
 	Cursor::init();
 	setVSync(m_data.vsync);
@@ -357,10 +357,11 @@ namespace gfx
 
 	}
 
-	void Context::makeCurrent(Window& window)
+	void Context::setCurrent(Window& window)
 	{
-		if (m_window == &window)
-			return;
+		// ImGui can change context, so i need to rebind it every time
+		//if (m_window == &window)
+			//return;
 		m_window = &window;
 		glfwMakeContextCurrent(m_window->getNativeWindow());
 	}

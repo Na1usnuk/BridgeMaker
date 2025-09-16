@@ -12,14 +12,14 @@ import bm.gfx.buffer.vertex;
 namespace bm::gfx
 {
 
-VertexArray::VertexArray()
-	: m_id(0)
+VertexArray::VertexArray(DrawAs as)
+	: m_id(0), m_vertices_count(0), m_draw_as(as)
 {
 	glCall(glGenVertexArrays, 1, &m_id);
 	bind();
 }
 
-VertexArray::VertexArray(std::shared_ptr<VertexBuffer> vbo) : VertexArray()
+VertexArray::VertexArray(std::shared_ptr<VertexBuffer> vbo, DrawAs as) : VertexArray(as)
 {
 	addVertexBuffer(vbo);
 }
@@ -59,6 +59,8 @@ void VertexArray::addVertexBuffer(const VertexBuffer& vb)
 
 	const auto& elements = vb.getLayout().elements();
 	unsigned long long offset = 0;
+
+	m_vertices_count = vb.size() / elements[0].count;
 
 	for (unsigned int i = 0; i < elements.size(); ++i)
 	{

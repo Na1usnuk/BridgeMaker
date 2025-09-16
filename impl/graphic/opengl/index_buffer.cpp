@@ -6,6 +6,7 @@ module bm.gfx.buffer.index;
 
 import bm.gfx.utility;
 
+
 namespace bm::gfx
 {
 

@@ -126,13 +126,22 @@ void Renderer::setPolygonMode(PolygonMode mode)
 	}
 }
 
-void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& sh)
+void Renderer::draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader)
 {
-	sh.bind();
-	va.bind();
-	ib.bind();
+	shader->bind();
+	vao->bind();
+	ibo->bind();
 
-	glCall(glDrawElements, GL_TRIANGLES, ib.count(), GL_UNSIGNED_INT, nullptr);
+	glCall(glDrawElements, static_cast<int>(vao->getDrawAs()), ibo->count(), GL_UNSIGNED_INT, nullptr);
+
+}
+
+void Renderer::draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<Shader>& shader)
+{
+	shader->bind();
+	vao->bind();
+
+	glCall(glDrawArrays, static_cast<int>(vao->getDrawAs()), 0, vao->getVerticesCount());
 }
 
 }
