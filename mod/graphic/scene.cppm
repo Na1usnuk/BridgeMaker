@@ -11,6 +11,11 @@ namespace bm::gfx
 	{
 	public:
 
+		using Ptr = std::shared_ptr<Scene>;
+		using KPtrRef = const Ptr&;
+
+	public:
+
 		Scene() = default;
 		~Scene() = default;
 
@@ -20,6 +25,8 @@ namespace bm::gfx
 		}
 
 		const std::vector<ObjectPtr>& getObjects() const { return m_objects; }
+
+		static Ptr make() { return std::make_shared<Scene>(); }
 
 	private:
 

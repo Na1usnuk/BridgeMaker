@@ -21,6 +21,7 @@ namespace bm::gfx
 	
 Renderer::Renderer()
 {
+	glCall(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
 }
 
 Renderer::~Renderer()
@@ -126,7 +127,7 @@ void Renderer::setPolygonMode(PolygonMode mode)
 	}
 }
 
-void Renderer::draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader)
+void Renderer::draw(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader)
 {
 	shader->bind();
 	vao->bind();
@@ -136,12 +137,35 @@ void Renderer::draw(const std::shared_ptr<VertexArray>& vao, const std::shared_p
 
 }
 
-void Renderer::draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<Shader>& shader)
+void Renderer::draw(VertexArray::KPtrRef vao, Shader::KPtrRef shader)
 {
 	shader->bind();
 	vao->bind();
 
 	glCall(glDrawArrays, static_cast<int>(vao->getDrawAs()), 0, vao->getVerticesCount());
+}
+
+void Renderer::draw(Mesh::KPtrRef mesh)
+{
+	if (mesh->getIndexBuffer() != nullptr)
+		draw(mesh->getVertexArray(), mesh->getIndexBuffer(), mesh->getShader());
+	else
+		draw(mesh->getVertexArray(), mesh->getShader());
+}
+void Renderer::draw(Object::KPtrRef obj, Camera::KPtrRef camera)
+{
+	auto shader = obj->getShader();
+	shader->setUniform("u_model", obj->getModel());
+	shader->setUniform("u_view", camera->getView());
+	shader->setUniform("u_projection", camera->getProjection());
+	shader->setUniform("u_color", obj->getColor());
+
+	draw(std::static_pointer_cast<Mesh>(obj));
+}
+void Renderer::draw(Scene::KPtrRef scene, Camera::KPtrRef camera)
+{
+	for (const auto& obj : scene->getObjects())
+		draw(obj, camera);
 }
 
 }

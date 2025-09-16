@@ -6,10 +6,17 @@ export import "glm/glm.hpp";
 
 import bm.log;
 
+import std;
+
 namespace bm::gfx
 {
 export class Camera
 {
+public:
+
+	using Ptr = std::unique_ptr<Camera>;
+	using KPtrRef = const Ptr&;
+
 public:
 
 	Camera(const glm::vec3& position);
@@ -46,6 +53,8 @@ public:
 	const glm::vec3& getDirection() const { return m_front; }
 	const glm::vec3& getRight() const { return m_right; }
 
+	static Ptr make(const glm::vec3& position) { return std::make_unique<Camera>(position); }
+
 private:
 
 	glm::vec3 m_pos;
@@ -62,5 +71,6 @@ private:
 	float m_pitch;
 };
 
+export using CameraPtr = Camera::Ptr;
 
 }

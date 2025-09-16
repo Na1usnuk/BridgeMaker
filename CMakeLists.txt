@@ -19,19 +19,20 @@ project(BridgeMaker LANGUAGES CXX)
 #------------------------------------------------#
 
 set(CMAKE_CXX_STANDARD 23)
-
-# Don`t really required, but for sanity i force it
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Will try to get rid of it and fully use c++20 modules in future
-#set(PCH_HEADER ${BridgeMaker_SOURCE_DIR}/include/pch.hpp)
 
 # For now i only interested in debug configuration
 set(BM_CONFIG debug)
 set(CMAKE_BUILD_TYPE Debug)
 
+# Specify directories for output
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BridgeMaker_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BridgeMaker_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BridgeMaker_SOURCE_DIR}/bin)
+
 # Currently only crossplatform is supported.
-# Crossplatform use glfw + opengl
+# Crossplatform uses glfw + opengl
 # When first platform specific implementation will be writen, than this should be removed.
 set(BM_PLATFORM xplatform)
 set(BM_GRAPHIC opengl)

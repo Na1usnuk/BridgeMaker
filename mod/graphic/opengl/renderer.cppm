@@ -78,6 +78,7 @@ private:
 		bool depth_test;
 		DepthFunc depth_test_func;
 		BlendFunc blend_func;
+		int texture_slot_count;
 	};
 
 public:
@@ -86,45 +87,26 @@ public:
 	~Renderer();
 
 	void clear();
-	void draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<IndexBuffer>& ibo, const std::shared_ptr<Shader>& shader);
-	void draw(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<Shader>& shader);
-	void draw(const std::shared_ptr<Mesh>& mesh) 
-	{ 
-		if (mesh->getIndexBuffer() != nullptr)
-			draw(mesh->getVertexArray(), mesh->getIndexBuffer(), mesh->getShader());
-		else
-			draw(mesh->getVertexArray(), mesh->getShader());
-	}
-	void draw(const std::shared_ptr<Object>& obj, const Camera& camera)
-	{
-		auto shader = obj->getShader();
-		shader->setUniform("u_model", obj->getModel());
-		shader->setUniform("u_view", camera.getView());
-		shader->setUniform("u_projection", camera.getProjection());
-		shader->setUniform("u_color", obj->getColor());
+	void draw(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader);
+	void draw(VertexArray::KPtrRef vao, Shader::KPtrRef shader);
+	void draw(Mesh::KPtrRef mesh);
+	void draw(Object::KPtrRef, Camera::KPtrRef camera);
+	void draw(Scene::KPtrRef scene, Camera::KPtrRef camera);
 
-		draw(std::static_pointer_cast<Mesh>(obj));
-	}
-	void draw(const Scene& scene, const Camera& camera)
-	{
-		for (const auto& obj : scene.getObjects())
-			draw(obj, camera);
-	}
-	
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
-
 	void setDepthTesting(bool value);
 	void setDepthTestFunc(DepthFunc func = DepthFunc::LESS);
-
 	void setBlend(bool value);
 	void setBlendFunc(BlendSrc src = BlendSrc::ALPHA, BlendFunc func = BlendFunc::ONE_MINUS_SRC_ALPHA);
 
 	void setView(const std::array<int, 4>& viewport);
-	const std::array<int, 4>& getView() const { return m_state_cache.viewport; }
 	void setBackgroundColor(const RGBA_t& rgba);
 	void setBackgroundColor(const RGB_t& rgb);
 	void clearColor(const RGBA_t& rgba);
 	void clearColor(const RGB_t& rgb);
+
+	const std::array<int, 4>& getView() const { return m_state_cache.viewport; }
+	int getTextureSlotCount() const { return m_state_cache.texture_slot_count; }
 
 
 private:
