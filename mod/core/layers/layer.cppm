@@ -8,6 +8,10 @@ import bm.event.base;
 
 namespace bm {
 
+export class Layer;
+
+template<typename T>
+concept DerivedFromLayer = std::is_base_of_v<Layer, T>;
 
 export class Layer
 {
@@ -21,7 +25,7 @@ public:
 	const std::string getName() const 
 	{ 
 		if constexpr (config::is_debug)
-			return m_name;
+			return m_debug_name;
 		else
 			return {};
 	}
@@ -39,18 +43,21 @@ public:
 	void enable(bool enable = true) { m_enabled = enable; }
 	void disable(bool disable = true) { enable(not disable); }
 
-	virtual void onAttach() = 0;
-	virtual void onDetach() = 0;
-	virtual void onEvent(Event& e) = 0;
-	virtual void onUpdate(float delta_time) = 0;
+	virtual void onAttach() {}
+	virtual void onDetach() {}
+	virtual void onEvent(Event& e) {}
+	virtual void onUpdate(float delta_time) {}
+	virtual void onImGuiRender() {}
 
 	virtual void setWindow(Window& window) {} //set window to render on
+
+	template<DerivedFromLayer L, typename... Args>
+	static std::shared_ptr<L> make(Args&&... args) { return std::make_shared<L>(std::forward<Args>(args)...); }
 
 private:
 
 	bool m_enabled = true;
 
-	std::string m_name;
 	std::conditional<config::is_debug, std::string, std::monostate>::type m_debug_name;
 
 };

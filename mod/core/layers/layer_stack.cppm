@@ -16,11 +16,9 @@ public:
 
 public:
 
-	LayerStack() : m_inserter(m_layers.begin()) {}
-
 	void pushLayer(ptr_t layer)
 	{
-		m_inserter = m_layers.emplace(m_layers.begin() + m_insert_index++, layer);
+		m_layers.emplace(m_layers.begin() + m_insert_index++, layer);
 		layer->onAttach();
 	}
 
