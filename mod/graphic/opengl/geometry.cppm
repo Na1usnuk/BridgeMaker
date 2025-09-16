@@ -9,14 +9,15 @@ import bm.gfx.obj;
 
 import bm.gfx.renderer;
 
+import bm.assetmanager;
+
 import std;
 
 
 namespace bm::gfx
 {
 
-export  constexpr const char* const basic_shader = R"(
-            #shader vertex
+export  constexpr const char* const basic_vertex_shader = R"(
             #version 330 core
             layout (location = 0) in vec3 vertices;
             uniform mat4 u_model;
@@ -26,8 +27,9 @@ export  constexpr const char* const basic_shader = R"(
             {
                 gl_Position = u_projection * u_view * u_model * vec4(vertices, 1);
             }
+            )";
 
-            #shader fragment
+export  constexpr const char* const basic_fragment_shader = R"(
             #version 330 core
             out vec4 o_fragment;
             uniform sampler2D samp;
@@ -57,7 +59,7 @@ public:
 
         static auto vao = VertexArray::make(vbo);
 
-        static auto shader = Shader::make(basic_shader);
+        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
 
         setShader(shader);
         setVertexArray(vao);
@@ -90,7 +92,7 @@ public:
         vbo->pushLayout<float>(3);
         static auto ibo = IndexBuffer::make(indices, sizeof(indices));
         static auto vao = VertexArray::make(vbo);
-        static auto shader = Shader::make(basic_shader);
+        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
 
         setShader(shader);
         setVertexArray(vao);
@@ -170,7 +172,7 @@ public:
 
         static auto vao = VertexArray::make(vbo);
 
-        static auto shader = Shader::make(basic_shader);
+        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
 
         setShader(shader);
         setVertexArray(vao);
@@ -216,7 +218,7 @@ public:
         auto vbo = VertexBuffer::make(vertices);
         vbo->pushLayout<float>(3);
         auto vao = VertexArray::make(vbo, VertexArray::DrawAs::LINES);
-        auto shader = Shader::make(basic_shader);
+        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
 
         setShader(shader);
         setVertexArray(vao);

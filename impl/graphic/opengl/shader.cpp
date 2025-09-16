@@ -34,11 +34,10 @@ Shader::Shader(const std::filesystem::path& filepath)
 	m_id = createProgram(src.vertexSource, src.fragmentSource);
 }
 
-Shader::Shader(std::string_view src)
+Shader::Shader(std::string_view vertex, std::string_view fragment)
 	: m_cache(std::make_unique<Cache>())
 {
-	ProgramSource srcs = parseFromString(src);
-	m_id = createProgram(srcs.vertexSource, srcs.fragmentSource);
+	m_id = createProgram(vertex, fragment);
 }
 
 
@@ -118,6 +117,12 @@ void Shader::setUniform(std::string_view name, const glm::vec3& vec)
 {
 	bind();
 	glCall(glUniform3fv, getUniformLocation(name), 1, glm::value_ptr(vec));
+}
+
+void Shader::setUniform(std::string_view name, const glm::vec4& vec)
+{
+	bind();
+	glCall(glUniform4fv, getUniformLocation(name), 1, glm::value_ptr(vec));
 }
 
 int Shader::getUniformLocation(std::string_view name)

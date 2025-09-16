@@ -84,7 +84,6 @@ public:
 
 public:
 
-	//template<Data D>
 	VertexBuffer(const void* data, std::size_t size, Draw draw_hint = Draw::STATIC)
 		: m_size(size)
 	{
@@ -95,6 +94,7 @@ public:
 	VertexBuffer(std::size_t size, Draw draw_hint = Draw::STATIC) : VertexBuffer(nullptr, size, draw_hint) {}
 	template<Buffer B>
 	VertexBuffer(const B& data, Draw draw_hint = Draw::STATIC) : VertexBuffer(std::data(data), data.size() * sizeof(B::value_type), draw_hint) {}
+
 	~VertexBuffer();
 
 	void bind() const;

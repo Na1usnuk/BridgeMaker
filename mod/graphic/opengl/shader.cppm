@@ -26,7 +26,8 @@ public:
 public:
 
 	Shader(const std::filesystem::path& filepath);
-	Shader(std::string_view src);
+	explicit Shader(std::string_view vertex, std::string_view fragment);
+
 	~Shader();
 
 	Shader(const Shader&) = delete;
@@ -44,11 +45,11 @@ public:
 	void setUniform(std::string_view name, float f);
 	void setUniform(std::string_view name, int i);
 	void setUniform(std::string_view name, const glm::vec3& vec);
+	void setUniform(std::string_view name, const glm::vec4& vec);
 	void setUniform(std::string_view name, const glm::mat4& mat);
 
 	template<typename... Args>
 	static Ptr make(Args&&... args) { return std::make_shared<Shader>(std::forward<Args>(args)...); }
-
 
 private:
 

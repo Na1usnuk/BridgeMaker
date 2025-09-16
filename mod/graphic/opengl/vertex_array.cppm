@@ -30,8 +30,7 @@ public:
 	VertexArray(VertexArray&& oth) noexcept;
 	VertexArray& operator=(VertexArray&& oth) noexcept;
 
-	void addVertexBuffer(const VertexBuffer& vbo);
-	void addVertexBuffer(VertexBufferPtr vbo) { addVertexBuffer(*vbo); }
+	void addVertexBuffer(VertexBufferPtr vbo);
 
 	void bind() const;
 	void unbind() const;

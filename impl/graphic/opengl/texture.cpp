@@ -17,6 +17,16 @@ namespace bm::gfx
 	Texture::Wrappering Texture::s_default_wrappering = Texture::Wrappering::REPEAT;
 	Texture::Filtering Texture::s_default_filtering = Texture::Filtering::NEAREST;
 
+	int Texture::s_num_of_slots = 0;
+
+	int Texture::getMaxSlotCount()
+	{
+		if (s_num_of_slots == 0)
+			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &s_num_of_slots);
+
+		return s_num_of_slots;
+	}
+
 	Texture::Texture(const std::filesystem::path& filepath)
 		: m_id(0), m_data(0, 0, 0, 0, filepath, nullptr)
 	{

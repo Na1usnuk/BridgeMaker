@@ -47,6 +47,8 @@ public:
 
 	static Ptr make(const std::filesystem::path& filepath) { return std::make_shared<Texture>(filepath); }
 
+	static int getMaxSlotCount();
+
 private:
 
 	unsigned int m_id;
