@@ -14,7 +14,7 @@ export class Camera
 {
 public:
 
-	using Ptr = std::unique_ptr<Camera>;
+	using Ptr = std::shared_ptr<Camera>;
 	using KPtrRef = const Ptr&;
 
 public:
@@ -27,13 +27,6 @@ public:
 
 	const glm::mat4& getProjection() const { return m_projection; }
 	const glm::mat4& getView() const { return m_view; }
-
-	void moveForward(float amount) {m_pos += amount * m_front; }
-	void moveBack(float amount) { m_pos -= amount * m_front; }
-	void moveLeft(float amount) {m_pos -= glm::normalize(glm::cross(m_front, m_up)) * amount;}
-	void moveRight(float amount) { m_pos += glm::normalize(glm::cross(m_front, m_up)) * amount; }
-	void moveUp(float amount) { m_pos.y += amount; }
-	void moveDown(float amount) { m_pos.y -= amount; }
 
 	void setPosition(const glm::vec3& position) { m_pos = position; }
 	const glm::vec3& getPosition() const { return m_pos; }
@@ -52,6 +45,7 @@ public:
 
 	const glm::vec3& getDirection() const { return m_front; }
 	const glm::vec3& getRight() const { return m_right; }
+	const glm::vec3& getUp() const { return m_up; }
 
 	static Ptr make(const glm::vec3& position) { return std::make_unique<Camera>(position); }
 
