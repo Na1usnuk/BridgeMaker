@@ -12,6 +12,7 @@ import bm.gfx.shader;
 
 import bm.window;
 
+import bm.log;
 
 import std;
 
@@ -21,7 +22,8 @@ namespace bm::gfx
 	
 Renderer::Renderer()
 {
-	glCall(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
+	//log::core::trace("glGetError is {}", (void*)glGetError);
+	//glCall(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
 }
 
 Renderer::~Renderer()

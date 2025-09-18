@@ -47,8 +47,8 @@ namespace bm::gfx
 		void setPosition(const glm::vec3& to);
 		void setScale(const glm::vec3& by);
 
-		void setColor(glm::vec3 color) { m_color = color; }
-		const glm::vec3& getColor() const { return m_color; }
+		void setColor(const glm::vec4& color) { m_color = color; }
+		const glm::vec4& getColor() const { return m_color; }
 
 		void apply();
 
@@ -65,7 +65,7 @@ namespace bm::gfx
 		glm::vec3 m_scale = glm::vec3(1.f);
 		glm::vec3 m_translate = glm::vec3(0.f);
 
-		glm::vec3 m_color;
+		glm::vec4 m_color = glm::vec4(1.f);
 
 	};
 

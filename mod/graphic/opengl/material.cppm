@@ -21,7 +21,6 @@ namespace bm::gfx
 
 	public:
 
-		Material() = delete;
 		Material(ShaderPtr shader);
 
 
@@ -43,9 +42,9 @@ namespace bm::gfx
 				});
 		}
 
-		void setColor(float r, float g, float b, float a)
+		void setColor(std::array<float, 4> color)
 		{
-			setUniform("u_color", r, g, b, a);
+			setUniform("u_color", color[0], color[1], color[2], color[3]);
 		}
 
 		void setTexture(TexturePtr texture)

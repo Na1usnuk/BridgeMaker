@@ -82,15 +82,11 @@ public:
 	using Ptr = std::shared_ptr<VertexBuffer>;
 	using KPtrRef = const Ptr&;
 
+	class Data;
+
 public:
 
-	VertexBuffer(const void* data, std::size_t size, Draw draw_hint = Draw::STATIC)
-		: m_size(size)
-	{
-		glCall(glGenBuffers, 1, &m_id);
-		glCall(glBindBuffer, GL_ARRAY_BUFFER, m_id);
-		glCall(glBufferData, GL_ARRAY_BUFFER, size, data, static_cast<int>(draw_hint));
-	}
+	VertexBuffer(const void* data, std::size_t size, Draw draw_hint = Draw::STATIC);
 	VertexBuffer(std::size_t size, Draw draw_hint = Draw::STATIC) : VertexBuffer(nullptr, size, draw_hint) {}
 	template<Buffer B>
 	VertexBuffer(const B& data, Draw draw_hint = Draw::STATIC) : VertexBuffer(std::data(data), data.size() * sizeof(B::value_type), draw_hint) {}
@@ -108,7 +104,7 @@ public:
 
 	const VertexBufferLayout& getLayout() const { return m_layout; }
 
-	template<Data D>
+	template<PtrToData D>
 	static Ptr make(D data, std::size_t size, Draw draw_hint = Draw::STATIC) { return std::make_shared<VertexBuffer>(data, size, draw_hint); }
 	static Ptr make(std::size_t size, Draw draw_hint = Draw::STATIC) { return std::make_shared<VertexBuffer>(size, draw_hint); }
 	template<Buffer B>
@@ -127,6 +123,63 @@ private:
 
 
 export using VertexBufferPtr = VertexBuffer::Ptr;
+
+
+// To represent all data that VertexBuffer need
+class VertexBuffer::Data : private std::enable_shared_from_this<Data>
+{
+public:
+
+	using Ptr = std::shared_ptr<Data>;
+	using KPtrRef = const Ptr&;
+
+private:
+
+	enum class LayoutType
+	{
+		FLOAT = 1,
+		UNSIGNED_INT,
+		UNSIGNED_CHAR
+	};
+
+public:
+
+	Data() = default;
+
+
+	template<typename T>
+	void pushLayout(unsigned int count) { core::verify(false, "Type not supported"); }
+	template<>
+	void pushLayout<float>(unsigned int count) { m_layout.push_back({ LayoutType::FLOAT, count }); }
+	template<>
+	void pushLayout<unsigned int >(unsigned int count) { m_layout.push_back({ LayoutType::UNSIGNED_INT, count }); }
+	template<>
+	void pushLayout<unsigned char>(unsigned int count) { m_layout.push_back({ LayoutType::UNSIGNED_CHAR, count }); }
+
+	const std::vector<float>& getBuffer() const { return m_buffer; }
+	const std::vector<std::pair<LayoutType, unsigned int>>& getLayouts() const { return m_layout; }
+	std::size_t getBufferSize() const { return m_buffer.size(); }
+	std::size_t getLayoutsSize() const { return m_layout.size(); }
+
+	Ptr operator+(KPtrRef oth)
+	{
+		m_buffer.reserve(oth->getBufferSize() + getBufferSize());
+
+		return shared_from_this();
+	}
+
+private:
+
+	std::vector<float> m_buffer;
+	std::vector<std::pair<LayoutType, unsigned int>> m_layout;
+	Draw m_draw_hint;
+
+};
+
+export VertexBuffer::Data::Ptr operator+ (VertexBuffer::Data::KPtrRef lhs, VertexBuffer::Data::KPtrRef rhs)
+{
+	return VertexBuffer::Data::Ptr{};
+}
 
 }
 

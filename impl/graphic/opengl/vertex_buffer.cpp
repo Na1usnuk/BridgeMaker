@@ -10,6 +10,12 @@ import bm.gfx.utility;
 namespace bm::gfx
 {
 
+VertexBuffer::VertexBuffer(const void* data, std::size_t size, Draw draw_hint)
+	: m_size(size)
+{
+	glCall(glCreateBuffers, 1, &m_id);
+	glCall(glNamedBufferStorage, m_id, size, data, 0);
+}
 
 VertexBuffer::~VertexBuffer()
 {

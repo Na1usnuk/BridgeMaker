@@ -24,7 +24,7 @@ concept Buffer = requires (Container c)
 };
 
 export template<typename T>
-concept Data = std::is_convertible_v<T, const void*>;
+concept PtrToData = std::is_convertible_v<T, const void*>;
 
 void glClearError()
 {
@@ -60,6 +60,7 @@ constexpr inline auto glCall(GLFunc func, ARGS&&... args) -> decltype(func(std::
 		return result;
 	}
 }
+
 
 }
 

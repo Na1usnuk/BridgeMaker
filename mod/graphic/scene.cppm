@@ -25,6 +25,7 @@ namespace bm::gfx
 		}
 
 		const std::vector<ObjectPtr>& getObjects() const { return m_objects; }
+		std::vector<ObjectPtr>& getObjects() { return m_objects; }
 
 		static Ptr make() { return std::make_shared<Scene>(); }
 
@@ -34,5 +35,6 @@ namespace bm::gfx
 
 	};
 
+	export using ScenePtr = Scene::Ptr;
 
 }

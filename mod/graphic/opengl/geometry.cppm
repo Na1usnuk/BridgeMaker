@@ -18,7 +18,7 @@ namespace bm::gfx
 {
 
 export  constexpr const char* const basic_vertex_shader = R"(
-            #version 330 core
+            #version 450 core
             layout (location = 0) in vec3 vertices;
             uniform mat4 u_model;
             uniform mat4 u_view;
@@ -30,13 +30,14 @@ export  constexpr const char* const basic_vertex_shader = R"(
             )";
 
 export  constexpr const char* const basic_fragment_shader = R"(
-            #version 330 core
+            #version 450 core
             out vec4 o_fragment;
-            uniform sampler2D samp;
-            uniform vec3 u_color;
+            uniform sampler2D u_sampler2d;
+            uniform vec3 u_texture;
+            uniform vec4 u_color;
             void main()
             {
-                o_fragment = vec4(u_color, 1);
+                o_fragment = u_color;
             }
         )";
 

@@ -1,1 +1,7 @@
 bin/
+build/
+
+SandBox/build/
+SandBox/bin/Debug/
+SandBox/bin/Release/
+SandBox/bin/RelWithDebInfo/
