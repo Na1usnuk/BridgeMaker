@@ -9,14 +9,17 @@ export class SandBox : public bm::Application
 {
 public:
 
-	SandBox() : bm::Application("SandBox", 1200, 720), m_camera(bm::gfx::Camera::make({0.f, 2.f, -3.f})), m_scene(scene::cube())
-		//m_camera2d(0, 1200, 0, 720)
+	SandBox() : bm::Application("SandBox", 1200, 720), 
+		m_camera(bm::gfx::Camera::make({0.f, 2.f, -3.f})), 
+		m_scene(scene::cube()),
+		m_camera2d(0, 1200, 0, 720)
 	{
 		setFPSLimit(120);
 
 
 		auto camera_input = bm::Layer::make<bm::DefaultCameraInputLayer>(m_camera);
 		camera_input->setSensetivity(0.2f);
+		camera_input->setSpeed(5.f);
 		pushOverlay(camera_input);
 
 		m_camera_input = camera_input;
@@ -47,7 +50,13 @@ public:
 		d.dispatch<bm::AppRenderEvent>(bm::bindEventFn(& SandBox::onRender, this));
 
 		d.dispatch<bm::WindowCloseEvent>([this](bm::WindowCloseEvent& e) { this->close(); return true; });
-		d.dispatch<bm::WindowResizeEvent>([this](bm::WindowResizeEvent& e) { this->getRenderer().setView({0, 0, e.getWidth(), e.getHeight()}); return true; });
+		d.dispatch<bm::WindowResizeEvent>([this](bm::WindowResizeEvent& e) 
+			{ 
+				this->getRenderer().setView({0, 0, e.getWidth(), e.getHeight()}); 
+				m_camera->setAspectRatio((float)e.getWidth() / (float)e.getHeight());
+				m_camera->recalculateProjection();
+				return true; 
+			});
 
 		d.dispatch<bm::KeyPressEvent>(bm::bindEventFn(&SandBox::onKeyPress, this));
 	}
@@ -97,6 +106,6 @@ private:
 	std::weak_ptr<bm::DefaultCameraInputLayer> m_camera_input;
 	bm::gfx::CameraPtr m_camera;
 	bm::gfx::ScenePtr m_scene;
-	//bm::gfx::Camera2D m_camera2d;
+	bm::gfx::Camera2D m_camera2d;
 
 };

@@ -17,6 +17,11 @@ export class Layer
 {
 public:
 
+	using Ptr = std::shared_ptr<Layer>;
+	using KPtrRef = const Ptr&;
+
+public:
+
 	Layer(std::string_view name) 
 	{
 		if constexpr (config::is_debug)
@@ -52,7 +57,7 @@ public:
 	virtual void setWindow(Window& window) {} //set window to render on
 
 	template<DerivedFromLayer L, typename... Args>
-	static std::shared_ptr<L> make(Args&&... args) { return std::make_shared<L>(std::forward<Args>(args)...); }
+	static L::Ptr make(Args&&... args) { return std::make_shared<L>(std::forward<Args>(args)...); }
 
 private:
 

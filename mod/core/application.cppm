@@ -72,7 +72,7 @@ private:
 	gfx::Renderer m_renderer;
 
 	LayerStack m_layers;
-	std::weak_ptr<ImGuiLayer> m_imgui_layer;
+	std::shared_ptr<ImGuiLayer> m_imgui;
 
 	Window m_window;
 

@@ -17,11 +17,16 @@ export class ImGuiLayer : public Layer
 {
 public:
 
+	using Ptr = std::shared_ptr<ImGuiLayer>;
+	using KPtrRef = const Ptr&;
+
+public:
+
 	void onEvent(Event& e) override;
 	void onAttach() override;
 	void onDetach() override;
 
-	//Use CamelCase naming style to match ImGui function names
+	//Uses ImGui naming style
 	void Begin();
 	void End();
 

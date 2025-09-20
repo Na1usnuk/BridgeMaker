@@ -4,6 +4,8 @@ import std;
 
 import bm.deltatime;
 
+import bm.layer.imgui;
+
 
 namespace bm
 {
@@ -14,15 +16,15 @@ namespace bm
 		m_is_running(true),
 		m_fps_limit(1000),
 		m_window(title, width, height, vsync, decorated, visible),
-		m_ctx(gfx::Context::getContext())
+		m_ctx(gfx::Context::getContext()),
+		m_imgui(Layer::make<ImGuiLayer>())
 	{
+		m_layers.pushOverlay(m_imgui);
+
 		s_app = this;
 		m_window.setEventCallback(std::bind(&Application::onEventImpl, this, std::placeholders::_1));
 		m_renderer.setView({ 0, 0, width, height });
 
-		auto imgui_layer = Layer::make<ImGuiLayer>();
-		m_layers.pushOverlay(imgui_layer);
-		m_imgui_layer = imgui_layer;
 	}
 
 	Application::~Application()
@@ -59,13 +61,10 @@ namespace bm
 
 	void Application::onImGuiRenderImpl()
 	{
-		if (auto imgui = m_imgui_layer.lock()) // Access ImGuiLayer safely
-		{
-			imgui->Begin(); // Basic ImGui init like NewFrame, etc.
-			onImGuiRender();
-			onLayersImGuiRender(); // Layer overriden imgui window
-			imgui->End();
-		}
+		m_imgui->Begin(); // Basic ImGui init like NewFrame, etc.
+		onImGuiRender();
+		onLayersImGuiRender(); // Layer overriden imgui window
+		m_imgui->End();
 	}
 
 	void Application::onEventImpl(Event& e)
