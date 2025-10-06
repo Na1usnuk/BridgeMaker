@@ -4,6 +4,8 @@ import bm.gfx.shader;
 import bm.gfx.buffer.index;
 import bm.gfx.vertexarray;
 
+import bm.traits;
+
 import std;
 
 namespace bm::gfx
@@ -13,34 +15,38 @@ export class Mesh
 {
 public:
 
-	using Ptr = std::shared_ptr<Mesh>;
-	using KPtrRef = const Ptr&;
+	using Ptr = Traits<Mesh>::Ptr;
+	using KPtrRef = Traits<Mesh>::KPtrRef;
+
+	using VAKPtrRef = Traits<VertexArray>::KPtrRef;
+	using VAPtr = Traits<VertexArray>::Ptr;
+	using IBKPtrRef = Traits<IndexBuffer>::KPtrRef;
+	using IBPtr = Traits<IndexBuffer>::Ptr;
 
 public:
 
-	Mesh(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader)
-		: m_vao(vao), m_ibo(ibo), m_shader(shader)
-	{
-	}
+	Mesh(VAKPtrRef vao, IBKPtrRef ibo)
+		: m_vao(vao), m_ibo(ibo) {}
+
+	Mesh(VAKPtrRef vao)
+		: m_vao(vao) {}
 
 	Mesh() = default;
 
-	void setVertexArray(VertexArray::KPtrRef vao) { m_vao = vao; }
-	void setShader(Shader::KPtrRef shader) { m_shader = shader; }
-	void setIndexBuffer(IndexBuffer::KPtrRef ibo) { m_ibo = ibo; }
+	void setVertexArray(VAKPtrRef vao) { m_vao = vao; }
+	void setIndexBuffer(IBKPtrRef ibo) { m_ibo = ibo; }
 
-	std::shared_ptr<VertexArray> getVertexArray() const { return m_vao; }
-	std::shared_ptr<Shader>      getShader()      const { return m_shader; }
-	std::shared_ptr<IndexBuffer> getIndexBuffer() const { return m_ibo; }
+	VAKPtrRef getVertexArray() const { return m_vao; }
+	IBKPtrRef getIndexBuffer() const { return m_ibo; }
 
 	static Ptr make() { return std::make_shared<Mesh>(); }
-	static Ptr make(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader) { return std::make_shared<Mesh>(vao, ibo, shader); }
+	static Ptr make(VAKPtrRef vao, IBKPtrRef ibo) { return std::make_shared<Mesh>(vao, ibo); }
+	static Ptr make(VAKPtrRef vao) { return std::make_shared<Mesh>(vao); }
 
 private:
 
-	ShaderPtr m_shader = nullptr;
-	VertexArrayPtr m_vao = nullptr;
-	IndexBufferPtr m_ibo = nullptr;
+	VAPtr m_vao = nullptr;
+	IBPtr m_ibo = nullptr;
 
 };
 

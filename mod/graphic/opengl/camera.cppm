@@ -5,6 +5,7 @@ export import "glm/mat4x4.hpp";
 export import "glm/glm.hpp";
 
 import bm.log;
+import bm.traits;
 
 import std;
 
@@ -47,7 +48,8 @@ public:
 	const glm::vec3& getRight() const { return m_right; }
 	const glm::vec3& getUp() const { return m_up; }
 
-	static Ptr make(const glm::vec3& position) { return std::make_unique<Camera>(position); }
+	template<typename T = Camera>
+	static Traits<T>::Ptr make(const glm::vec3& position) { return std::make_unique<T>(position); }
 
 private:
 

@@ -17,29 +17,41 @@ import std;
 namespace bm::gfx
 {
 
-export  constexpr const char* const basic_vertex_shader = R"(
-            #version 450 core
-            layout (location = 0) in vec3 vertices;
-            uniform mat4 u_model;
-            uniform mat4 u_view;
-            uniform mat4 u_projection;
-            void main()
-            {
-                gl_Position = u_projection * u_view * u_model * vec4(vertices, 1);
-            }
-            )";
+    constexpr const char* const basic_vertex = R"(
+        #version 450 core
+        layout(location = 0) in vec3 vertex_coord;
+        layout(location = 1) in vec2 texture_coord;
 
-export  constexpr const char* const basic_fragment_shader = R"(
-            #version 450 core
-            out vec4 o_fragment;
-            uniform sampler2D u_sampler2d;
-            uniform vec3 u_texture;
-            uniform vec4 u_color;
-            void main()
-            {
-                o_fragment = u_color;
-            }
+        uniform mat4 u_model;
+        uniform mat4 u_view;
+        uniform mat4 u_projection;
+
+        out vec2 f_texture_coord;
+
+        void main()
+        {
+            f_texture_coord = texture_coord;
+
+            gl_Position = u_projection * u_view * u_model * vec4(vertex_coord, 1);
+        }
+
         )";
+        
+    constexpr const char* const basic_fragment = R"(
+        #version 450 core
+        out vec4 o_fragment;
+
+        uniform sampler2D u_sampler2d;
+        uniform vec4 u_color;
+
+        in vec2 f_texture_coord;
+
+        void main()
+        {
+            o_fragment = u_color * texture(u_sampler2d, f_texture_coord);
+        }
+    )";
+
 
 export class Triangle : public Object
 {
@@ -48,9 +60,9 @@ public:
     Triangle()
     {
         static auto vbo = VertexBuffer::make({
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-                0.0f, 0.5f, 0.0f,
+                -0.5f, -0.5f, 0.0f, 0.f, 0.f,
+                0.5f, -0.5f, 0.0f, 0.f, 1.f,
+                0.0f, 0.5f, 0.0f, 0.5f, 1.f
             });
         vbo->pushLayout<float>(3);
 
@@ -60,11 +72,13 @@ public:
 
         static auto vao = VertexArray::make(vbo);
 
-        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
+        static auto mesh = Mesh::make(vao, ibo);
 
-        setShader(shader);
-        setVertexArray(vao);
-        setIndexBuffer(ibo);
+        static auto material = Material::make(
+            AssetManager::get().load<Shader>("basic_shader", basic_vertex, basic_fragment));
+
+        setMaterial(material);
+        setMesh(mesh);
     }
 };
 
@@ -77,10 +91,10 @@ public:
 	{
         static float vertices[] =
         {
-            -0.5, 0.5f, 0.0f,
-            0.5f, 0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f
+            -0.5, 0.5f, 0.0f, 0.f, 1.f,
+            0.5f, 0.5f, 0.0f, 1.f, 1.f,
+            0.5f, -0.5f, 0.0f, 1.f, 0.f,
+            -0.5f, -0.5f, 0.0f, 0.f, 0.f
         };
 
         static unsigned int indices[] =
@@ -93,11 +107,13 @@ public:
         vbo->pushLayout<float>(3);
         static auto ibo = IndexBuffer::make(indices, sizeof(indices));
         static auto vao = VertexArray::make(vbo);
-        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
 
-        setShader(shader);
-        setVertexArray(vao);
-        setIndexBuffer(ibo);
+        static auto mesh = Mesh::make(vao, ibo);
+        static auto material = Material::make(
+            AssetManager::get().load<Shader>("basic_shader", basic_vertex, basic_fragment));
+
+        setMaterial(material);
+        setMesh(mesh);
 	}
 
 private:
@@ -173,11 +189,13 @@ public:
 
         static auto vao = VertexArray::make(vbo);
 
-        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
+        static auto mesh = Mesh::make(vao, ibo);
 
-        setShader(shader);
-        setVertexArray(vao);
-        setIndexBuffer(ibo);
+        auto material = Material::make(
+            AssetManager::get().load<Shader>("basic_shader", basic_vertex, basic_fragment));
+
+        setMaterial(material);
+        setMesh(mesh);
     }
 };
 
@@ -219,10 +237,15 @@ public:
         auto vbo = VertexBuffer::make(vertices);
         vbo->pushLayout<float>(3);
         auto vao = VertexArray::make(vbo, VertexArray::DrawAs::LINES);
-        static auto shader = AssetManager::get().loadShader("basic", basic_vertex_shader, basic_fragment_shader);
 
-        setShader(shader);
-        setVertexArray(vao);
+        static auto mesh = Mesh::make(vao);
+
+        static auto material = Material::make(
+            AssetManager::get().load<Shader>("basic_shader", basic_vertex, basic_fragment));
+        material->setColor({ 0.f, 0.f, 0.f, 1.f });
+
+        setMaterial(material);
+        setMesh(mesh);
     }
 
 };

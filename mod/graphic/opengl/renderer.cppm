@@ -8,10 +8,12 @@ import bm.gfx.buffer.index;
 import bm.gfx.vertexarray;
 import bm.gfx.shader;
 import bm.gfx.mesh;
+import bm.gfx.material;
 import bm.gfx.texture;
 import bm.gfx.scene;
 import bm.gfx.camera;
 import bm.gfx.obj;
+import bm.traits;
 
 namespace bm::gfx
 {
@@ -89,7 +91,7 @@ public:
 	void clear();
 	void draw(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader);
 	void draw(VertexArray::KPtrRef vao, Shader::KPtrRef shader);
-	void draw(Mesh::KPtrRef mesh);
+	void draw(Traits<Mesh>::KPtrRef mesh, Traits<Material>::KPtrRef material);
 	void draw(Object::KPtrRef, Camera::KPtrRef camera);
 	void draw(Scene::KPtrRef scene, Camera::KPtrRef camera);
 

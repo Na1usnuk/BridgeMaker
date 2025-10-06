@@ -8,6 +8,7 @@ export import bm.gfx.texture;
 export import bm.gfx.renderer;
 export import bm.gfx.utility;
 export import bm.gfx.mesh;
+export import bm.gfx.material;
 export import bm.gfx.geometry;
 export import bm.gfx.scene;
 export import bm.gfx.obj;

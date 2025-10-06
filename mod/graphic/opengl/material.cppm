@@ -1,8 +1,14 @@
-export module bm.gfx.material;
+module;
 
+#include "glm/vec4.hpp"
+
+export module bm.gfx.material;
 
 import bm.gfx.shader;
 import bm.gfx.texture;
+import bm.assetmanager;
+
+import bm.traits;
 
 import std;
 
@@ -13,15 +19,13 @@ namespace bm::gfx
 	{
 	public:
 
-		using Ptr = std::shared_ptr<Material>;
-		using KPtrRef = const Ptr&;
+		using Ptr = Traits<Material>::Ptr;
+		using KPtrRef = Traits<Material>::KPtrRef;
 		using Action = std::function<void()>;
-
-		using RGBA = std::array<float, 4>;
 
 	public:
 
-		Material(ShaderPtr shader);
+		Material(Traits<Shader>::KPtrRef shader) : m_shader(shader) { m_texture = AssetManager::get().load<Texture>("nothing_texture"); }
 
 
 		void bind()
@@ -29,7 +33,7 @@ namespace bm::gfx
 			m_shader->bind();
 			while (not m_action_queue.empty())
 			{
-				m_action_queue.front()();
+				m_action_queue.front()(); // Calls Action
 				m_action_queue.pop();
 			}
 		}
@@ -42,15 +46,13 @@ namespace bm::gfx
 				});
 		}
 
-		void setColor(std::array<float, 4> color)
-		{
-			setUniform("u_color", color[0], color[1], color[2], color[3]);
-		}
+		void setColor(const glm::vec4& color) { m_color = color; }
+		const glm::vec4& getColor() const { return m_color; }
 
-		void setTexture(TexturePtr texture)
-		{
-			m_texture = texture;
-		}
+		void setTexture(Traits<Texture>::KPtrRef texture) { m_texture = texture; }
+		Traits<Texture>::KPtrRef getTexture() const { return m_texture; }
+
+		Traits<Shader>::KPtrRef getShader() const { return m_shader; }
 
 		static Ptr make(ShaderPtr shader) { return std::make_shared<Material>(shader); }
 
@@ -59,7 +61,7 @@ namespace bm::gfx
 		ShaderPtr m_shader;
 
 		TexturePtr m_texture;
-		RGBA m_color = {1.f, 1.f, 1.f, 1.f};
+		glm::vec4 m_color = {1.f, 1.f, 1.f, 1.f};
 
 		std::queue<Action> m_action_queue;
 

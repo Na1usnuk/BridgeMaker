@@ -9,6 +9,7 @@ import bm.gfx.buffer.index;
 import bm.gfx.buffer.vertex;
 import bm.gfx.vertexarray;
 import bm.gfx.shader;
+import bm.assetmanager;
 
 import bm.window;
 
@@ -136,7 +137,6 @@ void Renderer::draw(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::
 	ibo->bind();
 
 	glCall(glDrawElements, static_cast<int>(vao->getDrawAs()), ibo->count(), GL_UNSIGNED_INT, nullptr);
-
 }
 
 void Renderer::draw(VertexArray::KPtrRef vao, Shader::KPtrRef shader)
@@ -147,23 +147,28 @@ void Renderer::draw(VertexArray::KPtrRef vao, Shader::KPtrRef shader)
 	glCall(glDrawArrays, static_cast<int>(vao->getDrawAs()), 0, vao->getVerticesCount());
 }
 
-void Renderer::draw(Mesh::KPtrRef mesh)
+void Renderer::draw(Traits<Mesh>::KPtrRef mesh, Traits<Material>::KPtrRef material)
 {
 	if (mesh->getIndexBuffer() != nullptr)
-		draw(mesh->getVertexArray(), mesh->getIndexBuffer(), mesh->getShader());
+		draw(mesh->getVertexArray(), mesh->getIndexBuffer(), material->getShader());
 	else
-		draw(mesh->getVertexArray(), mesh->getShader());
+		draw(mesh->getVertexArray(), material->getShader());
 }
+
 void Renderer::draw(Object::KPtrRef obj, Camera::KPtrRef camera)
 {
-	auto shader = obj->getShader();
-	shader->setUniform("u_model", obj->getModel());
-	shader->setUniform("u_view", camera->getView());
-	shader->setUniform("u_projection", camera->getProjection());
-	shader->setUniform("u_color", obj->getColor());
+	auto material = obj->getMaterial();
+	material->setUniform("u_model", obj->getModel());
+	material->setUniform("u_view", camera->getView());
+	material->setUniform("u_projection", camera->getProjection());
+	material->setUniform("u_color", material->getColor());
 
-	draw(std::static_pointer_cast<Mesh>(obj));
+	material->getTexture()->bind();
+	material->bind();
+
+	draw(obj->getMesh(), material);
 }
+
 void Renderer::draw(Scene::KPtrRef scene, Camera::KPtrRef camera)
 {
 	for (const auto& obj : scene->getObjects())

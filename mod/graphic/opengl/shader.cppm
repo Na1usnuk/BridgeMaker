@@ -1,17 +1,20 @@
 module;
 
 #include "glm/mat4x4.hpp"
+#include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
 
 export module bm.gfx.shader;
+
+import bm.gfx.asset;
 
 import std;
 
 namespace bm::gfx
 {
 
-
-export class Shader
+export class Shader : public Asset
 {
 private:
 

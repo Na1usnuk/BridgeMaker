@@ -9,16 +9,16 @@ export module bm.gfx.obj;
 import std;
 
 import bm.gfx.mesh;
+import bm.gfx.material;
+import bm.gfx.texture;
+
+import bm.traits;
 
 
 namespace bm::gfx
 {
-	export class Object;
 
-	template<typename T>
-	concept DerivedFromObject = std::is_base_of_v<Object, T>;
-
-	export class Object : public Mesh
+	export class Object
 	{
 	public:
 
@@ -47,14 +47,20 @@ namespace bm::gfx
 		void setPosition(const glm::vec3& to);
 		void setScale(const glm::vec3& by);
 
-		void setColor(const glm::vec4& color) { m_color = color; }
-		const glm::vec4& getColor() const { return m_color; }
+		void setMaterial(Traits<Material>::KPtrRef material) { m_material = material; }
+		Traits<Material>::Ptr getMaterial() { return m_material; }
+		void setMesh(Traits<Mesh>::KPtrRef mesh) { m_mesh = mesh; }
+		Traits<Mesh>::Ptr getMesh() { return m_mesh; }
+
+		void setColor(const glm::vec3& color) { m_material->setColor(glm::vec4(color[0], color[1], color[2], 1.f)); }
+		void setTexture(Traits<Texture>::KPtrRef texture) { m_material->setTexture(texture); }
 
 		void apply();
 
 		const glm::mat4& getModel() const { return m_model; }
 
-		template<DerivedFromObject T, typename... Args>
+		template<typename T, typename... Args>
+		requires std::is_base_of_v<Object, T>
 		static std::shared_ptr<T> make(Args&&... args) { return std::make_shared<T>(std::forward<Args>(args)...); }
 
 	private:
@@ -65,7 +71,8 @@ namespace bm::gfx
 		glm::vec3 m_scale = glm::vec3(1.f);
 		glm::vec3 m_translate = glm::vec3(0.f);
 
-		glm::vec4 m_color = glm::vec4(1.f);
+		Traits<Material>::Ptr m_material;
+		Traits<Mesh>::Ptr m_mesh;
 
 	};
 
