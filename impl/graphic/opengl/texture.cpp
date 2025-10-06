@@ -23,7 +23,7 @@ namespace bm::gfx
 
 		stbi_set_flip_vertically_on_load(true);
 		m_data.buffer = stbi_load(filepath.string().c_str(), &m_data.width, &m_data.height, &m_data.bpp, 4);
-		//core::verify(m_data.buffer, "Failed to load \"" + filepath.string() + "\" while creating texture! Reason: " + stbi_failure_reason());
+		//core::verify(m_data.buffer, std::string("Failed to load \"") + filepath.string() + std::string("\" while creating texture! Reason: ") + stbi_failure_reason());
 
 		glCall(glGenTextures, 1, &m_id);
 		glCall(glBindTexture, GL_TEXTURE_2D, m_id);
@@ -39,6 +39,22 @@ namespace bm::gfx
 		//setFiltering(true, true, s_default_filtering);
 
 		stbi_image_free(m_data.buffer);
+	}
+
+	Texture::Texture()
+		: m_id(0), m_data(1, 1, 0, 4, "", nullptr)
+	{
+		unsigned char white_pixel[4] = { 255, 255, 255, 255 };
+
+		glCall(glGenTextures, 1, &m_id);
+		glCall(glBindTexture, GL_TEXTURE_2D, m_id);
+
+		glCall(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white_pixel);
+
+		glCall(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glCall(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glCall(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glCall(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
 	void Texture::setWrappering(bool wrap_s, bool wrap_t, Wrappering wrappering) const

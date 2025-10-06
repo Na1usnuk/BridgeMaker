@@ -1,11 +1,13 @@
 export module bm.gfx.texture;
 
+import bm.gfx.asset;
+
 import std;
 
 namespace bm::gfx
 {
 
-export class Texture
+export class Texture : public Asset
 {
 public:
 
@@ -34,6 +36,7 @@ public:
 public:
 
 	Texture(const std::filesystem::path& filepath);
+	Texture();
 	~Texture();
 
 	void bind(unsigned int tex_unit = 0) const;
@@ -45,7 +48,8 @@ public:
 	void setWrappering(bool wrap_s, bool wrap_t, Wrappering wrappering) const;
 	void setFiltering(bool wrap_s, bool wrap_t, Filtering filtering) const;
 
-	static Ptr make(const std::filesystem::path& filepath) { return std::make_shared<Texture>(filepath); }
+	template<typename... Args>
+	static Ptr make(Args&&... args) { return std::make_shared<Texture>(std::forward<Args>(args)...); }
 
 private:
 
