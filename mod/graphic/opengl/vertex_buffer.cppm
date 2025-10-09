@@ -1,15 +1,15 @@
 module;
 
+#include "bmpch.hpp"
 #include "glad/glad.h"
 
 export module bm.gfx.buffer.vertex;
 
 
-import bm.assert;
+import bm.error;
 import bm.log;
 import bm.gfx.utility;
 
-import std;
 
 namespace bm::gfx
 {

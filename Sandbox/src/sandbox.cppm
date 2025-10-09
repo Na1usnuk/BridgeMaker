@@ -3,7 +3,7 @@ export module sandbox;
 export import BridgeMaker;
 
 import scenes;
-
+import cards;
 
 export class SandBox : public bm::Application
 {
@@ -11,25 +11,23 @@ public:
 
 	SandBox() : bm::Application("SandBox", 1200, 720), 
 		m_camera(bm::gfx::Camera::make({0.f, 2.f, -3.f})), 
-		m_scene(scene::cube()),
+		m_scene(Cards(10)),
 		m_camera2d(0, 1200, 0, 720)
 	{
 		setFPSLimit(120);
 
 
 		auto camera_input = bm::Layer::make<bm::DefaultCameraInputLayer>(m_camera);
-		camera_input->setSensetivity(0.2f);
-		camera_input->setSpeed(5.f);
+		//camera_input->setSensetivity(0.2f);
+		//camera_input->setSpeed(5.f);
 		pushOverlay(camera_input);
-
-		m_camera_input = camera_input;
 
 		m_camera->setAspectRatio(1200.f / 720.f);
 		m_camera->recalculateProjection();
 
 		getRenderer().setDepthTesting(true);
 		//getRenderer().setBlend(true);
-		getRenderer().setBackgroundColor({0.3f, 0.3f, 0.3f, 1.0f});
+		getRenderer().setBackgroundColor({1.f, 1.f, 1.f, 1.0f});
 
 	}
 
@@ -73,7 +71,7 @@ public:
 
 	void onImGuiRender() override
 	{
-		static glm::vec3 position(0.f, 0.f, 0.f);
+		/*static glm::vec3 position(0.f, 0.f, 0.f);
 		static glm::vec3 rotation(0.f, 0.f, 0.f);
 		static glm::vec3 scale(1.f, 1.f, 1.f);
 		static glm::vec3 color(1.f, 1.f, 1.f);
@@ -93,8 +91,8 @@ public:
 		m_scene->getObjects()[0]->setPosition(position);
 		m_scene->getObjects()[0]->setRotation(rotation);
 		m_scene->getObjects()[0]->setScale(scale);
-		m_scene->getObjects()[0]->setColor({ color.x, color.y, color.z, 1.f });
-		m_scene->getObjects()[0]->apply();
+		m_scene->getObjects()[0]->getMaterial()->setColor({ color.x, color.y, color.z, 1.f });
+		m_scene->getObjects()[0]->apply();*/
 	}
 
 	void onUpdate(float delta_time)

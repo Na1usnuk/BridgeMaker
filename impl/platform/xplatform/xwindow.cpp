@@ -8,7 +8,7 @@ module bm.window;
 import bm.log;
 import bm.cursor;
 import bm.input;
-import bm.assert;
+import bm.error;
 import bm.event;
 import bm.gfx.utility;
 

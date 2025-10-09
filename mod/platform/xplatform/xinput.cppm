@@ -1,6 +1,7 @@
+module;
+#include "bmpch.hpp"
 export module bm.input;
 
-import std;
 
 import bm.window;
 

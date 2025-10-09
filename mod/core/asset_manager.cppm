@@ -1,9 +1,12 @@
+module;
+#include "bmpch.hpp"
 export module bm.assetmanager;
 
-import std;
-
+import bm.gfx.asset;
 import bm.gfx.shader;
 import bm.gfx.texture;
+
+import bm.traits;
 
 import bm.log;
 
@@ -20,44 +23,42 @@ namespace bm
 			return asset_manager; 
 		}
 
-		template<typename... Args>
-		gfx::ShaderPtr loadShader(std::string name, Args&&... args)
+		//template<typename AssetType, typename... Args>
+		//requires std::is_base_of_v<gfx::Asset, AssetType>
+		//std::future<gfx::Traits<AssetType>::Ptr> loadAsync(const std::string& name, Args&&... args)
+		//{
+		//	if (m_assets.contains(name) and not m_assets[name].expired())
+		//		return std::make_ready_future(
+		//			std::static_pointer_cast<AssetType>(m_assets[name].lock()));
+		//	else
+		//		unload<AssetType>(name);
+
+
+
+		//}
+
+		template<typename AssetType, typename... Args>
+		requires std::is_base_of_v<gfx::Asset, AssetType>
+		Traits<AssetType>::Ptr load(const std::string& name, Args&&... args)
 		{
-			if (m_shaders.contains(name) and not m_shaders[name].expired())
-				return m_shaders[name].lock();
-
-			log::core::trace("Shader '{}' created", name);
-
-			auto shader = gfx::Shader::make(std::forward<Args>(args)...);
-			m_shaders[name] = shader;
-			return shader;
-		}
-
-		template<typename... Args>
-		gfx::TexturePtr loadTexture(std::string name, Args&&... args)
-		{
-			if (m_textures.contains(name) and not m_textures[name].expired())
-				return m_textures[name].lock();
+			if (m_assets.contains(name) and not m_assets[name].expired())
+				return std::static_pointer_cast<AssetType>(m_assets[name].lock());
 			else
-				unloadTexture(name);
+				unload<AssetType>(name);
 
-			log::core::trace("Texture '{}' created", name);
+			log::core::trace("Asset '{}' created", name);
 
-			auto texture = gfx::Texture::make(std::forward<Args>(args)...);
-			m_textures[name] = texture;
-			return texture;
+			auto asset = AssetType::make(std::forward<Args>(args)...);
+			m_assets[name] = asset;
+			return asset;
 		}
 
-		void unloadTexture(const std::string& name)
+		template<typename AssetType>
+		requires std::is_base_of_v<gfx::Asset, AssetType>
+		void unload(const std::string& name)
 		{
-			m_textures.erase(name);
+			m_assets.erase(name);
 		}
-
-		void unloadShader(const std::string& name)
-		{
-			m_shaders.erase(name);
-		}
-
 
 	private:
 
@@ -65,8 +66,7 @@ namespace bm
 
 	private:
 
-		std::unordered_map<std::string, std::weak_ptr<gfx::Shader>> m_shaders;
-		std::unordered_map<std::string, std::weak_ptr<gfx::Texture>> m_textures;
+		std::unordered_map<std::string, std::weak_ptr<gfx::Asset>> m_assets;
 
 	};
 

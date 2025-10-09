@@ -11,6 +11,9 @@
 # but i think it can be used with version 3.29
 cmake_minimum_required(VERSION 4.1)
 
+
+
+
 project(BridgeMaker LANGUAGES CXX)
 
 
@@ -20,6 +23,22 @@ project(BridgeMaker LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+
+#//////////////////////////
+
+# OPENAL 
+
+add_library(openal)
+
+file(GLOB_RECURSE AL_MODS deps/openal/modules/*)
+
+target_sources(openal PUBLIC
+	FILE_SET CXX_MODULES FILES
+		${AL_MODS}
+)
+
+#//////////////////////////
 
 
 # For now i only interested in debug configuration
@@ -81,74 +100,9 @@ endif() #NOT DEFINED BM_PLATFORM
 
 
 #------------------------------------------------#
-#            Compiler Flags Section              #
-#------------------------------------------------#
-
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-
-	foreach(file ${BM_MOD} ${BM_IMPL})
-		set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "-fmodules-ts" LANGUAGE CXX)
-	endforeach()
-
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-	# For cleaner output
-	add_compile_options(/nologo)
-	add_link_options(/NOLOGO)
-	#add_compile_options(/experimental:module)
-
-	foreach(file ${BM_MOD})
-		#set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "/interface /c /TP" LANGUAGE CXX)
-	endforeach()
-
-	foreach(file ${BM_IMPL})
-		#set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "/internalPartition /c /TP" LANGUAGE CXX)
-	endforeach()
-
-else()
-	message(WARNING "Unknown compiler: ${CMAKE_CXX_COMPILER_ID}. Modules can be treated as plain text. ")
-endif()
-
-
-#------------------------------------------------#
 #                 Files Section                  #
 #------------------------------------------------#
 
-
-# Sources
-file(GLOB_RECURSE BM_SRCS
-    ${BridgeMaker_SOURCE_DIR}/src/*.cpp
-)
-
-# Headers
-# Explicitly collect because there is some files 
-# that i dont want to include in variable, like precomp header and "all in" header.
-file(GLOB_RECURSE BM_HEADERS
-	${BridgeMaker_SOURCE_DIR}/include/core/*.hpp
-	${BridgeMaker_SOURCE_DIR}/include/graphic/*.hpp
-	${BridgeMaker_SOURCE_DIR}/include/imgui.hpp
-	${BridgeMaker_SOURCE_DIR}/include/imgui.hpp
-)
-
-# Platorm Headers
-file(GLOB_RECURSE BM_PLATFORM_HEADERS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/include/platform/${BM_PLATFORM}/*.hpp
-)
-
-# Platorm Sources
-file(GLOB_RECURSE BM_PLATFORM_SRCS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/src/platform/${BM_PLATFORM}/*.cpp
-)
-
-# Graphic Headers
-file(GLOB_RECURSE BM_GRAPHIC_HEADERS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/include/graphic/${BM_GRAPHIC}/*.hpp
-)
-
-# Graphic Sources
-file(GLOB_RECURSE BM_GRAPHIC_SRCS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/src/graphic/${BM_GRAPHIC}/*.cpp
-)
 
 # Module interfaces
 file(GLOB_RECURSE BM_MODULES CONFIGURE_DEPENDS 
@@ -186,6 +140,10 @@ source_group(Layers FILES ${BM_LAYER_FILES})
 file(GLOB_RECURSE BM_GL_FILES mod/graphic/*.cppm impl/graphic/*.cpp)
 source_group(Graphic FILES ${BM_GL_FILES})
 
+# Audio group
+file(GLOB_RECURSE BM_AL_FILES mod/audio/*.cppm impl/audio/*.cpp)
+source_group(Audio FILES ${BM_AL_FILES})
+
 # Platform group
 file(GLOB BM_PLATFORM_FILES LIST_DIRECTORIES false mod/platform/${BM_PLATFORM}/*.cppm impl/platform/${BM_PLATFORM}/*.cpp)
 source_group(Platform FILES ${BM_PLATFORM_FILES})
@@ -219,9 +177,44 @@ target_sources(BridgeMaker
 
 
 #------------------------------------------------#
+#            Compiler Flags Section              #
+#------------------------------------------------#
+
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+
+	foreach(file ${BM_MOD} ${BM_IMPL})
+		set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "-fmodules-ts" LANGUAGE CXX)
+	endforeach()
+
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	# For cleaner output
+	add_compile_options(/nologo)
+	add_link_options(/NOLOGO)
+	#add_compile_options(/experimental:module)
+
+	set_target_properties(BridgeMaker PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${BridgeMaker_SOURCE_DIR}")
+
+	foreach(file ${BM_MOD})
+		#set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "/interface /c /TP" LANGUAGE CXX)
+	endforeach()
+
+	foreach(file ${BM_IMPL})
+		#set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "/internalPartition /c /TP" LANGUAGE CXX)
+	endforeach()
+
+else()
+	message(WARNING "Unknown compiler: ${CMAKE_CXX_COMPILER_ID}. Modules can be treated as plain text. ")
+endif()
+
+
+#------------------------------------------------#
 #             Third Party Section                #
 #------------------------------------------------#
 
+target_compile_options(BridgeMaker PRIVATE /Zc:preprocessor)
+target_precompile_headers(BridgeMaker PUBLIC mod/bmpch.hpp)
+target_include_directories(BridgeMaker PRIVATE mod)
 
 add_subdirectory(deps/spdlog)
 add_subdirectory(deps/glfw)
@@ -229,6 +222,7 @@ add_subdirectory(deps/glad)
 add_subdirectory(deps/imgui)
 add_subdirectory(deps/stb)
 add_subdirectory(deps/glm)
+#add_subdirectory(deps/openal)
 
 target_include_directories(BridgeMaker
 	PUBLIC
@@ -236,6 +230,7 @@ target_include_directories(BridgeMaker
 		deps/imgui/backends
 		deps/glm
 	PRIVATE
+		deps/openal/include
       		deps/spdlog/include 
 		deps/glad/include
 		deps/glfw/include
@@ -251,13 +246,10 @@ target_link_libraries(BridgeMaker
 		imgui
 		glm
 	PRIVATE
+		openal 
 		glfw
 		glad
 		stb
 )
 
-
-if(MSVC)
-    add_compile_options(/nologo)
-endif()
 

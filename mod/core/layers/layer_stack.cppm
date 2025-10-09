@@ -1,8 +1,9 @@
+module;
+#include "bmpch.hpp"
 export module bm.layer.stack;
 
 import bm.layer.base;
 
-import std;
 
 namespace bm
 {

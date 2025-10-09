@@ -5,6 +5,8 @@ export import bm.config;
 export import bm.app;
 export import bm.graphic;
 
+export import bm.assetmanager;
+
 export import bm.layer.base;
 export import bm.layer.imgui;
 
@@ -18,11 +20,13 @@ export import bm.cursor;
 
 export import bm.utility;
 
-export import bm.assert;
+export import bm.error;
 
 export import bm.gfx.camera;
 export import bm.gfx.camera2d;
 export import bm.camerainp;
+
+//export import bm.audio;
 
 namespace bm
 {

@@ -1,6 +1,7 @@
+module;
+#include "bmpch.hpp"
 export module bm.event.app;
 
-import std;
 import bm.config;
 import bm.event.base;
 

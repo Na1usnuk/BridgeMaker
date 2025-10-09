@@ -1,6 +1,8 @@
+module;
+#include "bmpch.hpp"
 export module bm.event.mouse;
 
-import std;
+
 import bm.config;
 import bm.event.base;
 import bm.input;

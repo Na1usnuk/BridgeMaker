@@ -1,15 +1,14 @@
 module;
 
+#include "bmpch.hpp"
 #include "../deps/stb/stb_image.h"
 #include "GLFW/glfw3.h"
 
 export module bm.window;
 
-import std;
-
 
 import bm.log;
-import bm.assert;
+import bm.error;
 import bm.event.base;
 
 

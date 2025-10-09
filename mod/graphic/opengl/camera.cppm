@@ -1,3 +1,5 @@
+module;
+#include "bmpch.hpp"
 export module bm.gfx.camera;
 
 export import "glm/vec3.hpp";
@@ -7,7 +9,6 @@ export import "glm/glm.hpp";
 import bm.log;
 import bm.traits;
 
-import std;
 
 namespace bm::gfx
 {

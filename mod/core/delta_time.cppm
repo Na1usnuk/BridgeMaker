@@ -1,8 +1,9 @@
+module;
+#include "bmpch.hpp"
 export module bm.deltatime;
 
 import bm.log;
 
-import std;
 
 namespace bm
 {

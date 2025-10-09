@@ -1,10 +1,10 @@
 module;
 
+#include "bmpch.hpp"
 #include "GLFW/glfw3.h"
 
 export module bm.cursor;
 
-import std;
 
 
 namespace bm

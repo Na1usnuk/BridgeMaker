@@ -1,6 +1,6 @@
+module;
+#include "bmpch.hpp"
 export module bm.gfx.scene;
-
-import std;
 
 import bm.gfx.obj;
 

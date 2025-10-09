@@ -1,3 +1,5 @@
+module;
+#include "bmpch.hpp"
 export module bm.gfx.geometry;
 
 import bm.gfx.mesh;
@@ -11,7 +13,6 @@ import bm.gfx.renderer;
 
 import bm.assetmanager;
 
-import std;
 
 
 namespace bm::gfx
@@ -233,6 +234,83 @@ public:
             vertices.push_back(0.f);
             vertices.push_back(size_from_origin);
         }
+
+        auto vbo = VertexBuffer::make(vertices);
+        vbo->pushLayout<float>(3);
+        auto vao = VertexArray::make(vbo, VertexArray::DrawAs::LINES);
+
+        static auto mesh = Mesh::make(vao);
+
+        static auto material = Material::make(
+            AssetManager::get().load<Shader>("basic_shader", basic_vertex, basic_fragment));
+        material->setColor({ 0.f, 0.f, 0.f, 1.f });
+
+        setMaterial(material);
+        setMesh(mesh);
+    }
+
+};
+
+
+export class Line : public Object
+{
+public:
+
+    Line()
+    {
+        std::array<float, 6> vertices =
+        {
+            -1.f, 0.f, 0.f, 
+            1.f, 0.f, 0.f,
+        };
+        auto vbo = VertexBuffer::make(vertices);
+        vbo->pushLayout<float>(3);
+        auto vao = VertexArray::make(vbo, VertexArray::DrawAs::LINES);
+        auto mesh = Mesh::make(vao);
+
+        auto material = Material::make(
+            AssetManager::get().load<Shader>("basic_shader", basic_vertex, basic_fragment));
+
+        setMaterial(material);
+        setMesh(mesh);
+    }
+};
+
+export class CoordinateSpace : public Object
+{
+public:
+
+    CoordinateSpace(float size_of_line = 1000.f)
+    {
+
+        std::vector<float> vertices;
+        vertices.reserve(3);
+
+        const float size_from_origin = size_of_line / 2.f;
+
+            //line on x
+            vertices.push_back(-size_from_origin);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+            vertices.push_back(size_from_origin);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+
+            //line on y
+            vertices.push_back(0.f);
+            vertices.push_back(-size_from_origin);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+            vertices.push_back(size_from_origin);
+            vertices.push_back(0.f);
+
+            //line on z
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+            vertices.push_back(-size_from_origin);
+            vertices.push_back(0.f);
+            vertices.push_back(0.f);
+            vertices.push_back(size_from_origin);
 
         auto vbo = VertexBuffer::make(vertices);
         vbo->pushLayout<float>(3);

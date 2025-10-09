@@ -30,9 +30,10 @@ namespace scene
         using namespace bm::gfx;
 
         auto cube = Object::make<Cube>();
+        cube->setTexture(bm::AssetManager::get().load<Texture>("test_texture", "res/test.png"));
 
         auto grid = Object::make<Grid>(500.f, 1.f);
-        grid->setColor({.15f, .15f, .15f, 1.f});
+        grid->setColor({.15f, .15f, .15f});
 
         auto scene = Scene::make();
         scene->add(cube);

@@ -1,5 +1,6 @@
 module;
 
+#include "bmpch.hpp"
 #include "glm/vec4.hpp"
 
 export module bm.gfx.material;
@@ -10,7 +11,6 @@ import bm.assetmanager;
 
 import bm.traits;
 
-import std;
 
 namespace bm::gfx
 {

@@ -1,3 +1,5 @@
+module;
+#include "bmpch.hpp"
 export module bm.gfx.mesh;
 
 import bm.gfx.shader;
@@ -6,7 +8,6 @@ import bm.gfx.vertexarray;
 
 import bm.traits;
 
-import std;
 
 namespace bm::gfx
 {

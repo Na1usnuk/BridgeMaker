@@ -1,3 +1,5 @@
+module;
+#include "bmpch.hpp"
 export module bm.camerainp;
 
 import bm.gfx.camera;
@@ -7,8 +9,6 @@ import bm.log;
 import bm.app;
 
 import bm.layer.base;
-
-import std;
 
 namespace bm
 {

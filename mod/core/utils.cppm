@@ -1,6 +1,7 @@
+module;
+#include "bmpch.hpp"
 export module bm.utility;
 
-import std;
 
 namespace bm
 {

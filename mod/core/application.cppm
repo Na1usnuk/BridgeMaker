@@ -1,6 +1,6 @@
+module;
+#include "bmpch.hpp"
 export module bm.app;
-
-import std;
 
 import bm.log;
 

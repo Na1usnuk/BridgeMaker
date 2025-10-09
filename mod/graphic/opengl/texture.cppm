@@ -1,8 +1,9 @@
+module;
+#include "bmpch.hpp"
 export module bm.gfx.texture;
 
 import bm.gfx.asset;
 
-import std;
 
 namespace bm::gfx
 {

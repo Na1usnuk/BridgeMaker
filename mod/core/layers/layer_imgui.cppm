@@ -1,6 +1,7 @@
+module;
+#include "bmpch.hpp"
 export module bm.layer.imgui;
 
-import std;
 
 import bm.layer.base;
 import bm.event;

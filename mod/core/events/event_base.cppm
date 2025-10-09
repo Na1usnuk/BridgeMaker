@@ -1,6 +1,6 @@
+module;
+#include "bmpch.hpp"
 export module bm.event.base;
-
-import std;
 
 
 export namespace bm
@@ -97,11 +97,5 @@ private:
 	Event& m_event;
 
 };
-
-
-inline std::ostream& operator<<(std::ostream& os, const Event& event)
-{
-	return os << event.toString();
-}
 
 }

@@ -1,5 +1,6 @@
 module;
 
+#include "bmpch.hpp"
 #define FMT_UNICODE 0
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -7,7 +8,6 @@ module;
 
 export module bm.log;
 
-import std;
 
 namespace bm::log
 {

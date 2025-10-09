@@ -1,3 +1,5 @@
+module;
+#include "bmpch.hpp"
 export module bm.gfx.asset;
 
 import std;

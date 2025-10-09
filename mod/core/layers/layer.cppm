@@ -1,10 +1,12 @@
+module;
+#include "bmpch.hpp"
 export module bm.layer.base;
 
-import std;
 
 import bm.config;
 import bm.window;
 import bm.event.base;
+import bm.traits;
 
 namespace bm {
 
@@ -57,7 +59,7 @@ public:
 	virtual void setWindow(Window& window) {} //set window to render on
 
 	template<DerivedFromLayer L, typename... Args>
-	static L::Ptr make(Args&&... args) { return std::make_shared<L>(std::forward<Args>(args)...); }
+	static Traits<L>::Ptr make(Args&&... args) { return std::make_shared<L>(std::forward<Args>(args)...); }
 
 private:
 

@@ -1,12 +1,12 @@
 module;
 
+#include "bmpch.hpp"
 #include "glad/glad.h"
 
 export module bm.gfx.buffer.index;
 
 import bm.gfx.utility;
 
-import std;
 
 namespace bm::gfx
 {

@@ -1,12 +1,12 @@
 module;
 
+#include "bmpch.hpp"
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp> 
 
 export module bm.gfx.obj;
 
-import std;
 
 import bm.gfx.mesh;
 import bm.gfx.material;

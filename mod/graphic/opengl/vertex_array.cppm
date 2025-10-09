@@ -1,8 +1,9 @@
+module;
+#include "bmpch.hpp"
 export module bm.gfx.vertexarray;
 
 import bm.gfx.buffer.vertex;
 
-import std;
 
 namespace bm::gfx
 {

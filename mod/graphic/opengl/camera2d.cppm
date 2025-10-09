@@ -1,10 +1,9 @@
 module;
 
+#include "bmpch.hpp"
 #include "glm/glm.hpp"
 
 export module bm.gfx.camera2d;
-
-import std;
 
 namespace bm::gfx
 {
