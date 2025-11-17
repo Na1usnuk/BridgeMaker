@@ -11,31 +11,70 @@ import bm.app;
 namespace bm::gfx
 {
 
-Camera::Camera(const glm::vec3& position)
-	: m_pos(position), m_projection(1.0f), m_yaw(90.f), m_pitch(0.f), m_fov(45.f), m_aspect_ratio(Application::get().getWindow().getWidth() / Application::get().getWindow().getHeight())
-{
-	m_front = glm::normalize(glm::vec3(std::cos(glm::radians(m_yaw)) * std::cos(glm::radians(m_pitch)),
-							std::sin(glm::radians(m_pitch)),
-							std::sin(glm::radians(m_yaw)) * std::cos(glm::radians(m_pitch))));
+	Camera::Camera(const glm::vec3& position, float fov)
+		: m_pos(position),
+		m_projection(1.0f),
+		m_yaw(90.f),
+		m_pitch(0.f),
+		m_fov(fov),
+		m_aspect_ratio(
+			static_cast<float>(Application::get().getWindow().getWidth()) /
+			static_cast<float>(Application::get().getWindow().getHeight()))
+	{
+		recalculateProjection();
+		recalculateView();
+	}
 
-	m_right = glm::normalize(glm::cross(glm::vec3(0.f, 1.f, 0.f), m_front));
-	m_up = glm::cross(m_front, m_right);
-	m_view = glm::lookAt(m_pos, m_pos + m_front, m_up);
-	m_projection = glm::perspective<float>(glm::radians(m_fov), m_aspect_ratio, 0.1f, 100.0f);
-}
+	void Camera::recalculateProjection()
+	{
+		m_projection = glm::perspective<float>(glm::radians(m_fov), m_aspect_ratio, 0.1f, 100.0f);
+		m_projection_dirty = false;
+	}
 
-void Camera::recalculateProjection()
-{
-	m_projection = glm::perspective<float>(glm::radians(m_fov), m_aspect_ratio, 0.1f, 100.0f);
-}
+	void Camera::recalculateView()
+	{
+		glm::vec3 front = calculateFront();
+		glm::vec3 right = calculateRight(front);
+		glm::vec3 up = calculateUp(front, right);
+		m_view = glm::lookAt(m_pos, m_pos + front, up);
+		m_view_dirty = false;
+	}
 
-void Camera::recalculateView()
-{
-	m_right = glm::normalize(glm::cross(m_up, m_front));
-	m_front = glm::normalize(glm::vec3(std::cos(glm::radians(m_yaw)) * std::cos(glm::radians(m_pitch)),
-					std::sin(glm::radians(m_pitch)),
-					std::sin(glm::radians(m_yaw)) * std::cos(glm::radians(m_pitch))));
-	m_view = glm::lookAt(m_pos, m_pos + m_front, m_up);
-}
+	const glm::mat4& Camera::getProjection() 
+	{ 
+		if (m_projection_dirty) 
+		{
+			recalculateProjection();
+			m_projection_dirty = false;
+		}
+		return m_projection; 
+	}
+
+	const glm::mat4& Camera::getView() 
+	{ 
+		if (m_view_dirty) 
+		{
+			recalculateView();
+			m_view_dirty = false;
+		}
+		return m_view;
+	}
+
+	glm::vec3 Camera::calculateFront() const
+	{
+		return glm::normalize(glm::vec3(std::cos(glm::radians(m_yaw)) * std::cos(glm::radians(m_pitch)),
+			std::sin(glm::radians(m_pitch)),
+			std::sin(glm::radians(m_yaw)) * std::cos(glm::radians(m_pitch))));
+	}
+
+	glm::vec3 Camera::calculateRight(const glm::vec3& front) const
+	{
+		return glm::normalize(glm::cross(front, getWorldUp()));
+	}
+
+	glm::vec3 Camera::calculateUp(const glm::vec3& front, const glm::vec3& right) const
+	{
+		return glm::cross(right, front);
+	}
 
 }
