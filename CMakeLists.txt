@@ -8,10 +8,10 @@
 
 
 # I specify version 4.1 because is newest version for now, 
-# but i think it can be used with version 3.29
+# but i think it can be used with version 3.30
 cmake_minimum_required(VERSION 4.1)
 
-project(BridgeMaker LANGUAGES CXX)
+project(BridgeMaker)
 
 
 #------------------------------------------------#
@@ -96,17 +96,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	add_compile_options(/nologo)
 	add_link_options(/NOLOGO)
 	#add_compile_options(/experimental:module)
-
-	foreach(file ${BM_MOD})
-		#set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "/interface /c /TP" LANGUAGE CXX)
-	endforeach()
-
-	foreach(file ${BM_IMPL})
-		#set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "/internalPartition /c /TP" LANGUAGE CXX)
-	endforeach()
-
-else()
-	message(WARNING "Unknown compiler: ${CMAKE_CXX_COMPILER_ID}. Modules can be treated as plain text. ")
 endif()
 
 
@@ -114,41 +103,6 @@ endif()
 #                 Files Section                  #
 #------------------------------------------------#
 
-
-# Sources
-file(GLOB_RECURSE BM_SRCS
-    ${BridgeMaker_SOURCE_DIR}/src/*.cpp
-)
-
-# Headers
-# Explicitly collect because there is some files 
-# that i dont want to include in variable, like precomp header and "all in" header.
-file(GLOB_RECURSE BM_HEADERS
-	${BridgeMaker_SOURCE_DIR}/include/core/*.hpp
-	${BridgeMaker_SOURCE_DIR}/include/graphic/*.hpp
-	${BridgeMaker_SOURCE_DIR}/include/imgui.hpp
-	${BridgeMaker_SOURCE_DIR}/include/imgui.hpp
-)
-
-# Platorm Headers
-file(GLOB_RECURSE BM_PLATFORM_HEADERS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/include/platform/${BM_PLATFORM}/*.hpp
-)
-
-# Platorm Sources
-file(GLOB_RECURSE BM_PLATFORM_SRCS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/src/platform/${BM_PLATFORM}/*.cpp
-)
-
-# Graphic Headers
-file(GLOB_RECURSE BM_GRAPHIC_HEADERS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/include/graphic/${BM_GRAPHIC}/*.hpp
-)
-
-# Graphic Sources
-file(GLOB_RECURSE BM_GRAPHIC_SRCS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/src/graphic/${BM_GRAPHIC}/*.cpp
-)
 
 # Module interfaces
 file(GLOB_RECURSE BM_MODULES CONFIGURE_DEPENDS 
@@ -158,15 +112,7 @@ file(GLOB_RECURSE BM_MODULES CONFIGURE_DEPENDS
 # Module implementations
 file(GLOB_RECURSE BM_IMPLS CONFIGURE_DEPENDS 
 	${BridgeMaker_SOURCE_DIR}/impl/*.cpp
-	${BridgeMaker_SOURCE_DIR}/impl/*.cppp # extension for module partition implementation
 )
-
-# Exclude the appropriate config module from BM_MODS based on build type.
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-	list(FILTER BM_MODULES EXCLUDE REGEX "config_debug\\.cppm$")
-else()
-	list(FILTER BM_MODULES EXCLUDE REGEX "config_release\\.cppm$")
-endif()
 
 
 #------------------------------------------------#
@@ -199,18 +145,7 @@ source_group(Platform FILES ${BM_PLATFORM_FILES})
 
 add_library(BridgeMaker)
 
-#target_precompile_headers(BridgeMaker PUBLIC ${PCH_HEADER})
-
 target_sources(BridgeMaker
-	PUBLIC
-		${BM_SRCS}
-		${BM_PLATFORM_SRCS}
-		${BM_GRAPHIC_SRCS}
-	PUBLIC
-	FILE_SET HEADERS BASE_DIRS include FILES
-		${BM_HEADERS}
-		${BM_PLATFORM_HEADERS}
-		${BM_GRAPHIC_HEADERS}
 	PUBLIC
 	FILE_SET CXX_MODULES BASE_DIRS impl mod FILES
 		${BM_MODULES}
@@ -234,12 +169,13 @@ target_include_directories(BridgeMaker
 	PUBLIC
 		deps/imgui/
 		deps/imgui/backends
+		deps/imgui/misc/cpp
 		deps/glm
+		deps/stb
 	PRIVATE
       		deps/spdlog/include 
 		deps/glad/include
 		deps/glfw/include
-		deps/stb
 		include/
 		include/core
 		include/graphic
@@ -250,14 +186,16 @@ target_link_libraries(BridgeMaker
         	spdlog
 		imgui
 		glm
+		stb
 	PRIVATE
 		glfw
 		glad
-		stb
 )
 
-
 if(MSVC)
-    add_compile_options(/nologo)
+set(CMAKE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+set_target_properties(BridgeMaker PROPERTIES
+	COMPILE_PDB_NAME "BridgeMaker"
+	COMPILE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+)
 endif()
-

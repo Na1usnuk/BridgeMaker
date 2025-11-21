@@ -89,11 +89,10 @@ public:
 	~Renderer();
 
 	void clear();
-	void draw(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader);
-	void draw(VertexArray::KPtrRef vao, Shader::KPtrRef shader);
-	void draw(Traits<Mesh>::KPtrRef mesh, Traits<Material>::KPtrRef material);
-	void draw(Object::KPtrRef, Camera::KPtrRef camera);
-	void draw(Scene::KPtrRef scene, Camera::KPtrRef camera);
+	void draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef shader, Mesh::DrawAs draw_as);
+	void draw(Traits<Mesh>::KSPtrRef mesh, Traits<Material>::KSPtrRef material);
+	void draw(Traits<Object>::KPtrRef, Traits<Camera>::KPtrRef camera);
+	void draw(Traits<Scene>::KPtrRef scene, Traits<Camera>::KPtrRef camera);
 
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
 	void setDepthTesting(bool value);

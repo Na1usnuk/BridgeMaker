@@ -9,6 +9,8 @@ add_library(imgui ${IMGUI_FILES}
 	backends/imgui_impl_opengl3.h 
 	backends/imgui_impl_glfw.cpp 
 	backends/imgui_impl_glfw.h
+	misc/cpp/imgui_stdlib.cpp
+	misc/cpp/imgui_stdlib.h
 )
 
-target_include_directories(imgui PRIVATE . backends ../glfw/include)
+target_include_directories(imgui PRIVATE . backends ../glfw/include misc/cpp)

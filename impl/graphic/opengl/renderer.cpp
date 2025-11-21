@@ -130,32 +130,23 @@ void Renderer::setPolygonMode(PolygonMode mode)
 	}
 }
 
-void Renderer::draw(VertexArray::KPtrRef vao, IndexBuffer::KPtrRef ibo, Shader::KPtrRef shader)
-{
-	shader->bind();
-	vao->bind();
-	ibo->bind();
-
-	glCall(glDrawElements, static_cast<int>(vao->getDrawAs()), ibo->count(), GL_UNSIGNED_INT, nullptr);
-}
-
-void Renderer::draw(VertexArray::KPtrRef vao, Shader::KPtrRef shader)
+void Renderer::draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef shader, Mesh::DrawAs draw_as)
 {
 	shader->bind();
 	vao->bind();
 
-	glCall(glDrawArrays, static_cast<int>(vao->getDrawAs()), 0, vao->getVerticesCount());
-}
-
-void Renderer::draw(Traits<Mesh>::KPtrRef mesh, Traits<Material>::KPtrRef material)
-{
-	if (mesh->getIndexBuffer() != nullptr)
-		draw(mesh->getVertexArray(), mesh->getIndexBuffer(), material->getShader());
+	if(vao->getIndexBuffer() != nullptr)
+		glCall(glDrawElements, static_cast<int>(draw_as), vao->getIndexBuffer()->count(), GL_UNSIGNED_INT, nullptr);
 	else
-		draw(mesh->getVertexArray(), material->getShader());
+		glCall(glDrawArrays, static_cast<int>(draw_as), 0, vao->getVerticesCount());
 }
 
-void Renderer::draw(Object::KPtrRef obj, Camera::KPtrRef camera)
+void Renderer::draw(Traits<Mesh>::KSPtrRef mesh, Traits<Material>::KSPtrRef material)
+{
+	draw(mesh->getVertexArray(), material->getShader(), mesh->getDrawAs());
+}
+
+void Renderer::draw(Traits<Object>::KPtrRef obj, Traits<Camera>::KPtrRef camera)
 {
 	auto material = obj->getMaterial();
 	material->setUniform("u_model", obj->getModel());
@@ -169,7 +160,7 @@ void Renderer::draw(Object::KPtrRef obj, Camera::KPtrRef camera)
 	draw(obj->getMesh(), material);
 }
 
-void Renderer::draw(Scene::KPtrRef scene, Camera::KPtrRef camera)
+void Renderer::draw(Traits<Scene>::KPtrRef scene, Traits<Camera>::KPtrRef camera)
 {
 	for (const auto& obj : scene->getObjects())
 		draw(obj, camera);

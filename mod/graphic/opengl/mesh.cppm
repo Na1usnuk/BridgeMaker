@@ -2,6 +2,7 @@ export module bm.gfx.mesh;
 
 import bm.gfx.shader;
 import bm.gfx.buffer.index;
+import bm.gfx.buffer.vertex;
 import bm.gfx.vertexarray;
 
 import bm.traits;
@@ -15,41 +16,35 @@ export class Mesh
 {
 public:
 
-	using Ptr = Traits<Mesh>::Ptr;
-	using KPtrRef = Traits<Mesh>::KPtrRef;
-
-	using VAKPtrRef = Traits<VertexArray>::KPtrRef;
-	using VAPtr = Traits<VertexArray>::Ptr;
-	using IBKPtrRef = Traits<IndexBuffer>::KPtrRef;
-	using IBPtr = Traits<IndexBuffer>::Ptr;
+	enum class DrawAs
+	{
+		Triangles = 0x0004,
+		Lines = 0x0001,
+	};
 
 public:
 
-	Mesh(VAKPtrRef vao, IBKPtrRef ibo)
-		: m_vao(vao), m_ibo(ibo) {}
-
-	Mesh(VAKPtrRef vao)
-		: m_vao(vao) {}
+	Mesh(Traits<VertexArray>::Ptr vao, DrawAs draw_as = DrawAs::Triangles)
+		: m_vao(std::move(vao)), m_draw_as(draw_as)
+	{}
 
 	Mesh() = default;
 
-	void setVertexArray(VAKPtrRef vao) { m_vao = vao; }
-	void setIndexBuffer(IBKPtrRef ibo) { m_ibo = ibo; }
+	void setVertexArray(Traits<VertexArray>::Ptr vao) { m_vao = std::move(vao); }
+	Traits<VertexArray>::KPtrRef getVertexArray() const { return m_vao; }
 
-	VAKPtrRef getVertexArray() const { return m_vao; }
-	IBKPtrRef getIndexBuffer() const { return m_ibo; }
+	DrawAs getDrawAs() const { return m_draw_as; }
+	void setDrawAs(DrawAs draw_as) { m_draw_as = draw_as; }
 
-	static Ptr make() { return std::make_shared<Mesh>(); }
-	static Ptr make(VAKPtrRef vao, IBKPtrRef ibo) { return std::make_shared<Mesh>(vao, ibo); }
-	static Ptr make(VAKPtrRef vao) { return std::make_shared<Mesh>(vao); }
+	static Traits<Mesh>::SPtr make() { return std::make_shared<Mesh>(); }
+	static Traits<Mesh>::SPtr make(Traits<VertexArray>::Ptr vao, DrawAs draw_as = DrawAs::Triangles) { return std::make_shared<Mesh>(std::move(vao), draw_as); }
 
 private:
 
-	VAPtr m_vao = nullptr;
-	IBPtr m_ibo = nullptr;
+	Traits<VertexArray>::Ptr m_vao = nullptr; // Owns vao
+
+	DrawAs m_draw_as = DrawAs::Triangles; // Triangles by default
 
 };
-
-export using MeshPtr = Mesh::Ptr;
 
 }

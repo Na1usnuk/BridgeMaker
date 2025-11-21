@@ -22,10 +22,20 @@ namespace bm::gfx
 	{
 	public:
 
-		using Ptr = std::shared_ptr<Object>;
-		using KPtrRef = const Ptr&;
+		struct Vertex
+		{
+			glm::vec3 position;
+			glm::vec4 color;
+			glm::vec2 tex_coords;
+			glm::vec3 normal;
+		};
 
 	public:
+
+		const glm::vec3& getPos() const
+		{
+			return m_translate;
+		}
 
 		void rotateX(float degres);
 		void rotateY(float degres);
@@ -47,13 +57,21 @@ namespace bm::gfx
 		void setPosition(const glm::vec3& to);
 		void setScale(const glm::vec3& by);
 
-		void setMaterial(Traits<Material>::KPtrRef material) { m_material = material; }
-		Traits<Material>::Ptr getMaterial() { return m_material; }
-		void setMesh(Traits<Mesh>::KPtrRef mesh) { m_mesh = mesh; }
-		Traits<Mesh>::Ptr getMesh() { return m_mesh; }
+		void setPositionX(const float x);
+		void setPositionY(const float y);
+		void setPositionZ(const float z);
+
+		void setRotationX(const float x);
+		void setRotationY(const float y);
+		void setRotationZ(const float z);
+
+		void setMaterial(Traits<Material>::KSPtrRef material) { m_material = material; }
+		Traits<Material>::SPtr getMaterial() { return m_material; }
+		void setMesh(Traits<Mesh>::KSPtrRef mesh) { m_mesh = mesh; }
+		Traits<Mesh>::SPtr getMesh() { return m_mesh; }
 
 		void setColor(const glm::vec3& color) { m_material->setColor(glm::vec4(color[0], color[1], color[2], 1.f)); }
-		void setTexture(Traits<Texture>::KPtrRef texture) { m_material->setTexture(texture); }
+		void setTexture(Traits<Texture>::KSPtrRef texture) { m_material->setTexture(texture); }
 
 		void apply();
 
@@ -61,7 +79,7 @@ namespace bm::gfx
 
 		template<typename T, typename... Args>
 		requires std::is_base_of_v<Object, T>
-		static std::shared_ptr<T> make(Args&&... args) { return std::make_shared<T>(std::forward<Args>(args)...); }
+		static Traits<T>::Ptr make(Args&&... args) { return std::make_unique<T>(std::forward<Args>(args)...); }
 
 	private:
 
@@ -71,12 +89,12 @@ namespace bm::gfx
 		glm::vec3 m_scale = glm::vec3(1.f);
 		glm::vec3 m_translate = glm::vec3(0.f);
 
-		Traits<Material>::Ptr m_material;
-		Traits<Mesh>::Ptr m_mesh;
+		Traits<Material>::SPtr m_material;
+		Traits<Mesh>::SPtr m_mesh;
 
 	};
 
-	export using ObjectPtr = Object::Ptr;
+	export using ObjectPtr = Traits<Object>::Ptr;
 
 	void Object::apply()
 	{
@@ -86,6 +104,36 @@ namespace bm::gfx
 		m_model = glm::rotate(m_model, glm::radians(m_rotate.y), glm::vec3(0.f, 1.f, 0.f));
 		m_model = glm::rotate(m_model, glm::radians(m_rotate.x), glm::vec3(1.f, 0.f, 0.f));
 		m_model = glm::scale(m_model, m_scale);
+	}
+
+	void Object::setPositionX(const float x)
+	{
+		m_translate.x = x;
+	}
+
+	void Object::setPositionY(const float y)
+	{
+		m_translate.y = y;
+	}
+
+	void Object::setPositionZ(const float z)
+	{
+		m_translate.z = z;
+	}
+
+	void Object::setRotationX(const float x)
+	{
+		m_rotate.x = x;
+	}
+
+	void Object::setRotationY(const float y)
+	{
+		m_rotate.y = y;
+	}
+
+	void Object::setRotationZ(const float z)
+	{
+		m_rotate.z = z;
 	}
 
 	void Object::setRotation(const glm::vec3& degres)

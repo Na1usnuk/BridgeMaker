@@ -16,13 +16,14 @@ export import bm.input;
 export import bm.window;
 export import bm.cursor;
 
-export import bm.utility;
-
 export import bm.assert;
+export import bm.assetmanager;
 
 export import bm.gfx.camera;
-export import bm.gfx.camera2d;
+export import bm.gfx.camera.screen;
 export import bm.camerainp;
+
+export import bm.traits;
 
 namespace bm
 {

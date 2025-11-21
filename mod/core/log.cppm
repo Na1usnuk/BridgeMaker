@@ -28,9 +28,6 @@ private:
 };
 
 
-
-
-
 //Core loogging used by engine
 namespace core
 {
@@ -57,12 +54,6 @@ export template<typename... ARGS>
 	inline void error(fmt::format_string<ARGS...> fmt, ARGS&&... args){Log::getClientLogger()->error(fmt, std::forward<ARGS>(args)...);}
 export template<typename... ARGS>
 	inline void fatal(fmt::format_string<ARGS...> fmt, ARGS&&... args){Log::getClientLogger()->critical(fmt, std::forward<ARGS>(args)...);}
-
-
-
-
-
-
 
 }
 

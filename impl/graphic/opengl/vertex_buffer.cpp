@@ -10,21 +10,33 @@ import bm.gfx.utility;
 namespace bm::gfx
 {
 
-VertexBuffer::VertexBuffer(const void* data, std::size_t size, Draw draw_hint)
+VertexBuffer::VertexBuffer(const void* data, std::size_t size, Usage usage)
 	: m_size(size)
 {
-	glCall(glCreateBuffers, 1, &m_id);
-	glCall(glNamedBufferStorage, m_id, size, data, 0);
+
+    glCall(glGenBuffers, 1, &m_id);
+    bind();
+
+    GLenum gl_usage;
+    switch (usage) 
+    {
+    case Usage::Static:  gl_usage = GL_STATIC_DRAW; break;
+    case Usage::Dynamic: gl_usage = GL_DYNAMIC_DRAW; break;
+    case Usage::Stream:  gl_usage = GL_STREAM_DRAW; break;
+    }
+
+    glCall(glBufferData, GL_ARRAY_BUFFER, size, data, gl_usage);
+
 }
 
 VertexBuffer::~VertexBuffer()
 {
 }
 
-void VertexBuffer::populate(const void* data)
+void VertexBuffer::populate(const void* data, std::size_t size, std::size_t offset)
 {
 	bind();
-	glCall(glBufferSubData, GL_ARRAY_BUFFER, 0, m_size, data);
+	glCall(glBufferSubData, GL_ARRAY_BUFFER, offset, size, data);
 }
 
 void VertexBuffer::destroy()
@@ -40,19 +52,6 @@ void VertexBuffer::bind() const
 void VertexBuffer::unbind() const
 {
 	glCall(glBindBuffer, GL_ARRAY_BUFFER, 0);
-}
-
-
-unsigned int VertexBufferLayout::Element::getSizeOfType(unsigned int type)
-{
-	switch (type)
-	{
-		case GL_FLOAT:			return 4;
-		case GL_UNSIGNED_INT:	return 4;
-		case GL_UNSIGNED_BYTE:	return 1;
-	}
-	core::verify(false, "Not existing type");
-	return 0;
 }
 
 

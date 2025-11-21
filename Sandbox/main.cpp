@@ -1,10 +1,12 @@
 import sandbox;
+import std;
 
 int main(int argc, char** argv)
 {
+	std::cout << "Main start\n";
 	bm::init();
 
-	SandBox app;
+	SandBox SandBox;
 
-	return app.run(argc, argv);
+	return SandBox.run(argc, argv);
 }

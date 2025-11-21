@@ -12,6 +12,19 @@ namespace bm
 	public:
 		constexpr observer_ptr() noexcept : m_ptr(nullptr) {}
 		constexpr observer_ptr(T* ptr) noexcept : m_ptr(ptr) {}
+		constexpr observer_ptr(std::unique_ptr<T> ptr) noexcept : m_ptr(ptr.get()) {}
+		template<typename U>
+			requires std::is_convertible_v<T*, U*>
+		constexpr observer_ptr(const observer_ptr<U>& oth) noexcept : m_ptr(static_cast<T*>(oth.get())) {}
+
+		template<typename U>
+			requires std::is_convertible_v<U*, T*>
+		constexpr observer_ptr& operator=(const observer_ptr<U>& oth) noexcept
+		{
+			m_ptr = static_cast<T*>(oth.get());
+			return *this;
+		}
+		constexpr observer_ptr& operator=(T* ptr) noexcept { m_ptr = ptr; return *this; }
 
 		constexpr T* get() const noexcept { return m_ptr; }
 		constexpr T& operator*() const noexcept { return *m_ptr; }
@@ -37,10 +50,12 @@ namespace bm
 		using KPtrRef = KPtr&;
 
 		using SPtr = std::shared_ptr<T>;
+		using SPtrRef = SPtr&;
 		using KSPtr = const SPtr;
 		using KSPtrRef = KSPtr&;
 
 		using WPtr = std::weak_ptr<T>;
+		using WPtrRef = WPtr&;
 
 		using OPtr = observer_ptr<T>;
 		using KOPtr = const OPtr;

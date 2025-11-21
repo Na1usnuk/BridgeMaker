@@ -1,63 +1,52 @@
-module;
-
-#include "glad/glad.h"
-
 export module bm.gfx.buffer.index;
 
 import bm.gfx.utility;
+import bm.utility;
+import bm.traits;
 
 import std;
 
 namespace bm::gfx
 {
 
-export class IndexBuffer
-{
-public:
-
-	using Ptr = std::shared_ptr<IndexBuffer>;
-	using KPtrRef = const Ptr&;
-
-public:
-
-	IndexBuffer(const unsigned int* data, std::size_t count)
-		: m_count(count)
+	export class IndexBuffer
 	{
-		glCall(glGenBuffers, 1, &m_id);
-		glCall(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_id);
-		glCall(glBufferData, GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
-	}
-
-	template<Buffer C>
-	IndexBuffer(const C& data) : IndexBuffer(std::data(data), data.size()) {}
-
-
-	~IndexBuffer();
-	IndexBuffer(const IndexBuffer&) = delete;
-	IndexBuffer& operator=(const IndexBuffer&) = delete;
-	IndexBuffer(IndexBuffer&& oth) noexcept;
-	IndexBuffer& operator=(IndexBuffer&& oth) noexcept;
-
-	void destroy();
-
-	void bind() const;
-	void unbind() const;
-
-	unsigned int count() const { return m_count; }
-
-	static Ptr make(const unsigned int* data, std::size_t count) { return std::make_shared<IndexBuffer>(data, count); }
-	template<Buffer C>
-	static Ptr make(const C& data) { return std::make_shared<IndexBuffer>(data); }
-	static Ptr make(const std::initializer_list<unsigned int>& data) { return IndexBuffer::make<std::initializer_list<unsigned int>>(data); }
-
-private:
-
-	unsigned int m_id = 0;
-	unsigned long long m_count = 0;
-	int m_data_t;
-};
-
-export using IndexBufferPtr = IndexBuffer::Ptr;
+	public:
+	
+		IndexBuffer(const unsigned int* data, std::size_t count);
+	
+		IndexBuffer(std::size_t count) : 
+			IndexBuffer(nullptr, count) 
+		{}
+	
+		template<Container C>
+		IndexBuffer(const C& data) : IndexBuffer(std::data(data), std::size(data)) {}
+	
+	
+		~IndexBuffer();
+		IndexBuffer(const IndexBuffer&) = delete;
+		IndexBuffer& operator=(const IndexBuffer&) = delete;
+		IndexBuffer(IndexBuffer&& oth) noexcept;
+		IndexBuffer& operator=(IndexBuffer&& oth) noexcept;
+	
+		void destroy();
+	
+		void bind() const;
+		void unbind() const;
+		unsigned int id() const { return m_id; } // Please dont try to destroy object using this id (look destructor).
+	
+		void setData(const unsigned int* data, std::size_t count, std::size_t offset = 0);
+	
+		unsigned int count() const { return m_count; }
+	
+		template<typename... Args>
+		static Traits<IndexBuffer>::Ptr make(Args&&... args) { return std::make_unique<IndexBuffer>(std::forward<Args>(args)...); }
+	
+	private:
+	
+		unsigned int m_id = 0; // OpenGL obj id
+		unsigned long long m_count = 0; // Count of elements to show
+	};
 
 }
 

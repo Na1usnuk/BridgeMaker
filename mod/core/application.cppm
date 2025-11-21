@@ -5,6 +5,7 @@ import std;
 import bm.log;
 
 import bm.gfx.renderer;
+import bm.gfx.screen_renderer;
 
 import bm.window;
 import bm.input;
@@ -19,6 +20,8 @@ import bm.event.app;
 
 import bm.taskqueue;
 
+import bm.traits;
+
 
 namespace bm 
 {
@@ -32,6 +35,7 @@ public:
 	static Application& get() { return *s_app; }
 
 	gfx::Renderer& getRenderer() { return m_renderer; }
+	gfx::ScreenRenderer& getScreenRenderer() { return m_screen_renderer; }
 	Window& getWindow() { return m_window; }
 	gfx::Context& getContext() { return m_ctx; }
 
@@ -44,11 +48,11 @@ protected:
 	virtual void processArgs(int argc, char** argv) {}
 
 	virtual void onUpdate(float delta_time) {}
-	virtual void onEvent(Event&) {}
+	virtual void onEvent(Event& e);
 	virtual void onImGuiRender() {}
 
-	void pushLayer(LayerStack::ptr_t layer) { m_layers.pushLayer(layer); }
-	void pushOverlay(LayerStack::ptr_t overlay) { m_layers.pushOverlay(overlay); }
+	Traits<Layer>::OPtr pushLayer(Traits<Layer>::Ptr layer) { return m_layers.pushLayer(std::move(layer)); }
+	Traits<Layer>::OPtr pushOverlay(Traits<Layer>::Ptr overlay) { return m_layers.pushOverlay(std::move(overlay)); }
 
 	void registerEndOfFrameTask(TaskQueue::Task&& task) { m_end_of_frame_tasks.push(std::forward<TaskQueue::Task>(task)); }
 
@@ -69,19 +73,19 @@ private:
 
 private:
 
-	gfx::Renderer m_renderer;
-
-	LayerStack m_layers;
-	std::shared_ptr<ImGuiLayer> m_imgui;
-
-	Window m_window;
-
-	gfx::Context& m_ctx;
-
-	TaskQueue m_end_of_frame_tasks;
-
 	bool m_is_running;
 	unsigned short m_fps_limit;
+
+	Window m_window;
+	gfx::Context& m_ctx;
+
+	gfx::Renderer m_renderer;
+	gfx::ScreenRenderer m_screen_renderer;
+
+	LayerStack m_layers;
+	Traits<ImGuiLayer>::OPtr m_imgui;
+
+	TaskQueue m_end_of_frame_tasks;
 
 	static Application* s_app;
 };

@@ -19,13 +19,12 @@ namespace bm::gfx
 	{
 	public:
 
-		using Ptr = Traits<Material>::Ptr;
-		using KPtrRef = Traits<Material>::KPtrRef;
 		using Action = std::function<void()>;
 
 	public:
 
-		Material(Traits<Shader>::KPtrRef shader) : m_shader(shader) { m_texture = AssetManager::get().load<Texture>("nothing_texture"); }
+		Material() : Material(AssetManager::get().loadShader("basic")) {}
+		Material(Traits<Shader>::KSPtrRef shader) : m_shader(shader) { m_texture = AssetManager::get().loadTexture("nothing"); }
 
 
 		void bind()
@@ -49,22 +48,24 @@ namespace bm::gfx
 		void setColor(const glm::vec4& color) { m_color = color; }
 		const glm::vec4& getColor() const { return m_color; }
 
-		void setTexture(Traits<Texture>::KPtrRef texture) { m_texture = texture; }
-		Traits<Texture>::KPtrRef getTexture() const { return m_texture; }
+		void setTexture(Traits<Texture>::KSPtrRef texture) { m_texture = texture; }
+		Traits<Texture>::KSPtrRef getTexture() const { return m_texture; }
 
-		Traits<Shader>::KPtrRef getShader() const { return m_shader; }
+		Traits<Shader>::KSPtrRef getShader() const { return m_shader; }
 
-		static Ptr make(ShaderPtr shader) { return std::make_shared<Material>(shader); }
+		template<typename... Args>
+		static Traits<Material>::SPtr make(Args&&... args) { return std::make_shared<Material>(std::forward<Args>(args)...); }
 
 	private:
 
-		ShaderPtr m_shader;
-
-		TexturePtr m_texture;
+		Traits<Shader>::SPtr m_shader;
+		Traits<Texture>::SPtr m_texture;
 		glm::vec4 m_color = {1.f, 1.f, 1.f, 1.f};
 
 		std::queue<Action> m_action_queue;
 
 	};
+
+	export using MaterialPtr = Traits<Material>::Ptr;
 
 }

@@ -12,6 +12,7 @@
 #ifndef IMGUI_DISABLE
 
 #include <string>
+#include "imgui.h"
 
 namespace ImGui
 {

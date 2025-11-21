@@ -3,7 +3,7 @@ module bm.app;
 import std;
 
 import bm.deltatime;
-
+import bm.event.app;
 import bm.layer.imgui;
 
 
@@ -16,12 +16,13 @@ namespace bm
 		m_is_running(true),
 		m_fps_limit(1000),
 		m_window(title, width, height, vsync, decorated, visible),
-		m_ctx(gfx::Context::getContext()),
-		m_imgui(Layer::make<ImGuiLayer>())
+		m_ctx(gfx::Context::getContext())
 	{
-		m_layers.pushOverlay(m_imgui);
-
 		s_app = this;
+
+		auto im = Layer::make<ImGuiLayer>();
+		m_imgui = m_layers.pushOverlay(std::move(im));
+
 		m_window.setEventCallback(std::bind(&Application::onEventImpl, this, std::placeholders::_1));
 		m_renderer.setView({ 0, 0, width, height });
 
@@ -31,7 +32,6 @@ namespace bm
 	{
 		s_app = nullptr;
 	}
-
 
 	void Application::onLayersUpdate(float delta_time)
 	{
@@ -57,6 +57,17 @@ namespace bm
 			if (e.isHandled())
 				break;
 		}
+	}
+
+	void Application::onEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+
+		dispatcher.dispatch<WindowCloseEvent>([this](WindowCloseEvent& e)
+			{
+				this->close();
+				return true;
+			});
 	}
 
 	void Application::onImGuiRenderImpl()
