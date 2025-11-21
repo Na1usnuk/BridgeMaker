@@ -17,7 +17,7 @@ namespace bm
 	{
 	public:
 
-		DefaultCameraInputLayer(gfx::CameraPtr camera_to_control = nullptr, float speed = 3.0f, float sensetivity = .5f)
+		DefaultCameraInputLayer(Traits<gfx::Camera>::OPtr camera_to_control, float speed = 3.0f, float sensetivity = .5f)
 			: m_camera(camera_to_control), 
 			  m_speed(speed), 
 			  m_sensetivity(sensetivity),
@@ -38,11 +38,11 @@ namespace bm
 		void setSensetivity(float sensetivity) { m_sensetivity = sensetivity; }
 		float getSensetivity() { return m_sensetivity; }
 
-		void setCamera(gfx::CameraPtr camera_to_control) { m_camera = camera_to_control; }
+		void setCamera(Traits<gfx::Camera>::OPtr camera_to_control) { m_camera = camera_to_control; }
 
 	private:
 
-		std::weak_ptr<gfx::Camera> m_camera;
+		Traits<gfx::Camera>::OPtr m_camera;
 		float m_speed; 
 		float m_sensetivity;
 
@@ -87,22 +87,20 @@ namespace bm
 
 	bool DefaultCameraInputLayer::onScroll(MouseScrollEvent& e)
 	{
-		auto camera = m_camera.lock();
-		if (not camera)
+		if (not m_camera)
 			return false;
 
 		if (!m_camera_active)
 			return false;
 
-		camera->setFOV(std::clamp(camera->getFOV() - e.getY(), 1.f, 65.f));
+		m_camera->setFOV(std::clamp(m_camera->getFOV() - e.getY(), 1.f, 65.f));
 
 		return false;
 	}
 
 	bool DefaultCameraInputLayer::onMouseMove(MouseMoveEvent& e)
 	{
-		auto camera = m_camera.lock();
-		if (not camera)
+		if (not m_camera)
 			return false;
 
 		if (!m_camera_active)
@@ -121,11 +119,11 @@ namespace bm
 		float delta_y = (m_last_mouse_pos.second - e.getY()) * m_sensetivity;
 		m_last_mouse_pos = { e.getX(), e.getY() };
 
-		auto yaw = camera->getYaw() + delta_x;
+		auto yaw = m_camera->getYaw() + delta_x;
 		if (yaw > 360) yaw -= 360;
 		if (yaw < 0)   yaw += 360;
-		camera->setYaw(yaw);
-		camera->setPitch(std::clamp(camera->getPitch() + delta_y, -89.0f, 89.0f));
+		m_camera->setYaw(yaw);
+		m_camera->setPitch(std::clamp(m_camera->getPitch() + delta_y, -89.0f, 89.0f));
 
 		return true;
 	}
@@ -135,33 +133,32 @@ namespace bm
 		if (!m_camera_active)
 			return;
 
-		auto camera = m_camera.lock();
-		if (not camera)
+		if (not m_camera)
 			return;
 
 		float speed = m_speed * delta_time;
 
-		glm::vec3 front = camera->getDirection();
-		glm::vec3 right = camera->getRight(front);
-		glm::vec3 world_up = camera->getWorldUp();
+		glm::vec3 front = m_camera->getDirection();
+		glm::vec3 right = m_camera->getRight(front);
+		glm::vec3 world_up = m_camera->getWorldUp();
 
 		if (Input::isPressed(Input::Key::W))
-			camera->setPosition(camera->getPosition() + front * speed);
+			m_camera->setPosition(m_camera->getPosition() + front * speed);
 
 		if (Input::isPressed(Input::Key::S))
-			camera->setPosition(camera->getPosition() - front * speed);
+			m_camera->setPosition(m_camera->getPosition() - front * speed);
 
 		if (Input::isPressed(Input::Key::A))
-			camera->setPosition(camera->getPosition() - right * speed);
+			m_camera->setPosition(m_camera->getPosition() - right * speed);
 
 		if (Input::isPressed(Input::Key::D))
-			camera->setPosition(camera->getPosition() + right * speed);
+			m_camera->setPosition(m_camera->getPosition() + right * speed);
 
 		if (Input::isPressed(Input::Key::E) || Input::isPressed(Input::Key::SPACE))
-			camera->setPosition(camera->getPosition() + world_up * speed);
+			m_camera->setPosition(m_camera->getPosition() + world_up * speed);
 
 		if (Input::isPressed(Input::Key::Q) || Input::isPressed(Input::Key::LEFT_CONTROL))
-			camera->setPosition(camera->getPosition() - world_up * speed);
+			m_camera->setPosition(m_camera->getPosition() - world_up * speed);
 
 		
 	}
