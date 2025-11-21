@@ -7,6 +7,7 @@ import bm.event;
 import bm.window;
 
 export import "imgui.h";
+export import "imgui_stdlib.h";
 export import "imgui_impl_opengl3.h";
 export import "imgui_impl_glfw.h";
 
