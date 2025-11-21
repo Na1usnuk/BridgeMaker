@@ -26,7 +26,7 @@ export struct Icon
 	{
 		int bpp;
 		pixels = stbi_load(path.data(), &width, &height, &bpp, 4);
-		core::verify(pixels != nullptr, "Failed to load icon" + std::string(path.data()));
+		core::verify(pixels != nullptr, "Failed to load icon " + std::string(path.data()));
 	}
 	Icon(int w, int h, unsigned char* p) : width(w), height(h), pixels(p) {}
 
@@ -132,16 +132,18 @@ namespace gfx
 		void init();
 		void destroy();
 		void setCurrent(Window& window);
-		Window& getCurrent();
+		Window& getCurrent() const;
 		void swapBuffers();
 		Window::NativeWindow shareContext();
+		void setGLVersion(int version) { m_gl_version = version; }
+		int getGLVersion() const { return m_gl_version; }
 
 		static Context& getContext();
 
 	private:
 
 		Window* m_window;
-
+		int m_gl_version;
 		static Context s_ctx_inst;
 
 	};

@@ -167,16 +167,39 @@ void Window::create(bool decorated, bool visible)
 		auto success = glfwInit();
 		core::verify(success, "Failed to initialize GLFW");
 		log::core::info("GLFW initialized");
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		s_isGLFWInitialized = true;
 	}
 
-	glfwWindowHint(GLFW_DECORATED, static_cast<int>(decorated));
-	glfwWindowHint(GLFW_VISIBLE, static_cast<int>(visible));
+	glfwWindowHint(GLFW_DECORATED, decorated ? GLFW_TRUE : GLFW_FALSE);
+	glfwWindowHint(GLFW_VISIBLE, visible ? GLFW_TRUE : GLFW_FALSE);
 
-	m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::getContext().shareContext());
+	constexpr std::array<std::pair<int, int>, 8> versions =
+	{
+		std::pair<int, int>{4, 6},
+		std::pair<int, int>{4, 5},
+		std::pair<int, int>{4, 4},
+		std::pair<int, int>{4, 3},
+		std::pair<int, int>{4, 2},
+		std::pair<int, int>{4, 1},
+		std::pair<int, int>{4, 0},
+		std::pair<int, int>{3, 3}
+	};
+
+	for (auto[major, minor] : versions)
+	{
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
+
+		m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::getContext().shareContext());
+
+		if (m_window != nullptr)
+		{
+			log::core::trace("Successfully created window {} with OpenGL version {}.{}", m_data.title, major, minor);
+			gfx::Context::getContext().setGLVersion(major * 10 + minor);
+			break;
+		}
+	}
 	core::verify(m_window, "Failed to create window");
 
 	m_data.window = this;
@@ -359,14 +382,11 @@ namespace gfx
 
 	void Context::setCurrent(Window& window)
 	{
-		// ImGui can change context, so i need to rebind it every time
-		//if (m_window == &window)
-			//return;
 		m_window = &window;
 		glfwMakeContextCurrent(m_window->getNativeWindow());
 	}
 
-	Window& Context::getCurrent()
+	Window& Context::getCurrent() const
 	{
 		core::verify(m_window != nullptr, "Current context is invalid");
 		return *m_window;
@@ -383,7 +403,7 @@ namespace gfx
 		glfwSwapBuffers(m_window->getNativeWindow());
 	}
 
-	//share context with other window
+	//share context with other windows
 	Window::NativeWindow Context::shareContext()
 	{
 		if (m_window != nullptr)
