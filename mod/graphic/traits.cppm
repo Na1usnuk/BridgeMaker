@@ -25,7 +25,7 @@ namespace bm
 			return *this;
 		}
 		constexpr observer_ptr& operator=(T* ptr) noexcept { m_ptr = ptr; return *this; }
-		constexpr obserter_ptr& operator=(const std::unique_ptr& ptr) noexcept { m_ptr = ptr.get(); }
+		constexpr observer_ptr& operator=(const std::unique_ptr<T>& ptr) noexcept { m_ptr = ptr.get(); return *this; }
 
 		constexpr T* get() const noexcept { return m_ptr; }
 		constexpr T& operator*() const noexcept { return *m_ptr; }

@@ -23,6 +23,13 @@ import std;
 
 namespace bm::gfx
 {
+	struct QuadVertex
+	{
+		glm::vec3 position;
+		glm::vec2 texcoord;
+		glm::vec4 color;
+		float texslot;
+	};
 
 	export class Quad
 	{
@@ -73,7 +80,7 @@ namespace bm::gfx
 		{
 			Data();
 
-			static constexpr std::uint32_t max_quads = 100;
+			static constexpr std::uint32_t max_quads = 10;
 			static constexpr std::uint32_t max_vertices = max_quads * 4;
 			static constexpr std::uint32_t max_indices = max_quads * 6;
 			static constexpr std::uint16_t max_texture_slots = 8;
@@ -82,10 +89,8 @@ namespace bm::gfx
 			Traits<Shader>::SPtr shader = nullptr;
 
 			std::size_t quad_count = 0;
-			
-			//std::vector<QuadVertex> vertices;
-			//std::vector<std::uint32_t> indices;
-
+			// Can be array if max_quads is small, but vector in case of stack overflow
+			std::vector<QuadVertex> vertices;
 		};
 
 	public:
@@ -109,12 +114,14 @@ namespace bm::gfx
 			submit(position, size, color, texture);
 		}
 
-		void draw(Traits<ScreenCamera>::KPtrRef camera);
+		void draw();
+
+		void setCamera(Traits<ScreenCamera>::KPtrRef camera) { m_camera = camera; }
 
 	private:
 
 		Data m_data;
 
-		std::vector<Quad> m_quads;
+		Traits<ScreenCamera>::OPtr m_camera = nullptr;
 	};
 }

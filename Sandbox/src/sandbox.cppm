@@ -24,6 +24,8 @@ public:
 		m_camera_input->setSensetivity(0.2f);
 		m_camera_input->setSpeed(5.f);
 
+		getScreenRenderer().setCamera(m_camera2d);
+
 		//m_camera->setAspectRatio(1200.f / 720.f);
 
 		getRenderer().setDepthTesting(true);
@@ -81,7 +83,7 @@ public:
 			glm::vec4(0.f, 1.f, 0.f, 1.f)   // green
 		);
 
-		getScreenRenderer().draw(m_camera2d);
+		getScreenRenderer().draw();
 
 		return true;
 	}

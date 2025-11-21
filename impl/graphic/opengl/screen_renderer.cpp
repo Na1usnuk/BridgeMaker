@@ -45,9 +45,9 @@ namespace bm::gfx
 		R"(
 			#version 330 core
 
-			in  vec2 f_tex;
+			in  vec2 f_tex;  // Ignored for now
 			in  vec4 f_color;
-			in float f_slot;
+			in float f_slot; // Ignored for now
 
 			out vec4 o_color;
 
@@ -59,32 +59,12 @@ namespace bm::gfx
 			}
 		)";
 
-	//static constexpr std::array<float, 5 * 4> vertices =
-	//{
-	//	// x      y      z     u     v 
-	//	-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom-left
-	//	 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom-right
-	//	 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top-right
-	//	-0.5f,  0.5f, 0.0f, 0.0f, 1.0f, // top-left
-	//};
 
-	//static constexpr std::array<unsigned int, 6> indices =
-	//{
-	//	0, 1, 2,
-	//	0, 2, 3
-	//};
-
-	struct QuadVertex
-	{
-		glm::vec3 position;
-		glm::vec2 texcoord;
-		glm::vec4 color;
-		float texslot;
-	};
 
 	ScreenRenderer::Data::Data() :
 		vao(VertexArray::make()),
-		shader(Shader::make(vertex2d_src, fragment2d_src))
+		shader(Shader::make(vertex2d_src, fragment2d_src)),
+		vertices(max_vertices)
 	{
 		// Allocate buffer for max amount of vertices
 		auto vbo(VertexBuffer::make(max_vertices * sizeof(QuadVertex), VertexBuffer::Usage::Dynamic)); 
@@ -123,41 +103,33 @@ namespace bm::gfx
 
 	void ScreenRenderer::submit(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, Traits<Texture>::KSPtrRef texture)
 	{
-		log::core::trace("Submit quad at ({}, {}, {}) size ({}, {}) color ({}, {}, {}, {})",
-			position.x, position.y, position.z, size.x, size.y,
-			color.r, color.g, color.b, color.a);
-
 		if (m_data.quad_count >= m_data.max_quads)
-		{
-			// For now you need to manually control you quad count, and call draw if it >= max_quads
-			log::core::error("Max quad amount ({}) overflow", m_data.max_quads);
-			return;
-		}
+			draw();
 
-		std::array<QuadVertex, 4> quad_data;
+		auto count = m_data.quad_count * 4;
 
-		quad_data[0] = 
+		m_data.vertices[count + 0] =
 		{ 
 			position, 
 			{0.0f, 0.0f}, 
 			color, 
 			0 
 		};
-		quad_data[1] =
+		m_data.vertices[count + 1] =
 		{
 			{ position.x + size.x, position.y, position.z },
 			{1.0f, 0.0f},
 			color,
 			0
 		};
-		quad_data[2] =
+		m_data.vertices[count + 2] =
 		{
 			{ position.x + size.x, position.y + size.y, position.z},
 			{1.0f, 1.0f},
 			color,
 			0
 		};
-		quad_data[3] =
+		m_data.vertices[count + 3] =
 		{
 			{ position.x, position.y + size.y, position.z},
 			{0.0f, 1.0f},
@@ -165,32 +137,22 @@ namespace bm::gfx
 			0
 		};
 
-		m_data.vao->getVertexBuffer()->populate(quad_data.data(), sizeof(QuadVertex) * 4, m_data.quad_count * sizeof(QuadVertex) * 4);
 		m_data.quad_count++;
 
 	}
 
-	void ScreenRenderer::draw(Traits<ScreenCamera>::KPtrRef camera)
+	void ScreenRenderer::draw()
 	{
-		log::core::trace("Drawing {} quads", m_data.quad_count);
-
-		glDisable(GL_DEPTH_TEST);  // Disable depth test for 2D
-		glDisable(GL_CULL_FACE);   // Disable backface culling
-		glEnable(GL_BLEND);        // Enable blending for transparency
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		m_data.vao->bind();
 		m_data.shader->bind();
 
-		m_data.shader->setUniform("u_view", camera->getView());
-		m_data.shader->setUniform("u_projection", camera->getProjection());
-		//m_data.shader->setUniform("u_model", glm::mat4(1.f));
+		m_data.shader->setUniform("u_view", m_camera->getView());
+		m_data.shader->setUniform("u_projection", m_camera->getProjection());
 
-
+		m_data.vao->getVertexBuffer()->populate(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
 		glCall(glDrawElements, GL_TRIANGLES, m_data.quad_count * 6, GL_UNSIGNED_INT, nullptr);
 		m_data.quad_count = 0;
-
-		glEnable(GL_DEPTH_TEST);
 
 	}
 
