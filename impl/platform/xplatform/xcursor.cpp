@@ -17,7 +17,7 @@ unsigned int Cursor::m_ref_count = 0;
 
 void Cursor::setCursor(Type type)
 {
-    glfwSetCursor(gfx::Context::getContext().getCurrent().getNativeWindow(), m_cursors[type]);
+    glfwSetCursor(gfx::Context::get().getCurrent().getNativeWindow(), m_cursors[type]);
 }
 
 void Cursor::init()

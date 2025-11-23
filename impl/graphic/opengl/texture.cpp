@@ -7,7 +7,7 @@ module bm.gfx.texture;
 
 import std;
 
-import bm.assert;
+import bm.verify;
 import bm.log;
 import bm.gfx.utility;
 

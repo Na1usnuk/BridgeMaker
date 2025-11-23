@@ -9,7 +9,7 @@ import std;
 
 
 import bm.log;
-import bm.assert;
+import bm.verify;
 import bm.event.base;
 
 
@@ -135,10 +135,10 @@ namespace gfx
 		Window& getCurrent() const;
 		void swapBuffers();
 		Window::NativeWindow shareContext();
-		void setGLVersion(int version) { m_gl_version = version; }
-		int getGLVersion() const { return m_gl_version; }
+		void setVersion(int version) { m_gl_version = version; }
+		int getVersion() const { return m_gl_version; }
 
-		static Context& getContext();
+		static Context& get();
 
 	private:
 

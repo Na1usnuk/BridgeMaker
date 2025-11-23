@@ -9,7 +9,7 @@ module bm.gfx.shader;
 
 import bm.gfx.utility;
 import bm.log;
-import bm.assert;
+import bm.verify;
 
 namespace bm::gfx
 {

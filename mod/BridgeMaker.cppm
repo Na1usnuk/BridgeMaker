@@ -16,7 +16,7 @@ export import bm.input;
 export import bm.window;
 export import bm.cursor;
 
-export import bm.assert;
+export import bm.verify;
 export import bm.assetmanager;
 
 export import bm.gfx.camera;

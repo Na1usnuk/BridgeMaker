@@ -2,7 +2,6 @@ module bm.app;
 
 import std;
 
-import bm.deltatime;
 import bm.event.app;
 import bm.layer.imgui;
 
@@ -14,14 +13,12 @@ namespace bm
 
 	Application::Application(std::string_view title, int width, int height, bool vsync, bool decorated, bool visible) :
 		m_is_running(true),
-		m_fps_limit(1000),
 		m_window(title, width, height, vsync, decorated, visible),
-		m_ctx(gfx::Context::getContext())
+		m_ctx(gfx::Context::get())
 	{
 		s_app = this;
 
-		auto im = Layer::make<ImGuiLayer>();
-		m_imgui = m_layers.pushOverlay(std::move(im));
+		m_imgui = m_layers.pushOverlay(Layer::make<ImGuiLayer>());
 
 		m_window.setEventCallback(std::bind(&Application::onEventImpl, this, std::placeholders::_1));
 		m_renderer.setView({ 0, 0, width, height });
@@ -70,6 +67,20 @@ namespace bm
 			});
 	}
 
+	void Application::onImGuiRender()
+	{
+		ImGui::Begin("Application");
+
+		ImGui::Text("Application running...");
+
+		ImGui::Separator();
+
+		ImGui::Text("Window size: %d x %d", m_window.getWidth(), m_window.getHeight());
+		ImGui::Text("FPS: %.2f", m_timestep.getFPS());
+
+		ImGui::End();
+	}
+
 	void Application::onImGuiRenderImpl()
 	{
 		m_imgui->Begin(); // Basic ImGui init like NewFrame, etc.
@@ -94,14 +105,11 @@ namespace bm
 	{
 		processArgs(argc, argv);
 
-		DeltaTime timestamp;
-
 		while (m_is_running)
 		{
-			timestamp.setFPSLimit(m_fps_limit);
-			timestamp.update();
+			m_timestep.onUpdate();
 
-			onUpdateImpl(timestamp.getDeltaTime()); // Update all
+			onUpdateImpl(m_timestep.getDeltaTime()); // Update all
 			m_window.onUpdate(); // Poll events
 
 			AppRenderEvent e;
@@ -112,9 +120,8 @@ namespace bm
 			m_ctx.swapBuffers(); 
 
 			m_end_of_frame_tasks.execute();
-
-			timestamp.wait(); // Wait to match target FPS
 		}
+
 		return 0;
 	}
 

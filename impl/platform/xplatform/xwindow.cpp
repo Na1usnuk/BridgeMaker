@@ -8,7 +8,7 @@ module bm.window;
 import bm.log;
 import bm.cursor;
 import bm.input;
-import bm.assert;
+import bm.verify;
 import bm.event;
 import bm.gfx.utility;
 
@@ -191,12 +191,12 @@ void Window::create(bool decorated, bool visible)
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
 
-		m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::getContext().shareContext());
+		m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::get().shareContext());
 
 		if (m_window != nullptr)
 		{
 			log::core::trace("Successfully created window {} with OpenGL version {}.{}", m_data.title, major, minor);
-			gfx::Context::getContext().setGLVersion(major * 10 + minor);
+			gfx::Context::get().setVersion(major * 10 + minor);
 			break;
 		}
 	}
@@ -204,8 +204,8 @@ void Window::create(bool decorated, bool visible)
 
 	m_data.window = this;
 
-	gfx::Context::getContext().setCurrent(*this);
-	gfx::Context::getContext().init();
+	gfx::Context::get().setCurrent(*this);
+	gfx::Context::get().init();
 	Cursor::init();
 	setVSync(m_data.vsync);
 	setGLFWPointer();
@@ -356,7 +356,7 @@ namespace gfx
 	Context Context::s_ctx_inst{};
 
 
-	Context& Context::getContext()
+	Context& Context::get()
 	{
 		return s_ctx_inst;
 	}

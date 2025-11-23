@@ -5,7 +5,7 @@ module;
 export module bm.gfx.buffer.vertex;
 
 
-import bm.assert;
+import bm.verify;
 import bm.log;
 import bm.gfx.utility;
 import bm.utility;
@@ -23,7 +23,7 @@ namespace bm::gfx
 
 		enum class Usage
 		{
-			// Magic numbers from opengl
+			Const,
 			Static, // For immutable data
 			Dynamic, // Data can change sometimes
 			Stream, // Data changes frequently 
@@ -176,7 +176,7 @@ namespace bm::gfx
 		void bind() const;
 		void unbind() const;
 		void destroy();
-		void populate(const void* data, std::size_t size, std::size_t offset = 0);
+		void setData(const void* data, std::size_t size, std::size_t offset = 0);
 		std::size_t size() const { return m_size; }
 
 		void setLayout(const Layout& layout)
@@ -201,6 +201,7 @@ namespace bm::gfx
 
 		unsigned int m_id;
 		std::size_t m_size;
+		Usage m_usage;
 
 		Layout m_layout;
 

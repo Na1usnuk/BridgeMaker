@@ -22,6 +22,9 @@ import bm.taskqueue;
 
 import bm.traits;
 
+import bm.deltatime;
+
+
 
 namespace bm 
 {
@@ -38,6 +41,7 @@ public:
 	gfx::ScreenRenderer& getScreenRenderer() { return m_screen_renderer; }
 	Window& getWindow() { return m_window; }
 	gfx::Context& getContext() { return m_ctx; }
+	float getFPS() const { return m_timestep.getFPS(); }
 
 protected:
 
@@ -49,17 +53,17 @@ protected:
 
 	virtual void onUpdate(float delta_time) {}
 	virtual void onEvent(Event& e);
-	virtual void onImGuiRender() {}
+	virtual void onImGuiRender();
 
 	Traits<Layer>::OPtr pushLayer(Traits<Layer>::Ptr layer) { return m_layers.pushLayer(std::move(layer)); }
 	Traits<Layer>::OPtr pushOverlay(Traits<Layer>::Ptr overlay) { return m_layers.pushOverlay(std::move(overlay)); }
 
-	void registerEndOfFrameTask(TaskQueue::Task&& task) { m_end_of_frame_tasks.push(std::forward<TaskQueue::Task>(task)); }
+	void registerEndOfFrameTask(TaskQueue::Task&& task) noexcept { m_end_of_frame_tasks.push(std::forward<TaskQueue::Task>(task)); }
 
-	void close() { m_is_running = false; }
-	bool isOpen() { return m_is_running; }
+	void close() noexcept { m_is_running = false; }
+	bool isOpen() const noexcept { return m_is_running; }
 
-	void setFPSLimit(unsigned short fps_limit) { m_fps_limit = fps_limit; }
+	void setFPSLimit(unsigned short fps_limit) noexcept { m_timestep.setFPSLimit(fps_limit); }
 
 private:
 
@@ -74,7 +78,7 @@ private:
 private:
 
 	bool m_is_running;
-	unsigned short m_fps_limit;
+	DeltaTime m_timestep;
 
 	Window m_window;
 	gfx::Context& m_ctx;

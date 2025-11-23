@@ -10,6 +10,7 @@ import bm.app;
 import bm.gfx.renderer;
 import bm.gfx.utility;
 import bm.log;
+import bm.verify;
 
 import std;
 
@@ -143,17 +144,18 @@ namespace bm::gfx
 
 	void ScreenRenderer::draw()
 	{
-
 		m_data.vao->bind();
 		m_data.shader->bind();
+
+		// Camera needs to be set at this point 
+		core::verify(bool(m_camera), "Camera not set for ScreenRenderer. Please call ScreenRenderer::setCamera");
 
 		m_data.shader->setUniform("u_view", m_camera->getView());
 		m_data.shader->setUniform("u_projection", m_camera->getProjection());
 
-		m_data.vao->getVertexBuffer()->populate(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
+		m_data.vao->getVertexBuffer()->setData(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
 		glCall(glDrawElements, GL_TRIANGLES, m_data.quad_count * 6, GL_UNSIGNED_INT, nullptr);
 		m_data.quad_count = 0;
-
 	}
 
 }

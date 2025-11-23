@@ -15,9 +15,9 @@ public:
 	SandBox() : bm::Application("SandBox", 1200, 720), 
 		m_camera(bm::gfx::Camera::make({0.f, 2.f, -3.f})), 
 		m_scene(scene::triangle()),
-		m_camera2d(bm::gfx::ScreenCamera::make(0, 1200, 0, 720))
+		m_camera2d(bm::gfx::ScreenCamera::make(1200, 720))
 	{
-		setFPSLimit(120);
+		setFPSLimit(60);
 
 
 		m_camera_input = pushOverlay(Layer::make<DefaultCameraInputLayer>(m_camera.get()));
@@ -25,8 +25,6 @@ public:
 		m_camera_input->setSpeed(5.f);
 
 		getScreenRenderer().setCamera(m_camera2d);
-
-		//m_camera->setAspectRatio(1200.f / 720.f);
 
 		getRenderer().setDepthTesting(true);
 		//getRenderer().setBlend(true);
@@ -55,6 +53,7 @@ public:
 			{ 
 				this->getRenderer().setView({0, 0, e.getWidth(), e.getHeight()}); 
 				m_camera->setAspectRatio((float)e.getWidth() / (float)e.getHeight());
+				m_camera2d->setViewportSize(e.getWidth(),e.getHeight());
 				return true; 
 			});
 
@@ -66,52 +65,18 @@ public:
 		getRenderer().clear();
 		getRenderer().draw(m_scene, m_camera);
 
-		//using namespace bm::gfx;
-		//static auto triangle = Object::make<Triangle>();
+		auto [mouse_x, mouse_y] = bm::Input::getMousePos();
+		auto frame_y = getWindow().getFramebufferSize().second;
 
-		// Test 1: Simple colored quad (no texture)
 		getScreenRenderer().submit(
-			glm::vec3(400.f, 300.f, 0.f),  // center of screen
-			glm::vec2(100.f, 100.f),        // 100x100 size
-			glm::vec4(1.f, 0.f, 0.f, 1.f)   // red color
-		);
-
-		// Test 2: Another quad at different position
-		getScreenRenderer().submit(
-			glm::vec2(200.f, 150.f),        // using vec2 constructor
-			glm::vec2(50.f, 50.f),          // smaller quad
-			glm::vec4(0.f, 1.f, 0.f, 1.f)   // green
+			glm::vec2(mouse_x - 25.f, -(mouse_y - frame_y) - 25.f),      
+			glm::vec2(50.f, 50.f),        
+			glm::vec4(0.f, 1.f, 0.f, 1.f) 
 		);
 
 		getScreenRenderer().draw();
 
 		return true;
-	}
-
-	void onImGuiRender() override
-	{
-		//static glm::vec3 position(0.f, 0.f, 0.f);
-		//static glm::vec3 rotation(0.f, 0.f, 0.f);
-		//static glm::vec3 scale(1.f, 1.f, 1.f);
-		//static glm::vec3 color(1.f, 1.f, 1.f);
-
-		//ImGui::Begin("Settings");
-
-		//ImGui::DragFloat3("Position", &position.x, 0.1f);
-
-		//ImGui::DragFloat3("Rotation", &rotation.x, 0.5f);
-
-		//ImGui::DragFloat3("Scale", &scale.x, 0.05f, 0.01f, 100.0f);
-
-		//ImGui::ColorEdit3("Color", &color.x);
-
-		//ImGui::End();
-
-		//m_scene->getObjects()[0]->setPosition(position);
-		//m_scene->getObjects()[0]->setRotation(rotation);
-		//m_scene->getObjects()[0]->setScale(scale);
-		//m_scene->getObjects()[0]->setColor({ color.x, color.y, color.z, 1.f });
-		//m_scene->getObjects()[0]->apply();
 	}
 
 	void onUpdate(float delta_time)

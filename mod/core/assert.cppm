@@ -1,4 +1,4 @@
-export module bm.assert;
+export module bm.verify;
 
 import bm.config;
 import bm.log;

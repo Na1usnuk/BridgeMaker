@@ -15,12 +15,8 @@ namespace bm::gfx
 	{
 	public:
 
-		using Ptr = std::unique_ptr<ScreenCamera>;
-		using KPtrRef = const Ptr&;
-
-	public:
-
 		ScreenCamera(float left, float right, float bottom, float top);
+		ScreenCamera(float width, float height) : ScreenCamera(0.f, width, 0.f, height) {}
 		virtual ~ScreenCamera() {}
 
 		const glm::mat4& getProjection();
@@ -29,12 +25,22 @@ namespace bm::gfx
 		//void setPosition(const glm::vec3& position) { m_pos = position; }
 		//const glm::vec3& getPosition() const { return m_pos; }
 
-		void setSize(float left, float right, float bottom, float top) 
+		void setViewport(float left, float right, float bottom, float top) 
 		{
-			m_projection = glm::ortho(left, right, bottom, top, -1.f, 1.f);
+			m_left = left;
+			m_right = right;
+			m_bottom = bottom;
+			m_top = top;
+			m_projection_dirty = true;
 		}
 
-		static Ptr make(float left, float right, float bottom, float top) { return std::make_unique<ScreenCamera>(left, right, bottom, top); }
+		void setViewportSize(float width, float height)
+		{
+			setViewport(0.f, width, 0.f, height);
+		}
+
+		template<typename... Args>
+		static Traits<ScreenCamera>::Ptr make(Args&&... args) { return std::make_unique<ScreenCamera>(std::forward<Args>(args)...); }
 
 	private:
 
@@ -48,9 +54,9 @@ namespace bm::gfx
 		glm::mat4 m_view;
 		glm::mat4 m_projection;
 
+		float m_left, m_right, m_bottom, m_top;
+
 		bool m_projection_dirty = true;
 		bool m_view_dirty = true;
 	};
-
-	export using ScreenCameraPtr = Traits<ScreenCamera>::Ptr;
 }
