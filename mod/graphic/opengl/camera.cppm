@@ -3,6 +3,8 @@ export module bm.gfx.camera;
 export import "glm/vec3.hpp";
 export import "glm/mat4x4.hpp";
 export import "glm/glm.hpp";
+export import "glm/ext/scalar_constants.hpp";
+export import "glm/ext/matrix_transform.hpp";
 
 import bm.log;
 import bm.traits;

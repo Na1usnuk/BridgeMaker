@@ -81,6 +81,7 @@ private:
 		DepthFunc depth_test_func;
 		BlendFunc blend_func;
 		int texture_slot_count;
+		std::vector<int> bound_textures;
 	};
 
 public:
@@ -91,8 +92,9 @@ public:
 	void clear();
 	void draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef shader, Mesh::DrawAs draw_as);
 	void draw(Traits<Mesh>::KSPtrRef mesh, Traits<Material>::KSPtrRef material);
+	void draw(Traits<Object>::KPtrRef object);
 	void draw(Traits<Object>::KPtrRef, Traits<Camera>::KPtrRef camera);
-	void draw(Traits<Scene>::KPtrRef scene, Traits<Camera>::KPtrRef camera);
+	void draw(Traits<Scene>::PtrRef scene, Traits<Camera>::KPtrRef camera);
 
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
 	void setDepthTesting(bool value);

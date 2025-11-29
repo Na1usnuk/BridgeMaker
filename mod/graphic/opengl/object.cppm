@@ -36,6 +36,18 @@ namespace bm::gfx
 		{
 			return m_translate;
 		}
+		const glm::vec3& getPosition() const
+		{
+			return m_translate;
+		}
+		const glm::vec3& getScale() const
+		{
+			return m_scale;
+		}
+		const glm::vec3& getRotation() const
+		{
+			return m_rotate;
+		}
 
 		void rotateX(float degres);
 		void rotateY(float degres);
@@ -80,6 +92,8 @@ namespace bm::gfx
 		template<typename T, typename... Args>
 		requires std::is_base_of_v<Object, T>
 		static Traits<T>::Ptr make(Args&&... args) { return std::make_unique<T>(std::forward<Args>(args)...); }
+
+		static Traits<Object>::Ptr make() { return std::make_unique<Object>(); }
 
 	private:
 

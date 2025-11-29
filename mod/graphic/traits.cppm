@@ -48,6 +48,7 @@ namespace bm
 	{
 		using Ptr = std::unique_ptr<T>;
 		using KPtr = const Ptr;
+		using PtrRef = Ptr&;
 		using KPtrRef = KPtr&;
 
 		using SPtr = std::shared_ptr<T>;

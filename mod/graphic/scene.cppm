@@ -56,6 +56,10 @@ namespace bm::gfx
 
 		const std::string& getName() const { return m_name; }
 
+		template<typename S, typename... Args>
+			requires std::is_base_of_v<Scene, S>
+		static Traits<S>::Ptr make(Args&&... args) { return std::make_unique<S>(std::forward<Args>(args)...); }
+
 		static Traits<Scene>::Ptr make() { return std::make_unique<Scene>(); }
 
 	private:
@@ -63,7 +67,6 @@ namespace bm::gfx
 		std::string m_name;
 		std::vector<Traits<Object>::Ptr> m_objects;
 		std::vector<Traits<Light>::Ptr> m_lights;
-		Traits<Camera>::Ptr m_camera;
 
 	};
 

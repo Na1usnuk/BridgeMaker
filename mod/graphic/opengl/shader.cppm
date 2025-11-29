@@ -65,6 +65,8 @@ public:
 	void unbind() const;
 	void destroy();
 
+	unsigned int getID() const { return m_id; }
+
 	void setUniform(std::string_view name, float f0, float f1, float f2, float f3);
 	void setUniform(std::string_view name, float f0, float f1, float f2);
 	void setUniform(std::string_view name, float f);
@@ -92,16 +94,21 @@ public:
         #version 450 core
         layout(location = 0) in vec3 vertex_coord;
         layout(location = 1) in vec2 texture_coord;
+		layout(location = 2) in vec3 normal_coord;
 
         uniform mat4 u_model;
         uniform mat4 u_view;
         uniform mat4 u_projection;
 
         out vec2 f_texture_coord;
+		out vec3 f_normal_coord;
+		out vec3 f_frag_pos;
 
         void main()
         {
             f_texture_coord = texture_coord;
+			f_normal_coord = normal_coord;
+			f_frag_pos = vec3(u_model * vec4(vertex_coord, 1.0));
 
             gl_Position = u_projection * u_view * u_model * vec4(vertex_coord, 1);
         }
@@ -114,12 +121,35 @@ public:
 
         uniform sampler2D u_sampler2d;
         uniform vec4 u_color;
+		uniform vec3 u_light_color;
+		uniform vec3 u_light_pos;
+		uniform vec3 u_view_pos;
 
         in vec2 f_texture_coord;
+		in vec3 f_normal_coord;
+		in vec3 f_frag_pos;
 
         void main()
         {
-            o_fragment = u_color * texture(u_sampler2d, f_texture_coord);
+			vec3 norm = normalize(f_normal_coord);
+			vec3 light_dir = normalize(u_light_pos - f_frag_pos);
+
+			float ambient_strength = 0.1;
+			vec3 ambient = ambient_strength * vec3(1.0);
+
+			float specular_strength = 0.5;
+			vec3 view_dir = normalize(u_view_pos - f_frag_pos);
+			vec3 reflect_dir = reflect(-light_dir, norm);
+
+			float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
+			vec3 specular = specular_strength * spec * u_light_color;
+			
+			float diff = max(dot(norm, light_dir), 0.0);
+			vec3 diffuse = diff * u_light_color;
+
+			vec3 result = ambient + diffuse + specular;
+
+            o_fragment = vec4((texture(u_sampler2d, f_texture_coord).rgb * result), 1.0) * u_color;
         }
 	)";
 

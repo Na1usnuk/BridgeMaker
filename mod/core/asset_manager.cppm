@@ -22,7 +22,7 @@ namespace bm
 		}
 
 		template<typename... Args>
-		Traits<gfx::Shader>::SPtr loadShader(std::string name, Args&&... args)
+		Traits<gfx::Shader>::SPtr loadShader(const std::string& name, Args&&... args)
 		{
 			if (m_shaders.contains(name) and not m_shaders[name].expired())
 				return m_shaders[name].lock();
@@ -35,12 +35,10 @@ namespace bm
 		}
 
 		template<typename... Args>
-		Traits<gfx::Texture>::SPtr loadTexture(std::string name, Args&&... args)
+		Traits<gfx::Texture>::SPtr loadTexture(const std::string& name, Args&&... args)
 		{
 			if (m_textures.contains(name) and not m_textures[name].expired())
 				return m_textures[name].lock();
-			else
-				unloadTexture(name);
 
 			log::core::trace("Texture '{}' created", name);
 

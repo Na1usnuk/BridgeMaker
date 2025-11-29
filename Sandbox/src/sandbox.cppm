@@ -14,10 +14,10 @@ public:
 
 	SandBox() : bm::Application("SandBox", 1200, 720), 
 		m_camera(bm::gfx::Camera::make({0.f, 2.f, -3.f})), 
-		m_scene(scene::triangle()),
+		m_scene(bm::gfx::Scene::make<scene::StaticPrimitivesScene>()),
 		m_camera2d(bm::gfx::ScreenCamera::make(1200, 720))
 	{
-		setFPSLimit(60);
+		setFPSLimit(120);
 
 
 		m_camera_input = pushOverlay(Layer::make<DefaultCameraInputLayer>(m_camera.get()));
@@ -28,7 +28,8 @@ public:
 
 		getRenderer().setDepthTesting(true);
 		//getRenderer().setBlend(true);
-		getRenderer().setBackgroundColor({0.3f, 0.3f, 0.3f, 1.0f});
+		//getRenderer().setBackgroundColor({ 0.53f, 0.81f, 0.92f, 1.0f });
+		getRenderer().setBackgroundColor({ 0.f, 0.f, 0.f, 1.0f });
 
 	}
 
@@ -81,6 +82,7 @@ public:
 
 	void onUpdate(float delta_time)
 	{
+		m_scene->onUpdate(delta_time);
 	}
 
 private:

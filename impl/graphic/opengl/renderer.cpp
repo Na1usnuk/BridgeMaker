@@ -23,14 +23,13 @@ namespace bm::gfx
 	
 Renderer::Renderer()
 {
-	//log::core::trace("glGetError is {}", (void*)glGetError);
-	//glCall(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
+	glCall(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
+	m_state_cache.bound_textures.resize(m_state_cache.texture_slot_count, -1);
 }
 
 Renderer::~Renderer()
 {
 }
-
 
 void Renderer::setView(const std::array<int, 4>& viewport)
 {
@@ -146,24 +145,64 @@ void Renderer::draw(Traits<Mesh>::KSPtrRef mesh, Traits<Material>::KSPtrRef mate
 	draw(mesh->getVertexArray(), material->getShader(), mesh->getDrawAs());
 }
 
+
 void Renderer::draw(Traits<Object>::KPtrRef obj, Traits<Camera>::KPtrRef camera)
 {
 	auto material = obj->getMaterial();
+	material->bind();
+	material->getTexture()->bind();
 	material->setUniform("u_model", obj->getModel());
 	material->setUniform("u_view", camera->getView());
 	material->setUniform("u_projection", camera->getProjection());
 	material->setUniform("u_color", material->getColor());
 
-	material->getTexture()->bind();
-	material->bind();
 
 	draw(obj->getMesh(), material);
 }
 
-void Renderer::draw(Traits<Scene>::KPtrRef scene, Traits<Camera>::KPtrRef camera)
+void Renderer::draw(Traits<Object>::KPtrRef obj)
 {
-	for (const auto& obj : scene->getObjects())
-		draw(obj, camera);
+	auto material = obj->getMaterial();
+	material->setUniform("u_model", obj->getModel());
+	material->setUniform("u_color", material->getColor());
+	draw(obj->getMesh(), material);
+}
+
+void Renderer::draw(Traits<Scene>::PtrRef scene, Traits<Camera>::KPtrRef camera)
+{
+	auto& objects = scene->getObjects();
+	auto& light = scene->getLights()[0];
+
+	std::sort(objects.begin(), objects.end(),
+		[](const Traits<Object>::Ptr& a, const Traits<Object>::Ptr& b)
+		{
+			if(a->getMaterial()->getShader()->getID() == b->getMaterial()->getShader()->getID())
+				return a->getMaterial()->getTexture()->getID() < b->getMaterial()->getTexture()->getID();
+			return a->getMaterial()->getShader()->getID() < b->getMaterial()->getShader()->getID();
+		});
+
+	auto shader_id = -1;
+	auto texture_id = -1;
+
+	for (const auto& obj : objects)
+	{
+		if(obj->getMaterial()->getShader()->getID() != shader_id)
+		{
+			shader_id = obj->getMaterial()->getShader()->getID();
+			obj->getMaterial()->bind();
+			obj->getMaterial()->setUniform("u_view", camera->getView());
+			obj->getMaterial()->setUniform("u_projection", camera->getProjection());
+			obj->getMaterial()->setUniform("u_view_pos", camera->getPosition());
+			obj->getMaterial()->setUniform("u_light_pos", light->getPosition());
+			obj->getMaterial()->setUniform("u_light_color", light->getColor());
+		}
+		if(obj->getMaterial()->getTexture()->getID() != texture_id)
+		{
+			texture_id = obj->getMaterial()->getTexture()->getID();
+			obj->getMaterial()->getTexture()->bind();
+		}
+		draw(obj);
+	}
 }
 
 }

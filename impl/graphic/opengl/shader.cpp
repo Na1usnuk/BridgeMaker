@@ -85,25 +85,21 @@ void Shader::unbind() const
 
 void Shader::setUniform(std::string_view name, float f0, float f1, float f2, float f3)
 {
-	bind();
 	glCall(glUniform4f, getUniformLocation(name), f0, f1, f2, f3);
 }
 
 void Shader::setUniform(std::string_view name, float f0, float f1, float f2)
 {
-	bind();
 	glCall(glUniform3f, getUniformLocation(name), f0, f1, f2);
 }
 
 void Shader::setUniform(std::string_view name, float f)
 {
-	bind();
 	glCall(glUniform1f, getUniformLocation(name), f);
 }
 
 void Shader::setUniform(std::string_view name, int i)
 {
-	bind();
 	glCall(glUniform1i, getUniformLocation(name), i);
 }
 
@@ -115,13 +111,11 @@ void Shader::setUniform(std::string_view name, const glm::mat4& mat)
 
 void Shader::setUniform(std::string_view name, const glm::vec3& vec)
 {
-	bind();
 	glCall(glUniform3fv, getUniformLocation(name), 1, glm::value_ptr(vec));
 }
 
 void Shader::setUniform(std::string_view name, const glm::vec4& vec)
 {
-	bind();
 	glCall(glUniform4fv, getUniformLocation(name), 1, glm::value_ptr(vec));
 }
 

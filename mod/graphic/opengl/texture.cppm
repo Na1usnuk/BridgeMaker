@@ -42,6 +42,8 @@ public:
 	void bind(unsigned int tex_unit = 0) const;
 	void unbind() const;
 
+	unsigned int getID() const { return m_id; }
+
 	static void setDefaultWrappering(Wrappering wrap = Wrappering::REPEAT);
 	static void setDefaultFiltering(Filtering wrap = Filtering::NEAREST);
 

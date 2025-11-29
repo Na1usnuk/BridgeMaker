@@ -75,8 +75,16 @@ namespace bm
 
 		ImGui::Separator();
 
+		ImGui::Text("Window title: %s", m_window.getTitle().c_str());
 		ImGui::Text("Window size: %d x %d", m_window.getWidth(), m_window.getHeight());
+		ImGui::Text("Texture slots: %d", m_renderer.getTextureSlotCount());
+
+
+		ImGui::Separator();
+
 		ImGui::Text("FPS: %.2f", m_timestep.getFPS());
+		ImGui::Text("Frame time: %.3f ms", m_timestep.getDeltaTime() * 1000.0f);
+
 
 		ImGui::End();
 	}
