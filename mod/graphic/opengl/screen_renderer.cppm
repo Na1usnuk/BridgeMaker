@@ -14,7 +14,7 @@ import bm.gfx.vertexarray;
 import bm.gfx.mesh;
 import bm.gfx.texture;
 import bm.gfx.material;
-import bm.gfx.obj;
+import bm.gfx.object;
 import bm.assetmanager;
 
 import bm.gfx.camera.screen;

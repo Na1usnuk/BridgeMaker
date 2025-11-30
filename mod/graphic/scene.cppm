@@ -2,7 +2,7 @@ export module bm.gfx.scene;
 
 import std;
 
-import bm.gfx.obj;
+import bm.gfx.object;
 import bm.gfx.camera;
 import bm.event;
 import bm.gfx.light;

@@ -1,5 +1,7 @@
 export module bm.config;
 
+// You willing to manually change any setting if needed
+
 namespace bm::config
 {
 	export enum class Platform
@@ -55,7 +57,7 @@ namespace bm::config
 	export constexpr bool is_shipping = (build_type == BuildType::Shipping);
 
 	export constexpr bool enable_verify    = is_debug;
-	export constexpr bool enable_imgui     = is_debug;
+	export constexpr bool enable_imgui	   = true;//is_debug;
 	export constexpr bool enable_profiling = is_debug;
 
 	export constexpr bool enable_logging   = is_debug || is_release;
@@ -70,8 +72,13 @@ namespace bm::config
 
 	export constexpr GraphicsAPI graphics_api = GraphicsAPI::OpenGL; // Only OpenGL is supported for now
 
+	// Do not set actual version, but use it as target when its time to choose. 
+	// Consult bm::gfx::Context to get runtime version of API
+	export constexpr int graphics_api_target_version = 0; // Set to 0 to get max available version
+
 	export enum class Compiler
 	{
+		Unknown,
 		MSVC,
 		Clang,
 		GCC
@@ -86,7 +93,8 @@ namespace bm::config
 		#elif defined(__GNUC__)
 			return Compiler::GCC;
 		#else
-			#error "Unsupported compiler"
+			//#error "Unsupported compiler"
+			return Compiler::Unknown;
 		#endif
 	}
 

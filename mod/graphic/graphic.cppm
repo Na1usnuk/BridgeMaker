@@ -10,7 +10,7 @@ export import bm.gfx.mesh;
 export import bm.gfx.material;
 export import bm.gfx.primitives;
 export import bm.gfx.scene;
-export import bm.gfx.obj;
+export import bm.gfx.object;
 
 export import bm.gfx.renderer;
 export import bm.gfx.screen_renderer;

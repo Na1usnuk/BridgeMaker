@@ -164,6 +164,7 @@ add_subdirectory(deps/glad)
 add_subdirectory(deps/imgui)
 add_subdirectory(deps/stb)
 add_subdirectory(deps/glm)
+add_subdirectory(deps/tiny_obj_loader)
 
 target_include_directories(BridgeMaker
 	PUBLIC
@@ -179,6 +180,7 @@ target_include_directories(BridgeMaker
 		include/
 		include/core
 		include/graphic
+		deps/tiny_obj_loader
 )
 
 target_link_libraries(BridgeMaker
@@ -190,6 +192,7 @@ target_link_libraries(BridgeMaker
 	PRIVATE
 		glfw
 		glad
+		tiny_obj_loader
 )
 
 

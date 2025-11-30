@@ -1,10 +1,10 @@
 module;
 
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp> 
 
-export module bm.gfx.obj;
+export module bm.gfx.object;
 
 import std;
 
@@ -25,29 +25,22 @@ namespace bm::gfx
 		struct Vertex
 		{
 			glm::vec3 position;
-			glm::vec4 color;
 			glm::vec2 tex_coords;
 			glm::vec3 normal;
 		};
 
 	public:
 
-		const glm::vec3& getPos() const
-		{
-			return m_translate;
-		}
-		const glm::vec3& getPosition() const
-		{
-			return m_translate;
-		}
-		const glm::vec3& getScale() const
-		{
-			return m_scale;
-		}
-		const glm::vec3& getRotation() const
-		{
-			return m_rotate;
-		}
+
+		Object(Traits<Mesh>::SPtr mesh = nullptr, Traits<Material>::SPtr material = nullptr) :
+			m_mesh(mesh), m_material(material) { }
+
+		Object(const std::filesystem::path& path);
+
+
+		const glm::vec3& getPosition() const;
+		const glm::vec3& getScale() const;
+		const glm::vec3& getRotation() const;
 
 		void rotateX(float degres);
 		void rotateY(float degres);
@@ -93,7 +86,8 @@ namespace bm::gfx
 		requires std::is_base_of_v<Object, T>
 		static Traits<T>::Ptr make(Args&&... args) { return std::make_unique<T>(std::forward<Args>(args)...); }
 
-		static Traits<Object>::Ptr make() { return std::make_unique<Object>(); }
+		template<typename... Args>
+		static Traits<Object>::Ptr make(Args&&... args) { return std::make_unique<Object>(std::forward<Args>(args)...); }
 
 	private:
 
@@ -107,122 +101,5 @@ namespace bm::gfx
 		Traits<Mesh>::SPtr m_mesh;
 
 	};
-
-	export using ObjectPtr = Traits<Object>::Ptr;
-
-	void Object::apply()
-	{
-		m_model = glm::mat4(1.f);
-		m_model = glm::translate(m_model, m_translate);
-		m_model = glm::rotate(m_model, glm::radians(m_rotate.z), glm::vec3(0.f, 0.f, 1.f));
-		m_model = glm::rotate(m_model, glm::radians(m_rotate.y), glm::vec3(0.f, 1.f, 0.f));
-		m_model = glm::rotate(m_model, glm::radians(m_rotate.x), glm::vec3(1.f, 0.f, 0.f));
-		m_model = glm::scale(m_model, m_scale);
-	}
-
-	void Object::setPositionX(const float x)
-	{
-		m_translate.x = x;
-	}
-
-	void Object::setPositionY(const float y)
-	{
-		m_translate.y = y;
-	}
-
-	void Object::setPositionZ(const float z)
-	{
-		m_translate.z = z;
-	}
-
-	void Object::setRotationX(const float x)
-	{
-		m_rotate.x = x;
-	}
-
-	void Object::setRotationY(const float y)
-	{
-		m_rotate.y = y;
-	}
-
-	void Object::setRotationZ(const float z)
-	{
-		m_rotate.z = z;
-	}
-
-	void Object::setRotation(const glm::vec3& degres)
-	{
-		m_rotate = degres;
-	}
-
-	void Object::setPosition(const glm::vec3& position)
-	{
-		m_translate = position;
-	}
-
-	void Object::setScale(const glm::vec3& by)
-	{
-		m_scale = by;
-	}
-
-	void Object::scale(const glm::vec3& by)
-	{
-		m_scale *= by;
-	}
-
-	void Object::scaleX(float by)
-	{
-		m_scale.x *= by;
-	}
-
-	void Object::scaleY(float by)
-	{
-		m_scale.y *= by;
-	}
-
-	void Object::scaleZ(float by)
-	{
-		m_scale.z *= by;
-	}
-
-	void Object::move(const glm::vec3& to)
-	{
-		m_translate += to;
-	}
-
-	void Object::moveX(float to)
-	{
-		m_translate.x += to;
-	}
-
-	void Object::moveY(float to)
-	{
-		m_translate.y += to;
-	}
-
-	void Object::moveZ(float to)
-	{
-		m_translate.z += to;
-	}
-
-	void Object::rotateX(float degres)
-	{
-		m_rotate.x += degres;
-	}
-
-	void Object::rotateY(float degres)
-	{
-		m_rotate.y += degres;
-	}
-
-	void Object::rotateZ(float degres)
-	{
-		m_rotate.z += degres;
-	}
-
-	void Object::rotate(const glm::vec3& degres)
-	{
-		m_rotate += degres;
-	}
 
 }

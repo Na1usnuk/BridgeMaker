@@ -37,26 +37,31 @@ namespace bm::gfx
 		if constexpr (::bm::config::is_debug)
 			if (GLenum error = glGetError())
 			{
-				//BM_CORE_FATAL("[Opengl]({0}) Function: {3}; Line: {1}; File: {2}", error, loc.line, loc.file_name, loc.function_name);
+				auto file = std::string_view(loc.file_name());
+				auto function = std::string_view(loc.function_name());
+				auto line = loc.line();
+				::bm::log::core::fatal("OpenGL function call failed [file: {}; function: {}; line: {}] {}", file, function, line, error);
 				return false;
 			}
 		return true;
 	}
 	
 	export template<typename GLFunc, typename... ARGS>
-	constexpr inline auto glCall(GLFunc func, ARGS&&... args) -> decltype(func(std::forward<ARGS>(args)...))
+		inline auto glCall(GLFunc func, ARGS&&... args/*, std::source_location loc = std::source_location::current()*/) -> std::invoke_result_t<GLFunc, ARGS...>
 	{
-		if constexpr (std::is_void_v<decltype(func(std::forward<ARGS>(args)...))>)
+		using ReturnType = std::invoke_result_t<GLFunc, ARGS...>;
+
+		if constexpr (std::is_void_v<ReturnType>)
 		{
 			glClearError();
 			func(std::forward<ARGS>(args)...);
-			glLogOnError();
+			glLogOnError(/*loc*/);
 		}
 		else
 		{
 			glClearError();
 			auto result = func(std::forward<ARGS>(args)...);
-			glLogOnError();
+			glLogOnError(/*loc*/);
 			return result;
 		}
 	}

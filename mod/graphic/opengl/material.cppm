@@ -65,11 +65,12 @@ namespace bm::gfx
 
 		Traits<Shader>::SPtr m_shader;
 		Traits<Texture>::SPtr m_texture;
-		glm::vec4 m_color{ 1.f, 1.f, 1.f, 1.f };
-		glm::vec3 m_amb{ 0.1f, 0.1f, 0.1f};
-		glm::vec3 m_dif{0.1f, 0.1f, 0.1f};
-		glm::vec3 m_spec{ 0.1f, 0.1f, 0.1f };
-		float m_shininess{ 0.1f };
+		glm::vec4 m_color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		glm::vec3 m_amb{ 0.2f, 0.2f, 0.2f };        
+		glm::vec3 m_dif{ 1.0f, 1.0f, 1.0f };        
+		glm::vec3 m_spec{ 0.5f, 0.5f, 0.5f };       
+		float m_shininess{ 32.0f };                 
+
 
 	};
 

@@ -12,7 +12,7 @@ import bm.gfx.material;
 import bm.gfx.texture;
 import bm.gfx.scene;
 import bm.gfx.camera;
-import bm.gfx.obj;
+import bm.gfx.object;
 import bm.traits;
 
 namespace bm::gfx

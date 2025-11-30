@@ -4,7 +4,7 @@ module;
 
 export module bm.gfx.particle_system;
 
-import bm.gfx.obj;
+import bm.gfx.object;
 import bm.gfx.buffer.vertex;
 
 import std;
