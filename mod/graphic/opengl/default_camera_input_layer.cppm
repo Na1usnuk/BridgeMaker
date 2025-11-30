@@ -69,7 +69,7 @@ namespace bm
 		if (Input::Mouse::RIGHT != e.getKey())
 			return false;
 
-		Application::get().getWindow().setCaptureCursor(true);
+		//Application::get().getWindow().setCaptureCursor(true);
 		m_camera_active = true;
 		return true;
 	}
@@ -79,7 +79,7 @@ namespace bm
 		if (Input::Mouse::RIGHT != e.getKey())
 			return false;
 
-		Application::get().getWindow().setCaptureCursor(false);
+		//Application::get().getWindow().setCaptureCursor(false);
 		m_camera_active = false;
 		m_first_mouse_event = true;
 		return true;
@@ -142,6 +142,9 @@ namespace bm
 		glm::vec3 right = m_camera->getRight(front);
 		glm::vec3 world_up = m_camera->getWorldUp();
 
+		if(Input::isPressed(Input::Key::LEFT_SHIFT))
+			speed *= 2.0f;
+
 		if (Input::isPressed(Input::Key::W))
 			m_camera->setPosition(m_camera->getPosition() + front * speed);
 
@@ -159,7 +162,6 @@ namespace bm
 
 		if (Input::isPressed(Input::Key::Q) || Input::isPressed(Input::Key::LEFT_CONTROL))
 			m_camera->setPosition(m_camera->getPosition() - world_up * speed);
-
 		
 	}
 
