@@ -32,11 +32,15 @@ namespace bm::gfx
 	public:
 
 
-		Object(Traits<Mesh>::SPtr mesh = nullptr, Traits<Material>::SPtr material = nullptr) :
-			m_mesh(mesh), m_material(material) { }
+		Object(Traits<Mesh>::SPtr mesh = nullptr, Traits<Material>::SPtr material = nullptr, std::string_view name = "Object") :
+			m_mesh(mesh), m_material(material), m_name(name) { }
 
-		Object(const std::filesystem::path& path);
+		Object(const std::filesystem::path& path, std::string_view name = "Object");
 
+		virtual void onImGuiRender();
+
+		const std::string& getName() const { return m_name; }
+		void setName(std::string_view name) { m_name = name; }
 
 		const glm::vec3& getPosition() const;
 		const glm::vec3& getScale() const;
@@ -97,8 +101,10 @@ namespace bm::gfx
 		glm::vec3 m_scale = glm::vec3(1.f);
 		glm::vec3 m_translate = glm::vec3(0.f);
 
-		Traits<Material>::SPtr m_material;
-		Traits<Mesh>::SPtr m_mesh;
+		Traits<Material>::SPtr m_material = nullptr;
+		Traits<Mesh>::SPtr m_mesh = nullptr;
+
+		std::string m_name = "Object";
 
 	};
 

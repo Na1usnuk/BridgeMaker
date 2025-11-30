@@ -1,3 +1,7 @@
+module;
+
+#include <imgui.h>
+
 export module bm.gfx.scene;
 
 import std;
@@ -21,7 +25,7 @@ namespace bm::gfx
 		// Optional overrides
 		virtual void onUpdate(float deltaTime) {}
 		virtual void onRender() {}
-		virtual void onImGuiRender() {}
+		virtual void onImGuiRender();
 		virtual void onEvent(const Event& event) {}
 
 		void addObject(Traits<Object>::Ptr obj)
@@ -69,5 +73,49 @@ namespace bm::gfx
 		std::vector<Traits<Light>::Ptr> m_lights;
 
 	};
+
+	void Scene::onImGuiRender()
+	{
+		// -----------------------------------------
+		// OBJECT PANELS
+		// -----------------------------------------
+		if (ImGui::CollapsingHeader("Objects"))
+		{
+			int index = 0;
+			for (auto& obj : m_objects)
+			{
+				// Each object gets a unique ImGui ID
+				ImGui::PushID(index++);
+
+				if (ImGui::TreeNode(obj->getName().c_str()))
+				{
+					obj->onImGuiRender();
+					ImGui::TreePop();
+				}
+
+				ImGui::PopID();
+			}
+		}
+
+		// -----------------------------------------
+		// LIGHT PANELS
+		// -----------------------------------------
+		if (ImGui::CollapsingHeader("Lights"))
+		{
+			int index = 0;
+			for (auto& light : m_lights)
+			{
+				ImGui::PushID(index++);
+
+				if (ImGui::TreeNode("Light"))
+				{
+					light->onImGuiRender();
+					ImGui::TreePop();
+				}
+
+				ImGui::PopID();
+			}
+		}
+	}
 
 }

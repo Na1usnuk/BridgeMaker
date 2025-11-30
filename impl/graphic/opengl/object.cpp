@@ -6,6 +6,8 @@ module;
 
 #include <tiny_obj_loader.h>
 
+#include <imgui.h>
+
 module bm.gfx.object;
 
 import std;
@@ -23,7 +25,7 @@ import bm.gfx.vertexarray;
 namespace bm::gfx
 {
 
-    Object::Object(const std::filesystem::path& path)
+    Object::Object(const std::filesystem::path& path, std::string_view name) : m_name(name)
     {
         // Check extension
         ::bm::core::verify(
@@ -168,6 +170,51 @@ namespace bm::gfx
         setMaterial(material);
     }
 
+
+    void Object::onImGuiRender()
+    {
+        if (ImGui::CollapsingHeader("Transform"))
+        {
+            bool changed = false;
+
+            // POSITION
+            glm::vec3 pos = m_translate;
+            if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
+            {
+                m_translate = pos;
+                changed = true;
+            }
+
+            // ROTATION (degrees)
+            glm::vec3 rot = m_rotate;
+            if (ImGui::DragFloat3("Rotation", &rot.x, 0.1f))
+            {
+                m_rotate = rot;
+                changed = true;
+            }
+
+            // SCALE
+            glm::vec3 scale = m_scale;
+            if (ImGui::DragFloat3("Scale", &scale.x, 0.05f))
+            {
+                m_scale = scale;
+                changed = true;
+            }
+
+            // RESET BUTTON
+            if (ImGui::Button("Reset Transform"))
+            {
+                m_translate = glm::vec3(0.f);
+                m_rotate = glm::vec3(0.f);
+                m_scale = glm::vec3(1.f);
+                changed = true;
+            }
+
+            // APPLY TO MODEL MATRIX
+            if (changed)
+                apply();
+        }
+    }
 
 
 	void Object::apply()

@@ -3,6 +3,8 @@ module;
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include <imgui.h>
+
 export module bm.gfx.light;
 
 import std;
@@ -27,6 +29,8 @@ namespace bm::gfx
 
 		Light(Type type = Type::Directional) : m_type(type) {}
 		virtual ~Light() = default;
+
+		virtual void onImGuiRender();
 
 		Type getType() const { return m_type; }
 
@@ -56,4 +60,41 @@ namespace bm::gfx
 		glm::vec3 m_direction = glm::vec3(0.0f, -1.0f, 0.0f);
 
 	};
+
+	void Light::onImGuiRender()
+	{
+		bool changed = false;
+
+		if (ImGui::CollapsingHeader("Light"))
+		{
+			glm::vec3 pos = m_position;
+			if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
+			{
+				m_position = pos;
+				changed = true;
+			}
+
+			glm::vec3 color = m_color;
+			if (ImGui::ColorEdit3("Color", &color.x))
+			{
+				m_color = color;
+				changed = true;
+			}
+
+			float intensity = m_intensity;
+			if (ImGui::DragFloat("Intensity", &intensity, 0.05f, 0.0f, 100.0f))
+			{
+				m_intensity = intensity;
+				changed = true;
+			}
+
+			if (ImGui::Button("Reset Light"))
+			{
+				m_position = glm::vec3(0.f);
+				m_color = glm::vec3(1.f);
+				m_intensity = 1.f;
+				changed = true;
+			}
+		}
+	}
 }
