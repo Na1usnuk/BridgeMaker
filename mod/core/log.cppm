@@ -18,13 +18,14 @@ public:
 
 	static void init();
 
-	static std::shared_ptr<spdlog::logger>& getClientLogger() { return s_client_logger; }
-	static std::shared_ptr<spdlog::logger>& getCoreLogger() { return s_core_logger; }
+	static std::shared_ptr<spdlog::logger>& getClientLogger() { init(); return s_client_logger; }
+	static std::shared_ptr<spdlog::logger>& getCoreLogger() { init();  return s_core_logger; }
 
 private:
 
 	static std::shared_ptr<spdlog::logger> s_core_logger;
 	static std::shared_ptr<spdlog::logger> s_client_logger;
+	static std::once_flag s_once_flag;
 };
 
 
@@ -41,6 +42,12 @@ namespace core
 		inline void error(fmt::format_string<ARGS...> fmt, ARGS&&... args) { Log::getCoreLogger()->error(fmt, std::forward<ARGS>(args)...); }
 	export template<typename... ARGS>
 		inline void fatal(fmt::format_string<ARGS...> fmt, ARGS&&... args) { Log::getCoreLogger()->critical(fmt, std::forward<ARGS>(args)...); }
+
+	inline void trace(std::string_view msg) { Log::getCoreLogger()->trace(msg); }
+	inline void info(std::string_view msg) { Log::getCoreLogger()->info(msg); }
+	inline void warning(std::string_view msg) { Log::getCoreLogger()->warn(msg); }
+	inline void error(std::string_view msg) { Log::getCoreLogger()->error(msg); }
+	inline void fatal(std::string_view msg) { Log::getCoreLogger()->critical(msg); }
 }
 
 //Logging to use by client
@@ -54,6 +61,12 @@ export template<typename... ARGS>
 	inline void error(fmt::format_string<ARGS...> fmt, ARGS&&... args){Log::getClientLogger()->error(fmt, std::forward<ARGS>(args)...);}
 export template<typename... ARGS>
 	inline void fatal(fmt::format_string<ARGS...> fmt, ARGS&&... args){Log::getClientLogger()->critical(fmt, std::forward<ARGS>(args)...);}
+
+inline void trace(std::string_view msg) { Log::getClientLogger()->trace(msg); }
+inline void info(std::string_view msg) { Log::getClientLogger()->info(msg); }
+inline void warning(std::string_view msg) { Log::getClientLogger()->warn(msg); }
+inline void error(std::string_view msg) { Log::getClientLogger()->error(msg); }
+inline void fatal(std::string_view msg) { Log::getClientLogger()->critical(msg); }
 
 }
 

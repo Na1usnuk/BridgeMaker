@@ -305,8 +305,8 @@ public:
             });
         auto ibo = IndexBuffer::make(indices);
         auto vao = VertexArray::make(std::move(vbo), std::move(ibo));
-        static auto mesh = Mesh::make(std::move(vao));
-        static auto material = Material::make();
+        auto mesh = Mesh::make(std::move(vao));
+        auto material = Material::make();
         setMaterial(material);
         setMesh(mesh);
     }

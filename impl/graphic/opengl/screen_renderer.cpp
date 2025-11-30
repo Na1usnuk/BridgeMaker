@@ -31,14 +31,14 @@ namespace bm::gfx
 
 			out vec2 f_tex;
 			out vec4 f_color;
-			out float f_slot;
+			flat out int f_slot;
 
 			void main() 
 			{
 			    gl_Position = u_projection * u_view * vec4(a_pos, 1.0);
 				f_tex = a_tex;
 				f_color = a_color;
-				f_slot = a_slot;
+				f_slot = int(a_slot);
 			}	
 		)";
 
@@ -46,17 +46,17 @@ namespace bm::gfx
 		R"(
 			#version 330 core
 
-			in  vec2 f_tex;  // Ignored for now
+			in  vec2 f_tex;
 			in  vec4 f_color;
-			in float f_slot; // Ignored for now
+			flat in int f_slot;
 
 			out vec4 o_color;
 
-			uniform sampler2D u_sampler;
+			uniform sampler2D u_sampler[32];
 
 			void main() 
 			{
-				o_color = f_color;
+				o_color = texture(u_sampler[f_slot], f_tex) * f_color;
 			}
 		)";
 
@@ -65,8 +65,18 @@ namespace bm::gfx
 	ScreenRenderer::Data::Data() :
 		vao(VertexArray::make()),
 		shader(Shader::make(vertex2d_src, fragment2d_src)),
-		vertices(max_vertices)
+		vertices()
 	{
+		// Bind shader and set texture samplers
+		shader->bind();
+
+		int samplers[32];
+		for (int i = 0; i < 32; i++)
+			samplers[i] = i;
+
+		shader->setUniform("u_sampler", samplers, 32);
+
+
 		// Allocate buffer for max amount of vertices
 		auto vbo(VertexBuffer::make(max_vertices * sizeof(QuadVertex), VertexBuffer::Usage::Dynamic)); 
 
@@ -104,9 +114,34 @@ namespace bm::gfx
 
 	void ScreenRenderer::submit(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, Traits<Texture>::KSPtrRef texture)
 	{
-		if (m_data.quad_count >= m_data.max_quads)
+		// Flush if we exceed batch limits
+		if ((m_data.quad_count >= m_data.max_quads) or (texture && m_data.texture_slot_index >= m_data.max_texture_slots))
 			draw();
 
+		// Texture slot management
+		float texture_index = 0.0f; // 0 = white texture
+		if (texture)
+		{
+			bool found = false;
+			for (std::size_t i = 1; i < m_data.texture_slot_index; i++)
+			{
+				if (m_data.texture_slots[i] == texture)
+				{
+					texture_index = static_cast<float>(i);
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				texture_index = static_cast<float>(m_data.texture_slot_index);
+				m_data.texture_slots[m_data.texture_slot_index] = texture;
+				m_data.texture_slot_index++;
+				texture->bind(static_cast<std::uint32_t>(texture_index));
+			}
+		}
+
+		// Define vertices for quad
 		auto count = m_data.quad_count * 4;
 
 		m_data.vertices[count + 0] =
@@ -114,28 +149,28 @@ namespace bm::gfx
 			position, 
 			{0.0f, 0.0f}, 
 			color, 
-			0 
+			texture_index
 		};
 		m_data.vertices[count + 1] =
 		{
 			{ position.x + size.x, position.y, position.z },
 			{1.0f, 0.0f},
 			color,
-			0
+			texture_index
 		};
 		m_data.vertices[count + 2] =
 		{
 			{ position.x + size.x, position.y + size.y, position.z},
 			{1.0f, 1.0f},
 			color,
-			0
+			texture_index
 		};
 		m_data.vertices[count + 3] =
 		{
 			{ position.x, position.y + size.y, position.z},
 			{0.0f, 1.0f},
 			color,
-			0
+			texture_index
 		};
 
 		m_data.quad_count++;
@@ -156,6 +191,7 @@ namespace bm::gfx
 		m_data.vao->getVertexBuffer()->setData(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
 		glCall(glDrawElements, GL_TRIANGLES, m_data.quad_count * 6, GL_UNSIGNED_INT, nullptr);
 		m_data.quad_count = 0;
+		m_data.texture_slot_index = 1;
 	}
 
 }

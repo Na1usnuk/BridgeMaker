@@ -74,6 +74,7 @@ public:
 	void setUniform(std::string_view name, const glm::vec3& vec);
 	void setUniform(std::string_view name, const glm::vec4& vec);
 	void setUniform(std::string_view name, const glm::mat4& mat);
+	void setUniform(std::string_view name, const int* values, std::size_t count);
 
 	template<typename... Args>
 	static Traits<Shader>::SPtr make(Args&&... args) { return std::make_shared<Shader>(std::forward<Args>(args)...); }
@@ -91,7 +92,7 @@ public:
 
 	static constexpr std::string_view basic_vertex = 
 	R"(
-        #version 450 core
+        #version 330 core
         layout(location = 0) in vec3 vertex_coord;
         layout(location = 1) in vec2 texture_coord;
 		layout(location = 2) in vec3 normal_coord;
@@ -115,43 +116,84 @@ public:
 	)";
 
 	static constexpr std::string_view basic_fragment =
-	R"(
-        #version 450 core
-        out vec4 o_fragment;
-
-        uniform sampler2D u_sampler2d;
-        uniform vec4 u_color;
+		R"(
+		#version 330 core
+		
+		out vec4 o_fragment;
+		
+		struct Material
+		{
+		    vec4 color;        // base color multiplier (RGBA)
+		    vec3 ambient;
+		    vec3 diffuse;
+		    vec3 specular;
+		    float shininess;   // 1–128
+		};
+		
+		uniform Material u_material;
+		
+		uniform sampler2D u_sampler2d;
+		
 		uniform vec3 u_light_color;
 		uniform vec3 u_light_pos;
 		uniform vec3 u_view_pos;
-
-        in vec2 f_texture_coord;
+		
+		in vec2 f_texture_coord;
 		in vec3 f_normal_coord;
 		in vec3 f_frag_pos;
+		
+		void main()
+		{
+		    // ----------------------------------------------------
+		    // NORMAL & LIGHT DIRECTION
+		    // ----------------------------------------------------
+		    vec3 norm = normalize(f_normal_coord);
+		    vec3 lightDir = normalize(u_light_pos - f_frag_pos);
+		
+		    // ----------------------------------------------------
+		    // AMBIENT LIGHT
+		    // ----------------------------------------------------
+		    vec3 ambient = u_material.ambient * u_light_color;
+		
+		    // ----------------------------------------------------
+		    // DIFFUSE LIGHT
+		    // ----------------------------------------------------
+		    float diff = max(dot(norm, lightDir), 0.0);
+		    vec3 diffuse = diff * u_material.diffuse * u_light_color;
+		
+		    // ----------------------------------------------------
+		    // SPECULAR LIGHT
+		    // ----------------------------------------------------
+		    vec3 viewDir = normalize(u_view_pos - f_frag_pos);
+		    vec3 reflectDir = reflect(-lightDir, norm);
+		
+		    float spec = pow(max(dot(viewDir, reflectDir), 0.0),
+		                     max(u_material.shininess, 1.0));
+		
+		    vec3 specular = spec * u_material.specular * u_light_color;
+		
+		    // ----------------------------------------------------
+		    // FINAL LIGHT
+		    // ----------------------------------------------------
+		    vec3 lightResult = ambient + diffuse + specular;
+		
+		    // ----------------------------------------------------
+		    // TEXTURE SAMPLE
+		    // ----------------------------------------------------
+		    vec4 texColor = texture(u_sampler2d, f_texture_coord);
+		
+		    // ----------------------------------------------------
+		    // FINAL OUTPUT COLOR
+		    // ----------------------------------------------------
+		    vec3 colorRGB = texColor.rgb * u_material.color.rgb * lightResult;
+		    float alpha = texColor.a * u_material.color.a;
+		
+		    o_fragment = vec4(colorRGB, alpha);
+		}
 
-        void main()
-        {
-			vec3 norm = normalize(f_normal_coord);
-			vec3 light_dir = normalize(u_light_pos - f_frag_pos);
+		)";
 
-			float ambient_strength = 0.1;
-			vec3 ambient = ambient_strength * vec3(1.0);
 
-			float specular_strength = 0.5;
-			vec3 view_dir = normalize(u_view_pos - f_frag_pos);
-			vec3 reflect_dir = reflect(-light_dir, norm);
-
-			float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
-			vec3 specular = specular_strength * spec * u_light_color;
-			
-			float diff = max(dot(norm, light_dir), 0.0);
-			vec3 diffuse = diff * u_light_color;
-
-			vec3 result = ambient + diffuse + specular;
-
-            o_fragment = vec4((texture(u_sampler2d, f_texture_coord).rgb * result), 1.0) * u_color;
-        }
-	)";
 
 private:
 

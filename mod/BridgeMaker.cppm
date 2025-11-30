@@ -24,12 +24,3 @@ export import bm.gfx.camera.screen;
 export import bm.camerainp;
 
 export import bm.traits;
-
-namespace bm
-{
-	export void init()
-	{
-		log::Log::init();
-	}
-
-}

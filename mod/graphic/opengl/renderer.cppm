@@ -76,7 +76,7 @@ private:
 		PolygonMode polygon_mode;
 		std::array<int, 4> viewport;
 
-		bool blend;
+		bool blend = false;
 		bool depth_test;
 		DepthFunc depth_test_func;
 		BlendFunc blend_func;
@@ -91,9 +91,6 @@ public:
 
 	void clear();
 	void draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef shader, Mesh::DrawAs draw_as);
-	void draw(Traits<Mesh>::KSPtrRef mesh, Traits<Material>::KSPtrRef material);
-	void draw(Traits<Object>::KPtrRef object);
-	void draw(Traits<Object>::KPtrRef, Traits<Camera>::KPtrRef camera);
 	void draw(Traits<Scene>::PtrRef scene, Traits<Camera>::KPtrRef camera);
 
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);

@@ -192,6 +192,7 @@ target_link_libraries(BridgeMaker
 		glad
 )
 
+
 if(MSVC)
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 set_target_properties(BridgeMaker PROPERTIES

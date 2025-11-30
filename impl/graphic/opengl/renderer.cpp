@@ -131,7 +131,8 @@ void Renderer::setPolygonMode(PolygonMode mode)
 
 void Renderer::draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef shader, Mesh::DrawAs draw_as)
 {
-	shader->bind();
+	// Shader should be already bound and uniforms set before calling this method
+	//shader->bind();
 	vao->bind();
 
 	if(vao->getIndexBuffer() != nullptr)
@@ -140,39 +141,13 @@ void Renderer::draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef s
 		glCall(glDrawArrays, static_cast<int>(draw_as), 0, vao->getVerticesCount());
 }
 
-void Renderer::draw(Traits<Mesh>::KSPtrRef mesh, Traits<Material>::KSPtrRef material)
-{
-	draw(mesh->getVertexArray(), material->getShader(), mesh->getDrawAs());
-}
-
-
-void Renderer::draw(Traits<Object>::KPtrRef obj, Traits<Camera>::KPtrRef camera)
-{
-	auto material = obj->getMaterial();
-	material->bind();
-	material->getTexture()->bind();
-	material->setUniform("u_model", obj->getModel());
-	material->setUniform("u_view", camera->getView());
-	material->setUniform("u_projection", camera->getProjection());
-	material->setUniform("u_color", material->getColor());
-
-
-	draw(obj->getMesh(), material);
-}
-
-void Renderer::draw(Traits<Object>::KPtrRef obj)
-{
-	auto material = obj->getMaterial();
-	material->setUniform("u_model", obj->getModel());
-	material->setUniform("u_color", material->getColor());
-	draw(obj->getMesh(), material);
-}
 
 void Renderer::draw(Traits<Scene>::PtrRef scene, Traits<Camera>::KPtrRef camera)
 {
 	auto& objects = scene->getObjects();
 	auto& light = scene->getLights()[0];
 
+	// Sort objects by shader and texture to minimize state changes
 	std::sort(objects.begin(), objects.end(),
 		[](const Traits<Object>::Ptr& a, const Traits<Object>::Ptr& b)
 		{
@@ -181,27 +156,44 @@ void Renderer::draw(Traits<Scene>::PtrRef scene, Traits<Camera>::KPtrRef camera)
 			return a->getMaterial()->getShader()->getID() < b->getMaterial()->getShader()->getID();
 		});
 
+	// Track currently bound shader and texture
 	auto shader_id = -1;
 	auto texture_id = -1;
 
+	// Draw all objects
 	for (const auto& obj : objects)
 	{
-		if(obj->getMaterial()->getShader()->getID() != shader_id)
+		auto material = obj->getMaterial();
+		auto mesh = obj->getMesh();
+		auto texture = material->getTexture();
+		auto shader = material->getShader();
+
+		// Bind shader and set common uniforms only if shader changed
+		if(shader->getID() != shader_id)
 		{
-			shader_id = obj->getMaterial()->getShader()->getID();
-			obj->getMaterial()->bind();
-			obj->getMaterial()->setUniform("u_view", camera->getView());
-			obj->getMaterial()->setUniform("u_projection", camera->getProjection());
-			obj->getMaterial()->setUniform("u_view_pos", camera->getPosition());
-			obj->getMaterial()->setUniform("u_light_pos", light->getPosition());
-			obj->getMaterial()->setUniform("u_light_color", light->getColor());
+			shader_id = shader->getID();
+			material->bind();
+			material->setUniform("u_view", camera->getView());
+			material->setUniform("u_projection", camera->getProjection());
+			material->setUniform("u_view_pos", camera->getPosition());
+			material->setUniform("u_light_pos", light->getPosition());
+			material->setUniform("u_light_color", light->getColor());
+			material->setUniform("u_sampler2d", 0);
 		}
-		if(obj->getMaterial()->getTexture()->getID() != texture_id)
+		// Bind texture only if texture changed
+		if(texture->getID() != texture_id)
 		{
-			texture_id = obj->getMaterial()->getTexture()->getID();
-			obj->getMaterial()->getTexture()->bind();
+			texture_id = texture->getID();
+			texture->bind(0);
 		}
-		draw(obj);
+		// Draw object
+		material->setUniform("u_model", obj->getModel());
+		material->setUniform("u_material.color", material->getColor());
+		material->setUniform("u_material.ambient", material->getAmbient());
+		material->setUniform("u_material.diffuse", material->getDiffuse());
+		material->setUniform("u_material.specular", material->getSpecular());
+		material->setUniform("u_material.shininess", material->getShininess());
+		draw(mesh->getVertexArray(), shader, mesh->getDrawAs());
 	}
 }
 

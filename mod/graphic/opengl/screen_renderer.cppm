@@ -89,8 +89,11 @@ namespace bm::gfx
 			Traits<Shader>::SPtr shader = nullptr;
 
 			std::size_t quad_count = 0;
-			// Can be array if max_quads is small, but vector in case of stack overflow
-			std::vector<QuadVertex> vertices;
+
+			std::array<QuadVertex, max_vertices> vertices;
+
+			std::array<Traits<Texture>::SPtr, max_texture_slots> texture_slots;
+			int texture_slot_index = 1; // 0 = white texture
 		};
 
 	public:

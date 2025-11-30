@@ -17,7 +17,7 @@ add_executable(Sandbox main.cpp)
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
    	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
-	set_target_properties(Sandbox PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${Sandbox_SOURCE_DIR}")
+	set_target_properties(Sandbox PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${Sandbox_SOURCE_DIR})
 endif()
 
 add_subdirectory(.. Engine)

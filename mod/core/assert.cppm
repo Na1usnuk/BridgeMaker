@@ -2,66 +2,75 @@ export module bm.verify;
 
 import bm.config;
 import bm.log;
+import bm.utility;
 import std;
 
 namespace bm
 {
-	void verifyImpl(const bool condition, std::string_view msg, const bool is_core, std::source_location loc = std::source_location::current())
-	{
-		std::string_view file = loc.file_name();
-		std::string_view function = loc.function_name();
-		auto line = loc.line();
+    inline void logFailure(bool is_core,
+        bool condition,
+        std::string_view msg,
+        std::source_location loc)
+    {
+        auto file = std::string_view(loc.file_name());
+        auto function = std::string_view(loc.function_name());
+        auto line = loc.line();
 
-		if constexpr (config::is_debug)
-			if (not condition)
-			{
-				is_core ? 
-					log::core::fatal("Core verify failed [file: {0}; function: {1}; line: {2}] {3}", file, function, line, msg)
-				  : log::fatal("Verify failed [File: {0}; Function: {1}; Line: {2}] {3}", file, function, line, msg);
+        std::string full_message = std::format(
+            "{} failed [file: {}; function: {}; line: {}] {}",
+            is_core ? "Core verify" : "Verify",
+            file,
+            function,
+            line,
+            msg
+        );
 
-				if (true/*std::is_debugger_present()*/) // waiting for C++26 debugging header
-					/*std::breakpoint();*/
-					__debugbreak(); 
-				else
-					std::terminate();
-			}
-	}
+        if (is_core)
+            bm::log::Log::getCoreLogger()->log(spdlog::level::critical, full_message);
+        else
+            bm::log::Log::getClientLogger()->log(spdlog::level::critical, full_message);
+
+        debugBreak();
+    }
 
 
 namespace core
 {
-	export void verify(const bool condition, std::string_view msg = {})
+
+	export template<typename... Args>
+	void verify(const bool condition, std::string_view msg = {}, Args&&... args, std::source_location loc = std::source_location::current())
 	{
-		verifyImpl(condition, msg, true);
+        if constexpr (config::enable_verify)
+        {
+            if (condition) [[likely]]
+				return;
+            
+            std::string formatted_msg = std::string(msg);
+            if constexpr (sizeof...(args) > 0)
+                formatted_msg = std::vformat(msg, std::make_format_args(std::forward<Args>(args)...));
+
+            logFailure(true, condition, formatted_msg, loc);
+            
+		}
 	}
 
-	//just for consistensy with assert
-	export template<bool condition = false>
-		void verify(std::string_view msg = {}) { verify(condition, msg); }
+}
 
-	export template<bool condition = false>
-		void assert(/*std::string_view msg = {}*/) //waits for C++26
+	export template<typename... Args>
+	void verify(const bool condition, std::string_view msg = {}, Args&&... args, std::source_location loc = std::source_location::current())
 	{
-		if constexpr (std::is_constant_evaluated())
-			static_assert(condition, /*msg*/ "Assertion failed");
+        if constexpr (config::enable_verify)
+        {
+            if (condition) [[likely]]
+                return;
+
+            std::string formatted_msg = std::string(msg);
+            if constexpr (sizeof...(args) > 0)
+                formatted_msg = std::vformat(msg, std::make_format_args(std::forward<Args>(args)...));
+
+            logFailure(false, condition, formatted_msg, loc);
+
+        }
 	}
 
-} //namespace core
-
-	//wrapper to static_assert to work only in debug
-	export template<bool condition = false>
-		decltype(::bm::core::assert<condition>) assert = &::bm::core::assert<condition>;
-
-	//just for consistensy with assert
-	//like assert but works in runtime (debug only)
-	export template<bool condition = false>
-		void verify(std::string_view msg = {}){ verify(condition, msg); }
-	//like assert but works in runtime (debug only)
-	export void verify(const bool condition, std::string_view msg = {})
-	{
-		verifyImpl(condition, msg, false);
-	}
-
-
-
-} //namespace bm
+}

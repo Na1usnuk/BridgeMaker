@@ -119,6 +119,11 @@ void Shader::setUniform(std::string_view name, const glm::vec4& vec)
 	glCall(glUniform4fv, getUniformLocation(name), 1, glm::value_ptr(vec));
 }
 
+void Shader::setUniform(std::string_view name, const int* values, std::size_t count)
+{
+	glCall(glUniform1iv, getUniformLocation(name), static_cast<int>(count), values);
+}
+
 int Shader::getUniformLocation(std::string_view name)
 {
 	if (m_cache->uniform.contains(name.data()))

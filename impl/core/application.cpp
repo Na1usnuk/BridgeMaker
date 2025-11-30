@@ -4,6 +4,7 @@ import std;
 
 import bm.event.app;
 import bm.layer.imgui;
+import bm.config;
 
 
 namespace bm
@@ -39,9 +40,12 @@ namespace bm
 
 	void Application::onLayersImGuiRender()
 	{
-		for (auto& l : m_layers)
-			if (l->isEnabled())
-				l->onImGuiRender();
+		if constexpr (config::enable_imgui)
+		{
+			for (auto& l : m_layers)
+				if (l->isEnabled())
+					l->onImGuiRender();
+		}
 	}
 
 	void Application::onLayersEvent(Event& e)
@@ -69,24 +73,27 @@ namespace bm
 
 	void Application::onImGuiRender()
 	{
-		ImGui::Begin("Application");
+		if constexpr (config::enable_imgui)
+		{
+			ImGui::Begin("Application");
 
-		ImGui::Text("Application running...");
+			ImGui::Text("Application running...");
 
-		ImGui::Separator();
+			ImGui::Separator();
 
-		ImGui::Text("Window title: %s", m_window.getTitle().c_str());
-		ImGui::Text("Window size: %d x %d", m_window.getWidth(), m_window.getHeight());
-		ImGui::Text("Texture slots: %d", m_renderer.getTextureSlotCount());
-
-
-		ImGui::Separator();
-
-		ImGui::Text("FPS: %.2f", m_timestep.getFPS());
-		ImGui::Text("Frame time: %.3f ms", m_timestep.getDeltaTime() * 1000.0f);
+			ImGui::Text("Window title: %s", m_window.getTitle().c_str());
+			ImGui::Text("Window size: %d x %d", m_window.getWidth(), m_window.getHeight());
+			ImGui::Text("Texture slots: %d", m_renderer.getTextureSlotCount());
 
 
-		ImGui::End();
+			ImGui::Separator();
+
+			ImGui::Text("FPS: %.2f", m_timestep.getFPS());
+			ImGui::Text("Frame time: %.3f ms", m_timestep.getDeltaTime() * 1000.0f);
+
+
+			ImGui::End();
+		}
 	}
 
 	void Application::onImGuiRenderImpl()

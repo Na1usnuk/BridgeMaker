@@ -7,6 +7,8 @@ using namespace bm::gfx;
 
 import scenes;
 
+import std;
+
 
 export class SandBox : public bm::Application
 {
@@ -14,7 +16,7 @@ public:
 
 	SandBox() : bm::Application("SandBox", 1200, 720), 
 		m_camera(bm::gfx::Camera::make({0.f, 2.f, -3.f})), 
-		m_scene(bm::gfx::Scene::make<scene::StaticPrimitivesScene>()),
+		m_scene(bm::gfx::Scene::make<scene::VRMLMaterialsScene>()),
 		m_camera2d(bm::gfx::ScreenCamera::make(1200, 720))
 	{
 		setFPSLimit(120);
@@ -27,9 +29,12 @@ public:
 		getScreenRenderer().setCamera(m_camera2d);
 
 		getRenderer().setDepthTesting(true);
-		//getRenderer().setBlend(true);
+		getRenderer().setBlend(true);
+		getRenderer().setBlendFunc();
 		//getRenderer().setBackgroundColor({ 0.53f, 0.81f, 0.92f, 1.0f });
 		getRenderer().setBackgroundColor({ 0.f, 0.f, 0.f, 1.0f });
+
+		getWindow().setCaptureCursor(true);
 
 	}
 
@@ -70,9 +75,9 @@ public:
 		auto frame_y = getWindow().getFramebufferSize().second;
 
 		getScreenRenderer().submit(
-			glm::vec2(mouse_x - 25.f, -(mouse_y - frame_y) - 25.f),      
+			glm::vec2(mouse_x, -(mouse_y - frame_y) - 50.f),      
 			glm::vec2(50.f, 50.f),        
-			glm::vec4(0.f, 1.f, 0.f, 1.f) 
+			bm::AssetManager::get().loadTexture("cursor", "res/cursor.png")
 		);
 
 		getScreenRenderer().draw();
