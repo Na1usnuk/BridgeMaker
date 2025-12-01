@@ -96,6 +96,7 @@ public:
 	void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
 	void setDepthTesting(bool value);
 	void setDepthTestFunc(DepthFunc func = DepthFunc::LESS);
+	void setDepthWrite(bool b);
 	void setBlend(bool value);
 	void setBlendFunc(BlendSrc src = BlendSrc::ALPHA, BlendFunc func = BlendFunc::ONE_MINUS_SRC_ALPHA);
 

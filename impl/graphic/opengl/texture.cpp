@@ -23,7 +23,17 @@ namespace bm::gfx
 
 		stbi_set_flip_vertically_on_load(true);
 		m_data.buffer = stbi_load(filepath.string().c_str(), &m_data.width, &m_data.height, &m_data.bpp, 4);
-		//core::verify(m_data.buffer, std::string("Failed to load \"") + filepath.string() + std::string("\" while creating texture! Reason: ") + stbi_failure_reason());
+
+		const char* reason = stbi_failure_reason();
+		std::string reason_str = reason ? reason : "unknown reason";
+
+		core::verify(
+			m_data.buffer,
+			std::format("Failed to load {} while creating texture! Reason: {}",
+			filepath.string(),
+			reason_str)
+		);
+
 
 		glCall(glGenTextures, 1, &m_id);
 		glCall(glBindTexture, GL_TEXTURE_2D, m_id);

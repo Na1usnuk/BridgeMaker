@@ -4,15 +4,14 @@ import bm.gfx.asset;
 
 import std;
 
+import bm.traits;
+
 namespace bm::gfx
 {
 
 export class Texture : public Asset
 {
 public:
-
-	using Ptr = std::shared_ptr<Texture>;
-	using KPtrRef = const Ptr&;
 
 	enum class Wrappering
 	{
@@ -44,6 +43,11 @@ public:
 
 	unsigned int getID() const { return m_id; }
 
+	int getWidth() const { return m_data.width; }
+	int getHeight() const { return m_data.height; }
+
+	std::string getFilepath() const { return m_data.file_path.string(); }
+
 	static void setDefaultWrappering(Wrappering wrap = Wrappering::REPEAT);
 	static void setDefaultFiltering(Filtering wrap = Filtering::NEAREST);
 
@@ -51,7 +55,7 @@ public:
 	void setFiltering(bool wrap_s, bool wrap_t, Filtering filtering) const;
 
 	template<typename... Args>
-	static Ptr make(Args&&... args) { return std::make_shared<Texture>(std::forward<Args>(args)...); }
+	static bm::Traits<Texture>::SPtr make(Args&&... args) { return std::make_shared<Texture>(std::forward<Args>(args)...); }
 
 private:
 
@@ -61,7 +65,5 @@ private:
 	static Texture::Wrappering s_default_wrappering;
 	static Texture::Filtering s_default_filtering;
 };
-
-export using TexturePtr = Texture::Ptr;
 
 }

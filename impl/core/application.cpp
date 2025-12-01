@@ -83,6 +83,9 @@ namespace bm
 
 			ImGui::Text("Window title: %s", m_window.getTitle().c_str());
 			ImGui::Text("Window size: %d x %d", m_window.getWidth(), m_window.getHeight());
+			static bool cursor_captured = false;
+			if (ImGui::Checkbox("Capture Cursor", &cursor_captured))
+				getWindow().setCaptureCursor(cursor_captured);
 			ImGui::Text("Texture slots: %d", m_renderer.getTextureSlotCount());
 
 
@@ -90,6 +93,41 @@ namespace bm
 
 			ImGui::Text("FPS: %.2f", m_timestep.getFPS());
 			ImGui::Text("Frame time: %.3f ms", m_timestep.getDeltaTime() * 1000.0f);
+
+			if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				// Background color
+				static float background_color[3] = {0.f, 0.f, 0.f};
+				if (ImGui::ColorEdit3("Background Color", background_color))
+				{
+					getRenderer().setBackgroundColor({ background_color[0], background_color [1], background_color [2], 1.f});
+				}
+
+				// Rendering flags
+				ImGui::SeparatorText("Rendering");
+
+				static bool wireframe = false;
+				static bool depthTest = true;
+				static bool blending = true;
+
+				if (ImGui::Checkbox("Wireframe Mode", &wireframe))
+					getRenderer().setPolygonMode(
+						wireframe ? ::bm::gfx::Renderer::PolygonMode::Line
+						: ::bm::gfx::Renderer::PolygonMode::Fill
+					);
+
+				if (ImGui::Checkbox("Depth Test", &depthTest))
+					getRenderer().setDepthTesting(depthTest);
+
+				if (ImGui::Checkbox("Blending", &blending))
+					getRenderer().setBlend(blending);
+
+				// Exposure (useful future param)
+				static float exposure = 1.0f;
+				ImGui::SliderFloat("Exposure", &exposure, 0.1f, 4.0f);
+
+				// Scene summary
+			}
 
 
 			ImGui::End();

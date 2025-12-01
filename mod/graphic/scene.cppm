@@ -76,6 +76,15 @@ namespace bm::gfx
 
 	void Scene::onImGuiRender()
 	{
+
+		// Scene name
+		ImGui::Separator();
+		ImGui::Text("Scene Name", m_name);
+
+		ImGui::SeparatorText("Statistics");
+		ImGui::Text("Objects: %d", (int)m_objects.size());
+		ImGui::Text("Lights:  %d", (int)m_lights.size());
+
 		// -----------------------------------------
 		// OBJECT PANELS
 		// -----------------------------------------

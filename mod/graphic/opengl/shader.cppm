@@ -105,11 +105,14 @@ public:
 		out vec3 f_normal_coord;
 		out vec3 f_frag_pos;
 
+		out mat4 f_model;
+
         void main()
         {
             f_texture_coord = texture_coord;
 			f_normal_coord = normal_coord;
 			f_frag_pos = vec3(u_model * vec4(vertex_coord, 1.0));
+			f_model = u_model;
 
             gl_Position = u_projection * u_view * u_model * vec4(vertex_coord, 1);
         }
@@ -141,13 +144,15 @@ public:
 		in vec2 f_texture_coord;
 		in vec3 f_normal_coord;
 		in vec3 f_frag_pos;
+
+		in mat4 f_model;
 		
 		void main()
 		{
 		    // ----------------------------------------------------
 		    // NORMAL & LIGHT DIRECTION
 		    // ----------------------------------------------------
-		    vec3 norm = normalize(f_normal_coord);
+		    vec3 norm = normalize(mat3(transpose(inverse(f_model))) * f_normal_coord);
 		    vec3 lightDir = normalize(u_light_pos - f_frag_pos);
 		
 		    // ----------------------------------------------------

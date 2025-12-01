@@ -76,6 +76,11 @@ void Renderer::setDepthTestFunc(DepthFunc func)
 	m_state_cache.depth_test_func = func;
 }
 
+void Renderer::setDepthWrite(bool b)
+{
+	glDepthMask((b ? GL_TRUE : GL_FALSE));
+}
+
 void Renderer::setBlend(bool value)
 {
 	if (m_state_cache.blend == value)
@@ -156,45 +161,81 @@ void Renderer::draw(Traits<Scene>::PtrRef scene, Traits<Camera>::KPtrRef camera)
 			return a->getMaterial()->getShader()->getID() < b->getMaterial()->getShader()->getID();
 		});
 
+	auto o = objects
+		| std::views::filter([](const auto& _Q) { return _Q->getMaterial()->getColor()[3] == 1.f; });
+
 	// Track currently bound shader and texture
 	auto shader_id = -1;
 	auto texture_id = -1;
 
-	// Draw all objects
-	for (const auto& obj : objects)
-	{
-		auto material = obj->getMaterial();
-		auto mesh = obj->getMesh();
-		auto texture = material->getTexture();
-		auto shader = material->getShader();
+	auto draw_impl = [&](auto& obj) 
+		{
+			auto material = obj->getMaterial();
+			auto mesh = obj->getMesh();
+			auto texture = material->getTexture();
+			auto shader = material->getShader();
 
-		// Bind shader and set common uniforms only if shader changed
-		if(shader->getID() != shader_id)
-		{
-			shader_id = shader->getID();
-			material->bind();
-			material->setUniform("u_view", camera->getView());
-			material->setUniform("u_projection", camera->getProjection());
-			material->setUniform("u_view_pos", camera->getPosition());
-			material->setUniform("u_light_pos", light->getPosition());
-			material->setUniform("u_light_color", light->getColor());
-			material->setUniform("u_sampler2d", 0);
-		}
-		// Bind texture only if texture changed
-		if(texture->getID() != texture_id)
-		{
-			texture_id = texture->getID();
-			texture->bind(0);
-		}
-		// Draw object
-		material->setUniform("u_model", obj->getModel());
-		material->setUniform("u_material.color", material->getColor());
-		material->setUniform("u_material.ambient", material->getAmbient());
-		material->setUniform("u_material.diffuse", material->getDiffuse());
-		material->setUniform("u_material.specular", material->getSpecular());
-		material->setUniform("u_material.shininess", material->getShininess());
-		draw(mesh->getVertexArray(), shader, mesh->getDrawAs());
+			// Bind shader and set common uniforms only if shader changed
+			if (shader->getID() != shader_id)
+			{
+				shader_id = shader->getID();
+				material->bind();
+				material->setUniform("u_view", camera->getView());
+				material->setUniform("u_projection", camera->getProjection());
+				material->setUniform("u_view_pos", camera->getPosition());
+				material->setUniform("u_light_pos", light->getPosition());
+				material->setUniform("u_light_color", light->getColor());
+				material->setUniform("u_sampler2d", 0);
+			}
+			// Bind texture only if texture changed
+			if (texture->getID() != texture_id)
+			{
+				texture_id = texture->getID();
+				texture->bind(0);
+			}
+			// Draw object
+			material->setUniform("u_model", obj->getModel());
+			material->setUniform("u_material.color", material->getColor());
+			material->setUniform("u_material.ambient", material->getAmbient());
+			material->setUniform("u_material.diffuse", material->getDiffuse());
+			material->setUniform("u_material.specular", material->getSpecular());
+			material->setUniform("u_material.shininess", material->getShininess());
+			draw(mesh->getVertexArray(), shader, mesh->getDrawAs());
+		};
+
+	// Draw all not transparent objects
+	for (const auto& obj : objects)
+		draw_impl(obj);
+
+	/*auto t = objects
+		| std::views::filter([](const auto& _Q) { return _Q->getMaterial()->getColor()[3] < 1.f; });
+	std::vector<std::size_t> transparent;
+	transparent.reserve(objects.size());
+
+	std::size_t idx = 0;
+	for (auto& ob : t) {
+		transparent.push_back(idx);
+		idx++;
 	}
+
+	std::ranges::sort(transparent, [&](std::size_t a, std::size_t b) {
+		float da = glm::distance(camera->getPosition(), objects[a]->getPosition());
+		float db = glm::distance(camera->getPosition(), objects[b]->getPosition());
+		return da > db;
+		});
+
+
+
+	setDepthWrite(false);
+	for (std::size_t idx : transparent)
+		draw_impl(objects[idx]);
+	setDepthWrite(true);*/
+
+	//setDepthWrite(false);
+	//for (auto& ob : t)
+	//	draw_impl(ob);
+	//setDepthWrite(true);
+
 }
 
 }

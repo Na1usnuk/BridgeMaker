@@ -20,6 +20,7 @@ public:
 	{
 		Triangles = 0x0004,
 		Lines = 0x0001,
+		Points = 0x0000
 	};
 
 public:

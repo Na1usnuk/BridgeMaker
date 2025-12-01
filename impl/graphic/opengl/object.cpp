@@ -105,10 +105,11 @@ namespace bm::gfx
                 if (index.texcoord_index >= 0)
                 {
                     const std::size_t t = static_cast<std::size_t>(index.texcoord_index) * 2;
+
                     if (t + 1 < attrib.texcoords.size())
                     {
                         tex.x = attrib.texcoords[t + 0];
-                        tex.y = attrib.texcoords[t + 1];
+                        tex.y = 1.0f - attrib.texcoords[t + 1];
                     }
                     else
                     {
@@ -118,6 +119,7 @@ namespace bm::gfx
                         );
                     }
                 }
+
 
                 // Normals (3 floats) – optional
                 if (index.normal_index >= 0)
@@ -213,6 +215,139 @@ namespace bm::gfx
             // APPLY TO MODEL MATRIX
             if (changed)
                 apply();
+        }
+
+        ImGui::Separator();
+
+        // =============================
+   // MATERIAL
+   // =============================
+        if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            auto mat = m_material;
+            if (!mat)
+            {
+                ImGui::TextDisabled("No material");
+            }
+            else
+            {
+                ImGui::ColorEdit4("Color", (float*)&mat->getColor());
+
+                ImGui::ColorEdit3("Ambient", (float*)&mat->getAmbient());
+                ImGui::ColorEdit3("Diffuse", (float*)&mat->getDiffuse());
+                ImGui::ColorEdit3("Specular", (float*)&mat->getSpecular());
+
+                float shininess = mat->getShininess();
+                if (ImGui::SliderFloat("Shininess", &shininess, 1.0f, 256.0f))
+                    mat->setShininess(shininess);
+
+                // Transparency badge
+                if (mat->getColor().a < 1.0f)
+                {
+                    ImGui::TextColored(ImVec4(0.5f, 0.7f, 1.f, 1.f),
+                        "Transparent (alpha = %.2f)", mat->getColor().a);
+                }
+            }
+        }
+
+        ImGui::Separator();
+
+        // =============================
+        // TEXTURE
+        // =============================
+        if (ImGui::CollapsingHeader("Texture", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            auto tex = m_material->getTexture();
+
+            if (!tex)
+            {
+                ImGui::TextDisabled("No texture");
+            }
+            else
+            {
+                ImGui::Text("Texture ID: %u", tex->getID());
+
+                // Preview
+                ImGui::Image(
+                    (ImTextureID)(intptr_t)tex->getID(),
+                    ImVec2(96, 96),
+                    ImVec2(0, 1), ImVec2(1, 0)
+                );
+
+                ImGui::Text("Size: %dx%d", tex->getWidth(), tex->getHeight());
+                ImGui::Text("File: %s", tex->getFilepath().c_str());
+
+                ImGui::SeparatorText("Sampling");
+
+                // Wrappering
+                static const char* wrap_names[] = { "Repeat", "Mirrored Repeat" };
+                static Texture::Wrappering wraps[] = {
+                    Texture::Wrappering::REPEAT,
+                    Texture::Wrappering::MiRRORED_REPEAT
+                };
+
+                static int wrap_index = 0;
+                if (ImGui::Combo("Wrap Mode", &wrap_index, wrap_names, 2))
+                    tex->setWrappering(true, true, wraps[wrap_index]);
+
+                // Filtering
+                static const char* filter_names[] = { "Nearest", "Linear" };
+                static Texture::Filtering filters[] = {
+                    Texture::Filtering::NEAREST,
+                    Texture::Filtering::LINEAR
+                };
+
+                static int filter_index = 0;
+                if (ImGui::Combo("Filtering", &filter_index, filter_names, 2))
+                    tex->setFiltering(true, true, filters[filter_index]);
+
+                if (ImGui::Button("Reload Texture"))
+                {
+                    auto new_tex = Texture::make(tex->getFilepath());
+                    m_material->setTexture(new_tex);
+                }
+            }
+        }
+
+        ImGui::Separator();
+
+        // =============================
+        // MESH INFO
+        // =============================
+        if (ImGui::CollapsingHeader("Mesh Info"))
+        {
+            auto mesh = m_mesh;
+            if (!mesh)
+            {
+                ImGui::TextDisabled("No mesh");
+            }
+            else
+            {
+                auto& vao = mesh->getVertexArray();
+                if (vao)
+                {
+                    ImGui::Text("Vertices: %d", vao->getVerticesCount());
+                    if (vao->getIndexBuffer())
+                        ImGui::Text("Indices: %d", vao->getIndexBuffer()->count());
+                    else
+                        ImGui::Text("Index buffer: none");
+
+                    ImGui::Text("Draw mode: %s",
+                        mesh->getDrawAs() == Mesh::DrawAs::Triangles ? "Triangles" : "Lines");
+
+                    if (ImGui::Button("Draw as Triangles"))
+                        mesh->setDrawAs(Mesh::DrawAs::Triangles);
+                    if (ImGui::Button("Draw as Lines"))
+                        mesh->setDrawAs(Mesh::DrawAs::Lines);
+                    if (ImGui::Button("Draw as Points"))
+                        mesh->setDrawAs(Mesh::DrawAs::Points);
+
+                }
+                else
+                {
+                    ImGui::TextDisabled("Mesh has no VAO");
+                }
+            }
         }
     }
 
