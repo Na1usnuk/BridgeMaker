@@ -13,6 +13,7 @@ import bm.input;
 import bm.verify;
 import bm.event;
 import bm.gfx.utility;
+import bm.config;
 
 namespace bm 
 {
@@ -157,7 +158,7 @@ void Window::close()
 
 bool Window::isOpen() const
 {
-	return !glfwWindowShouldClose(m_window) && (m_window != nullptr);
+	return not glfwWindowShouldClose(m_window) and (m_window != nullptr);
 }
 
 void Window::create(bool decorated, bool visible)
@@ -176,20 +177,22 @@ void Window::create(bool decorated, bool visible)
 	glfwWindowHint(GLFW_DECORATED, decorated ? GLFW_TRUE : GLFW_FALSE);
 	glfwWindowHint(GLFW_VISIBLE, visible ? GLFW_TRUE : GLFW_FALSE);
 
-	constexpr std::array<std::pair<int, int>, 8> versions =
-	{
-		std::pair<int, int>{4, 6},
-		std::pair<int, int>{4, 5},
-		std::pair<int, int>{4, 4},
-		std::pair<int, int>{4, 3},
-		std::pair<int, int>{4, 2},
-		std::pair<int, int>{4, 1},
-		std::pair<int, int>{4, 0},
-		std::pair<int, int>{3, 3}
-	};
 
-	for (auto[major, minor] : versions)
+	constexpr auto find_version_index = []() constexpr
+		{
+			for (int i = 0; i < gfx::versions.size(); ++i)
+				if (::bm::gfx::versions[i] == config::gfx::target_version)
+					return i;
+			return -1;
+		};
+
+	constexpr int version_index = find_version_index();
+	static_assert(version_index != -1, "Wrong OpenGL target_version specified");
+
+	for (int i = version_index; i < gfx::versions.size(); ++i)
 	{
+		auto [major, minor] = gfx::versions[i];
+
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
 
@@ -201,6 +204,7 @@ void Window::create(bool decorated, bool visible)
 			gfx::Context::get().setVersion(major * 10 + minor);
 			break;
 		}
+		log::core::warning("Unable to create window with context version {}.{}", major, minor);
 	}
 	core::verify(m_window, "Failed to create window");
 

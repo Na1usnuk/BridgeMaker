@@ -1,9 +1,42 @@
 export module bm.config;
+import std;
 
 // You willing to manually change any setting if needed
 
+namespace bm::gfx
+{
+	export struct Version
+	{
+		short major, minor;
+
+		constexpr bool operator==(const Version&) const = default;
+	};
+
+	export constexpr std::array<Version, 8> versions =
+	{
+		Version{4, 6},
+		Version{4, 5},
+		Version{4, 4},
+		Version{4, 3},
+		Version{4, 2},
+		Version{4, 1},
+		Version{4, 0},
+		Version{3, 3}
+	};
+
+	export enum class API
+	{
+		OpenGL,
+		Vulkan,
+		DirectX12,
+		Metal
+	};
+}
+
 namespace bm::config
 {
+
+
 	export enum class Platform
 	{
 		Windows,
@@ -62,19 +95,15 @@ namespace bm::config
 
 	export constexpr bool enable_logging   = is_debug || is_release;
 
-	export enum class GraphicsAPI
+	namespace gfx
 	{
-		OpenGL,
-		Vulkan,
-		DirectX12,
-		Metal
-	};
+		export constexpr ::bm::gfx::API api = ::bm::gfx::API::OpenGL; // Only OpenGL is supported for now
 
-	export constexpr GraphicsAPI graphics_api = GraphicsAPI::OpenGL; // Only OpenGL is supported for now
+		// Do not set actual version, but use it as target when its time to choose. 
+		// Consult bm::gfx::Context to get runtime version of API
+		export constexpr ::bm::gfx::Version target_version{2,3}; //= ::bm::gfx::Version::versions[0];
+	}
 
-	// Do not set actual version, but use it as target when its time to choose. 
-	// Consult bm::gfx::Context to get runtime version of API
-	export constexpr int graphics_api_target_version = 0; // Set to 0 to get max available version
 
 	export enum class Compiler
 	{

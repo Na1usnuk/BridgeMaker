@@ -71,7 +71,7 @@ public:
 		getRenderer().clear();
 		getRenderer().draw(m_scene, m_camera);
 
-		auto [mouse_x, mouse_y] = bm::Input::getMousePos();
+		auto [mouse_x, mouse_y] = bm::Input::getMousePosition();
 		auto frame_y = getWindow().getFramebufferSize().second;
 
 		getScreenRenderer().submit(
