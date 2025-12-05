@@ -57,7 +57,7 @@ namespace bm::config
 	export constexpr bool is_shipping = (build_type == BuildType::Shipping);
 
 	export constexpr bool enable_verify    = is_debug;
-	export constexpr bool enable_imgui	   = true;//is_debug;
+	export constexpr bool enable_imgui	   = is_debug;
 	export constexpr bool enable_profiling = is_debug;
 
 	export constexpr bool enable_logging   = is_debug || is_release;

@@ -8,6 +8,8 @@ import bm.config;
 import bm.log;
 import std;
 
+export import "gl_call.hpp";
+
 
 namespace bm::gfx 
 {
@@ -32,7 +34,7 @@ namespace bm::gfx
 			while (glGetError() != GL_NO_ERROR);
 	}
 	
-	bool glLogOnError(std::source_location loc = std::source_location::current())
+	bool glLogOnError(std::source_location loc)
 	{
 		if constexpr (::bm::config::is_debug)
 			if (GLenum error = glGetError())
@@ -47,7 +49,7 @@ namespace bm::gfx
 	}
 	
 	export template<typename GLFunc, typename... ARGS>
-		inline auto glCall(GLFunc func, ARGS&&... args/*, std::source_location loc = std::source_location::current()*/) -> std::invoke_result_t<GLFunc, ARGS...>
+		inline auto glCallImpl(std::source_location loc, GLFunc func, ARGS&&... args) -> std::invoke_result_t<GLFunc, ARGS...>
 	{
 		using ReturnType = std::invoke_result_t<GLFunc, ARGS...>;
 
@@ -55,13 +57,13 @@ namespace bm::gfx
 		{
 			glClearError();
 			func(std::forward<ARGS>(args)...);
-			glLogOnError(/*loc*/);
+			glLogOnError(loc);
 		}
 		else
 		{
 			glClearError();
 			auto result = func(std::forward<ARGS>(args)...);
-			glLogOnError(/*loc*/);
+			glLogOnError(loc);
 			return result;
 		}
 	}

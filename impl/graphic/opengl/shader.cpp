@@ -4,6 +4,8 @@ module;
 #include "glm/mat4x4.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "gl_call.hpp"
+
 module bm.gfx.shader;
 
 
@@ -105,7 +107,6 @@ void Shader::setUniform(std::string_view name, int i)
 
 void Shader::setUniform(std::string_view name, const glm::mat4& mat)
 {
-	bind();
 	glCall(glUniformMatrix4fv, getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
 }
 
@@ -122,6 +123,11 @@ void Shader::setUniform(std::string_view name, const glm::vec4& vec)
 void Shader::setUniform(std::string_view name, const int* values, std::size_t count)
 {
 	glCall(glUniform1iv, getUniformLocation(name), static_cast<int>(count), values);
+}
+
+void Shader::setUniform(std::string_view name, bool b)
+{
+	glCall(glUniform1i, getUniformLocation(name), b ? 1 : 0);
 }
 
 int Shader::getUniformLocation(std::string_view name)
@@ -165,7 +171,7 @@ unsigned int Shader::compileShader(unsigned int type, std::string_view source)
 
 unsigned int Shader::createProgram(std::string_view vertexShader, std::string_view fragmentShader)
 {
-	unsigned int prog = glCall(glCreateProgram);
+	unsigned int prog = glCreateProgram();
 	unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
 	unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
 

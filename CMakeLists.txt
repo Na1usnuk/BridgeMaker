@@ -181,6 +181,7 @@ target_include_directories(BridgeMaker
 		include/core
 		include/graphic
 		deps/tiny_obj_loader
+		mod/graphic/opengl
 )
 
 target_link_libraries(BridgeMaker

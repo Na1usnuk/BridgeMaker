@@ -1,6 +1,7 @@
 module;
 
 #include "glad/glad.h"
+#include "gl_call.hpp"
 
 module bm.gfx.vertexarray;
 
@@ -39,25 +40,17 @@ VertexArray::~VertexArray()
 
 VertexArray::VertexArray(VertexArray&& oth) noexcept
 {
-	using std::swap;
-
-	swap(m_id, oth.m_id);
+	auto id = oth.m_id;
 	oth.m_id = 0;
+	m_id = id;
 }
 
 VertexArray& VertexArray::operator=(VertexArray&& oth) noexcept
 {
-	using std::swap;
-
-	swap(m_id, oth.m_id);
+	auto id = oth.m_id;
 	oth.m_id = 0;
+	m_id = id;
 	return *this;
-
-	//if (m_id == oth.m_id)
-	//	return *this;
-	//m_id = oth.m_id;
-	//oth.m_id = 0;
-	//return *this;
 }
 
 void VertexArray::destroy()
@@ -80,17 +73,16 @@ void VertexArray::setVertexBuffer(Traits<VertexBuffer>::Ptr vbo)
 
 	const auto& elements = m_vbo->getLayout().elements();
 	unsigned long long offset = 0;
-	unsigned int attrib_index = 0;
 
 	m_vertices_count = m_vbo->size() / m_vbo->getLayout().stride();
 
 	for (unsigned int i = 0; i < elements.size(); ++i)
 	{
 		const auto& element = elements[i];
-		glCall(glEnableVertexAttribArray, attrib_index);
-		glCall(glVertexAttribPointer, attrib_index, element.count, element.gl_type, element.normalized, m_vbo->getLayout().stride(), (const void*)offset);
+		glCall(glEnableVertexAttribArray, m_attrib_index);
+		glCall(glVertexAttribPointer, m_attrib_index, element.count, element.gl_type, element.normalized, m_vbo->getLayout().stride(), (const void*)offset);
 		offset += element.size;
-		++attrib_index;
+		++m_attrib_index;
 	}
 }
 

@@ -41,6 +41,8 @@ private:
 	unsigned int m_id = 0;
 	std::size_t m_vertices_count;
 
+	std::size_t m_attrib_index = 0;
+
 	// VertexArray owns vbo and ibo
 	Traits<VertexBuffer>::Ptr m_vbo = nullptr; 
 	Traits<IndexBuffer>::Ptr m_ibo = nullptr;

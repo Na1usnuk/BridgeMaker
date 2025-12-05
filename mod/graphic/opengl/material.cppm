@@ -24,6 +24,7 @@ namespace bm::gfx
 		Material() : Material(AssetManager::get().loadShader("basic")) {}
 		Material(Traits<Shader>::KSPtrRef shader) : m_shader(shader) { m_texture = AssetManager::get().loadTexture("nothing"); }
 		Material(Traits<Shader>::KSPtrRef shader, Traits<Texture>::KSPtrRef texture) : m_shader(shader), m_texture(texture) {}
+		Material(Traits<Texture>::KSPtrRef texture) : Material(AssetManager::get().loadShader("basic"), texture) {}
 		~Material() = default;
 
 		void bind()
@@ -55,6 +56,9 @@ namespace bm::gfx
 		void setTexture(Traits<Texture>::KSPtrRef texture) { m_texture = texture; }
 		Traits<Texture>::KSPtrRef getTexture() const { return m_texture; }
 
+		void setNormalMap(Traits<Texture>::KSPtrRef normal_map) { m_normal_map = normal_map; }
+		Traits<Texture>::KSPtrRef getNormalMap() const { return m_normal_map; }
+
 		void setShader(Traits<Shader>::KSPtrRef shader) { m_shader = shader; }
 		Traits<Shader>::KSPtrRef getShader() const { return m_shader; }
 
@@ -65,6 +69,7 @@ namespace bm::gfx
 
 		Traits<Shader>::SPtr m_shader;
 		Traits<Texture>::SPtr m_texture;
+		Traits<Texture>::SPtr m_normal_map;
 		glm::vec4 m_color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		glm::vec3 m_amb{ 0.2f, 0.2f, 0.2f };        
 		glm::vec3 m_dif{ 1.0f, 1.0f, 1.0f };        

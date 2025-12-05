@@ -3,6 +3,8 @@ module;
 #include "stb_image.h"
 #include "glad/glad.h"
 
+#include "gl_call.hpp"
+
 module bm.gfx.texture;
 
 import std;

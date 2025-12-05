@@ -3,6 +3,7 @@ module;
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glad/glad.h"
+#include "gl_call.hpp"
 
 module bm.gfx.screen_renderer;
 

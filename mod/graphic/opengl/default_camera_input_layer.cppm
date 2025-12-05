@@ -21,7 +21,7 @@ namespace bm
 			: m_camera(camera_to_control), 
 			  m_speed(speed), 
 			  m_sensetivity(sensetivity),
-			  m_last_mouse_pos(Input::getMousePos())
+			  m_last_mouse_pos(Input::getMousePosition())
 		{
 		}
 

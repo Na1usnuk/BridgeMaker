@@ -3,6 +3,8 @@ module;
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+#include "gl_call.hpp"
+
 module bm.window;
 
 import bm.log;
@@ -319,7 +321,7 @@ void Window::setMouseMoveCallback()
 		{
 			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
 			MouseMoveEvent e(x, y);
-			Input::setMousePos({ (float)x, (float)y });
+			Input::setMousePosition({ (float)x, (float)y });
 			data->callback(e);
 		});
 }

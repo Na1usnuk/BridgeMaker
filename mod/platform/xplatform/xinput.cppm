@@ -21,8 +21,8 @@ public:
 	static bool isReleased(Key key);
 	static bool isPressed(Mouse key);
 	static bool isReleased(Mouse key);
-	static std::pair<float, float> getMousePos();
-	static void setMousePos(const std::pair<float, float>& pos);
+	static std::pair<float, float> getMousePosition();
+	static void setMousePosition(const std::pair<float, float>& pos);
 
 	static Window* getCurrentWindow() { return s_window; }
 	static void    setCurrentWindow(Window* window) { s_window = window; }

@@ -11,6 +11,7 @@ import std;
 import bm.gfx.mesh;
 import bm.gfx.material;
 import bm.gfx.texture;
+import bm.log;
 
 import bm.traits;
 
@@ -22,12 +23,7 @@ namespace bm::gfx
 	{
 	public:
 
-		struct Vertex
-		{
-			glm::vec3 position;
-			glm::vec2 tex_coords;
-			glm::vec3 normal;
-		};
+
 
 	public:
 
@@ -81,10 +77,17 @@ namespace bm::gfx
 
 		void setColor(const glm::vec3& color) { m_material->setColor(glm::vec4(color[0], color[1], color[2], 1.f)); }
 		void setTexture(Traits<Texture>::KSPtrRef texture) { m_material->setTexture(texture); }
+		void setNormalMap(Traits<Texture>::KSPtrRef texture) { m_material->setNormalMap(texture); }
 
-		void apply();
-
-		const glm::mat4& getModel() const { return m_model; }
+		const glm::mat4& getModel() 
+		{
+			if (m_dirty) 
+			{
+				apply();
+			}
+			return m_model; 
+		}
+		const glm::mat3& getNormalMatrix() { if (m_dirty) apply(); return m_normal_matrix; }
 
 		template<typename T, typename... Args>
 		requires std::is_base_of_v<Object, T>
@@ -92,10 +95,15 @@ namespace bm::gfx
 
 		template<typename... Args>
 		static Traits<Object>::Ptr make(Args&&... args) { return std::make_unique<Object>(std::forward<Args>(args)...); }
+		
+		void apply();
+	private:
+		
 
 	private:
 
 		glm::mat4 m_model = glm::mat4(1.f);
+		glm::mat3 m_normal_matrix = glm::mat3(1.f);
 
 		glm::vec3 m_rotate = glm::vec3(0.f);
 		glm::vec3 m_scale = glm::vec3(1.f);
@@ -105,6 +113,8 @@ namespace bm::gfx
 		Traits<Mesh>::SPtr m_mesh = nullptr;
 
 		std::string m_name = "Object";
+
+		bool m_dirty = true;
 
 	};
 

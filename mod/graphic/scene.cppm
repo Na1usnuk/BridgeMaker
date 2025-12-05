@@ -24,9 +24,8 @@ namespace bm::gfx
 
 		// Optional overrides
 		virtual void onUpdate(float deltaTime) {}
-		virtual void onRender() {}
 		virtual void onImGuiRender();
-		virtual void onEvent(const Event& event) {}
+		virtual void onEvent(Event& event) {}
 
 		void addObject(Traits<Object>::Ptr obj)
 		{

@@ -42,6 +42,7 @@ public:
 	Window& getWindow() { return m_window; }
 	gfx::Context& getContext() { return m_ctx; }
 	float getFPS() const { return m_timestep.getFPS(); }
+	void setFPSLimit(unsigned short fps_limit) noexcept { m_timestep.setFPSLimit(fps_limit); }
 
 protected:
 
@@ -63,7 +64,6 @@ protected:
 	void close() noexcept { m_is_running = false; }
 	bool isOpen() const noexcept { return m_is_running; }
 
-	void setFPSLimit(unsigned short fps_limit) noexcept { m_timestep.setFPSLimit(fps_limit); }
 
 private:
 

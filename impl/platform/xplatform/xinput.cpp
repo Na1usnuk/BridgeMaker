@@ -32,12 +32,12 @@ bool Input::isReleased(Mouse button)
 	return isReleasedImpl(*s_window, static_cast<int>(button));
 }
 
-std::pair<float, float> Input::getMousePos()
+std::pair<float, float> Input::getMousePosition()
 {
 	return s_mouse_pos;
 }
 
-void Input::setMousePos(const std::pair<float, float>& pos)
+void Input::setMousePosition(const std::pair<float, float>& pos)
 {
 	s_mouse_pos = pos;
 }

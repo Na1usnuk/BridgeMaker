@@ -86,6 +86,9 @@ namespace bm
 			static bool cursor_captured = false;
 			if (ImGui::Checkbox("Capture Cursor", &cursor_captured))
 				getWindow().setCaptureCursor(cursor_captured);
+			static bool vs = getWindow().getVSync();
+			if (ImGui::Checkbox("VSync", &vs))
+				getWindow().setVSync(vs);
 			ImGui::Text("Texture slots: %d", m_renderer.getTextureSlotCount());
 
 
@@ -150,8 +153,8 @@ namespace bm
 
 	void Application::onUpdateImpl(float delta_time)
 	{
-		onUpdate(delta_time);
 		onLayersUpdate(delta_time);
+		onUpdate(delta_time);
 	}
 
 	int Application::run(int argc, char** argv)

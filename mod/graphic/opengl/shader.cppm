@@ -71,6 +71,7 @@ public:
 	void setUniform(std::string_view name, float f0, float f1, float f2);
 	void setUniform(std::string_view name, float f);
 	void setUniform(std::string_view name, int i);
+	void setUniform(std::string_view name, bool b);
 	void setUniform(std::string_view name, const glm::vec3& vec);
 	void setUniform(std::string_view name, const glm::vec4& vec);
 	void setUniform(std::string_view name, const glm::mat4& mat);
@@ -92,111 +93,111 @@ public:
 
 	static constexpr std::string_view basic_vertex = 
 	R"(
-        #version 330 core
-        layout(location = 0) in vec3 vertex_coord;
-        layout(location = 1) in vec2 texture_coord;
-		layout(location = 2) in vec3 normal_coord;
+       #version 330 core
 
-        uniform mat4 u_model;
-        uniform mat4 u_view;
-        uniform mat4 u_projection;
+	layout(location = 0) in vec3 vertex_coord;
+	layout(location = 1) in vec2 texture_coord;
+	layout(location = 2) in vec3 normal_coord;
+	layout(location = 3) in vec3 tangent_coord;  // NEW
+	
+	uniform mat4 u_model;
+	uniform mat4 u_view;
+	uniform mat4 u_projection;
+	
+	out vec2 f_texture_coord;
+	out vec3 f_frag_pos;         // world-space position
+	out mat3 f_TBN;              // TBN matrix for normal mapping
+	
+	void main()
+	{
+	    f_texture_coord = texture_coord;
+	
+	    // world-space position
+	    vec4 worldPos = u_model * vec4(vertex_coord, 1.0);
+	    f_frag_pos = worldPos.xyz;
+	
+	    // world-space normal & tangent
+	    mat3 normalMatrix = mat3(transpose(inverse(u_model)));
+	    vec3 N = normalize(normalMatrix * normal_coord);
+	    vec3 T = normalize(normalMatrix * tangent_coord);
+	    vec3 B = normalize(cross(N, T));   // bitangent
+	
+	    f_TBN = mat3(T, B, N);
+	
+	    gl_Position = u_projection * u_view * worldPos;
+	}
 
-        out vec2 f_texture_coord;
-		out vec3 f_normal_coord;
-		out vec3 f_frag_pos;
-
-		out mat4 f_model;
-
-        void main()
-        {
-            f_texture_coord = texture_coord;
-			f_normal_coord = normal_coord;
-			f_frag_pos = vec3(u_model * vec4(vertex_coord, 1.0));
-			f_model = u_model;
-
-            gl_Position = u_projection * u_view * u_model * vec4(vertex_coord, 1);
-        }
 	)";
 
 	static constexpr std::string_view basic_fragment =
 		R"(
 		#version 330 core
-		
-		out vec4 o_fragment;
-		
-		struct Material
-		{
-		    vec4 color;        // base color multiplier (RGBA)
-		    vec3 ambient;
-		    vec3 diffuse;
-		    vec3 specular;
-		    float shininess;   // 1–128
-		};
-		
-		uniform Material u_material;
-		
-		uniform sampler2D u_sampler2d;
-		
-		uniform vec3 u_light_color;
-		uniform vec3 u_light_pos;
-		uniform vec3 u_view_pos;
-		
-		in vec2 f_texture_coord;
-		in vec3 f_normal_coord;
-		in vec3 f_frag_pos;
 
-		in mat4 f_model;
-		
-		void main()
-		{
-		    // ----------------------------------------------------
-		    // NORMAL & LIGHT DIRECTION
-		    // ----------------------------------------------------
-		    vec3 norm = normalize(mat3(transpose(inverse(f_model))) * f_normal_coord);
-		    vec3 lightDir = normalize(u_light_pos - f_frag_pos);
-		
-		    // ----------------------------------------------------
-		    // AMBIENT LIGHT
-		    // ----------------------------------------------------
-		    vec3 ambient = u_material.ambient * u_light_color;
-		
-		    // ----------------------------------------------------
-		    // DIFFUSE LIGHT
-		    // ----------------------------------------------------
-		    float diff = max(dot(norm, lightDir), 0.0);
-		    vec3 diffuse = diff * u_material.diffuse * u_light_color;
-		
-		    // ----------------------------------------------------
-		    // SPECULAR LIGHT
-		    // ----------------------------------------------------
-		    vec3 viewDir = normalize(u_view_pos - f_frag_pos);
-		    vec3 reflectDir = reflect(-lightDir, norm);
-		
-		    float spec = pow(max(dot(viewDir, reflectDir), 0.0),
-		                     max(u_material.shininess, 1.0));
-		
-		    vec3 specular = spec * u_material.specular * u_light_color;
-		
-		    // ----------------------------------------------------
-		    // FINAL LIGHT
-		    // ----------------------------------------------------
-		    vec3 lightResult = ambient + diffuse + specular;
-		
-		    // ----------------------------------------------------
-		    // TEXTURE SAMPLE
-		    // ----------------------------------------------------
-		    vec4 texColor = texture(u_sampler2d, f_texture_coord);
-		
-		    // ----------------------------------------------------
-		    // FINAL OUTPUT COLOR
-		    // ----------------------------------------------------
-		    vec3 colorRGB = texColor.rgb * u_material.color.rgb * lightResult;
-		    float alpha = texColor.a * u_material.color.a;
-		
-		    o_fragment = vec4(colorRGB, alpha);
-		}
+out vec4 o_fragment;
 
-		)";
+struct Material
+{
+    vec4 color;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
+uniform Material u_material;
+
+uniform sampler2D u_sampler2d;
+uniform sampler2D u_normal_map;   // NEW
+
+uniform bool u_has_normal_map;    // NEW
+
+uniform vec3 u_light_color;
+uniform vec3 u_light_pos;
+uniform vec3 u_view_pos;
+
+in vec2 f_texture_coord;
+in vec3 f_frag_pos;
+in mat3 f_TBN;                    // TBN from vertex
+
+void main()
+{
+    // get normal
+    vec3 N;
+    if (u_has_normal_map)
+    {
+        // sample normal map in tangent space [0..1] -> [-1..1]
+        vec3 n_tangent = texture(u_normal_map, f_texture_coord).rgb;
+        n_tangent = n_tangent * 2.0 - 1.0;
+        N = normalize(f_TBN * n_tangent);  // to world space
+    }
+    else
+    {
+        // fallback: use geometric normal (TBN[2] is world-space N)
+        N = normalize(f_TBN[2]);
+    }
+
+    vec3 L = normalize(u_light_pos - f_frag_pos);
+    vec3 V = normalize(u_view_pos - f_frag_pos);
+    vec3 R = reflect(-L, N);
+
+    float diff = max(dot(N, L), 0.0);
+    float spec = pow(max(dot(V, R), 0.0), max(u_material.shininess, 1.0));
+
+    vec3 ambient  = u_material.ambient * u_light_color;
+    vec3 diffuse  = diff * u_material.diffuse * u_light_color;
+    vec3 specular = spec * u_material.specular * u_light_color;
+
+    vec4 texColor = texture(u_sampler2d, f_texture_coord);
+    vec3 baseColor = texColor.rgb * u_material.color.rgb;
+
+    vec3 colorRGB = baseColor * (ambient + diffuse) + specular;
+    float alpha = texColor.a * u_material.color.a;
+
+    o_fragment = vec4(colorRGB, alpha);
+}
+
+
+)";
 
 
 

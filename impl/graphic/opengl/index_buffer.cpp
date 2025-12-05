@@ -1,6 +1,7 @@
 module;
 
 #include "glad/glad.h"
+#include "gl_call.hpp"
 
 module bm.gfx.buffer.index;
 
