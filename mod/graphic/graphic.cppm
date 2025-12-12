@@ -1,16 +1,14 @@
-export module bm.graphic;
+export module bm.gfx;
 
-export import bm.gfx.shader;
-export import bm.gfx.buffer.index;
-export import bm.gfx.buffer.vertex;
-export import bm.gfx.vertexarray;
-export import bm.gfx.texture;
-export import bm.gfx.utility;
-export import bm.gfx.mesh;
-export import bm.gfx.material;
-export import bm.gfx.primitives;
-export import bm.gfx.scene;
-export import bm.gfx.object;
-
-export import bm.gfx.renderer;
-export import bm.gfx.screen_renderer;
+export import :utility;
+export import :buffer;
+export import :array;
+export import :shader;
+export import :texture;
+export import :mesh;
+export import :material;
+export import :scene;
+export import :renderer;
+export import :primitives;
+export import :asset_manager;
+export import :context;

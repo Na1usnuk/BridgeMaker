@@ -1,15 +1,10 @@
-module;
+export module bm.gfx:shader;
 
-#include "glm/mat4x4.hpp"
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
-
-export module bm.gfx.shader;
-
-import bm.traits;
+import bm.core;
 
 import std;
+import glm;
+
 
 namespace bm::gfx
 {

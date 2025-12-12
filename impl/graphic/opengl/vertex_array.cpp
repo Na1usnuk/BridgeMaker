@@ -1,15 +1,13 @@
-module;
+module bm.gfx:array;
 
-#include "glad/glad.h"
-#include "gl_call.hpp"
+import :utility;
+import :buffer;
+import :array;
 
-module bm.gfx.vertexarray;
+import bm.core;
 
-import bm.gfx.utility;
-import bm.log;
-import bm.gfx.buffer.vertex;
-import bm.traits;
-
+import "glad/glad.h";
+import "gl_call.hpp";
 
 namespace bm::gfx
 {
@@ -19,7 +17,7 @@ VertexArray::VertexArray()
 {
 	glCall(glGenVertexArrays, 1, &m_id);
 	bind();
-	log::core::trace("VertexArray {} created", m_id);
+	core::log::trace("VertexArray {} created", m_id);
 }
 
 VertexArray::VertexArray(Traits<VertexBuffer>::Ptr vbo) : VertexArray()
@@ -56,7 +54,7 @@ VertexArray& VertexArray::operator=(VertexArray&& oth) noexcept
 void VertexArray::destroy()
 {
 	glCall(glDeleteVertexArrays, 1, &m_id);
-	log::core::trace("VertexArray {0} deleted", m_id);
+	core::log::trace("VertexArray {0} deleted", m_id);
 }
 
 void VertexArray::setIndexBuffer(Traits<IndexBuffer>::Ptr ibo) 

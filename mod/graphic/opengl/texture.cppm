@@ -1,15 +1,13 @@
-export module bm.gfx.texture;
-
-import bm.gfx.asset;
+export module bm.gfx:texture;
 
 import std;
 
-import bm.traits;
+import bm.core;
 
 namespace bm::gfx
 {
 
-export class Texture : public Asset
+export class Texture
 {
 public:
 

@@ -1,10 +1,12 @@
 module;
 
 #define FMT_UNICODE 0
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
-module bm.log;
+module bm.core:log;
+
+import :log;
 
 import std;
 

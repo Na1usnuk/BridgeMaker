@@ -1,11 +1,8 @@
-export module bm.gfx.mesh;
+export module bm.gfx:mesh;
 
-import bm.gfx.shader;
-import bm.gfx.buffer.index;
-import bm.gfx.buffer.vertex;
-import bm.gfx.vertexarray;
+import :array;
 
-import bm.traits;
+import bm.core;
 
 import std;
 

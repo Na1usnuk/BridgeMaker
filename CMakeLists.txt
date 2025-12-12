@@ -44,59 +44,27 @@ set(BM_GRAPHIC opengl)
 
 
 if(NOT DEFINED BM_PLATFORM)
-
 	if(CMAKE_SYSTEM_NAME STREQUAL "Windows")                         #use directx + win32
-
 		set(BM_PLATFORM windows)
-		set(BM_GRAPHIC metal)
-
+		set(BM_GRAPHIC directx)
 	elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")                       #use vulcan + x11
-
 		set(BM_PLATFORM linux)
 		set(BM_GRAPHIC vulcan)
-
 	elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")                     #use vulcan + android.native_window
-
 		set(BM_PLATFORM android)
 		set(BM_GRAPHIC vulcan)
-
 	elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-
 		if(CMAKE_OSX_SYSROOT MATCHES "iphoneos|iphonesimulator") #use metal + uikit
 			set(BM_PLATFORM ios)
 		else() #MacOS                                            #use metal + cocoa
 			set(BM_PLATFORM macos)
 		endif()
-
 		set(BM_GRAPHIC metal)
-
 	else()
-
 		set(BM_PLATFORM xplatform)
 		set(BM_GRAPHIC opengl)
-
 	endif()
-
 endif() #NOT DEFINED BM_PLATFORM
-
-
-#------------------------------------------------#
-#            Compiler Flags Section              #
-#------------------------------------------------#
-
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-
-	foreach(file ${BM_MOD} ${BM_IMPL})
-		set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "-fmodules-ts" LANGUAGE CXX)
-	endforeach()
-
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-	# For cleaner output
-	add_compile_options(/nologo)
-	add_link_options(/NOLOGO)
-	#add_compile_options(/experimental:module)
-endif()
 
 
 #------------------------------------------------#
@@ -104,38 +72,40 @@ endif()
 #------------------------------------------------#
 
 
-# Module interfaces
-file(GLOB_RECURSE BM_MODULES CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/mod/*.cppm
-)
-
-# Module implementations
-file(GLOB_RECURSE BM_IMPLS CONFIGURE_DEPENDS 
-	${BridgeMaker_SOURCE_DIR}/impl/*.cpp
-)
-
-
-#------------------------------------------------#
-#                 Group Section                  #
-#------------------------------------------------#
-
-
-# Event group
-file(GLOB BM_EVENT_FILES LIST_DIRECTORIES false mod/core/events/*.cppm impl/core/events/*.cpp)
-source_group(Events FILES ${BM_EVENT_FILES})
-
-# Layer group
-file(GLOB BM_LAYER_FILES LIST_DIRECTORIES false mod/core/layers/*.cppm impl/core/layers/*.cpp)
-source_group(Layers FILES ${BM_LAYER_FILES})
+# Core group
+file(GLOB_RECURSE BM_CORE_MODS mod/core/*.cppm)
+file(GLOB_RECURSE BM_CORE_IMPLS impl/core/*.cpp)
+source_group(Core FILES ${BM_CORE_MODS} ${BM_CORE_IMPLS})
 
 # Graphic group
-file(GLOB_RECURSE BM_GL_FILES mod/graphic/*.cppm impl/graphic/*.cpp)
-source_group(Graphic FILES ${BM_GL_FILES})
+file(GLOB_RECURSE BM_GFX_MODS mod/graphic/${BM_GRAPHIC}/*.cppm 
+	mod/graphic/asset_manager.cppm
+	mod/graphic/platform.cppm
+	mod/graphic/scene.cppm
+	mod/graphic/graphic.cppm
+)
+file(GLOB_RECURSE BM_GFX_IMPLS impl/graphic/${BM_GRAPHIC}/*.cpp)
+source_group(Graphic FILES ${BM_GFX_MODS} ${BM_GFX_IMPLS})
 
 # Platform group
-file(GLOB BM_PLATFORM_FILES LIST_DIRECTORIES false mod/platform/${BM_PLATFORM}/*.cppm impl/platform/${BM_PLATFORM}/*.cpp)
-source_group(Platform FILES ${BM_PLATFORM_FILES})
+file(GLOB_RECURSE BM_PLATFORM_MODS mod/platform/${BM_PLATFORM}/*.cppm
+	mod/platform/platform.cppm
+	mod/platform/controller.cppm
+)
+file(GLOB_RECURSE BM_PLATFORM_IMPLS impl/platform/${BM_PLATFORM}/*.cpp
+	impl/platform/controller.cpp
+)
+source_group(Platform FILES ${BM_PLATFORM_MODS} ${BM_PLATFORM_IMPLS})
 
+# Audio group
+file(GLOB_RECURSE BM_AUDIO_MODS mod/audio/*.cppm)
+file(GLOB_RECURSE BM_AUDIO_IMPLS impl/audio/*.cpp)
+source_group(Audio FILES ${BM_AUDIO_MODS} ${BM_AUDIO_IMPLS})
+
+# Application group
+file(GLOB_RECURSE BM_APP_MODS mod/application/*.cppm)
+file(GLOB_RECURSE BM_APP_IMPLS impl/application/*.cpp)
+source_group(Application FILES ${BM_APP_MODS} ${BM_APP_IMPLS})
 
 
 #------------------------------------------------#
@@ -146,10 +116,29 @@ source_group(Platform FILES ${BM_PLATFORM_FILES})
 add_library(BridgeMaker)
 
 target_sources(BridgeMaker
-	PUBLIC
-	FILE_SET CXX_MODULES BASE_DIRS impl mod FILES
-		${BM_MODULES}
-		${BM_IMPLS}
+	PUBLIC 
+	FILE_SET bridge_maker TYPE CXX_MODULES BASE_DIRS mod FILES
+		mod/BridgeMaker.cppm
+	PRIVATE
+	FILE_SET core TYPE CXX_MODULES BASE_DIRS mod/core impl/core FILES
+		${BM_CORE_MODS}
+		${BM_CORE_IMPLS}
+	PRIVATE
+	FILE_SET application TYPE CXX_MODULES BASE_DIRS mod/application impl/application FILES
+		${BM_APP_MODS}
+		${BM_APP_IMPLS}
+	PRIVATE 
+	FILE_SET graphic TYPE CXX_MODULES BASE_DIRS mod/graphic impl/graphic FILES
+		${BM_GFX_MODS}
+		${BM_GFX_IMPLS}
+	PRIVATE
+	FILE_SET platform TYPE CXX_MODULES BASE_DIRS mod/platform impl/platform FILES
+		${BM_PLATFORM_MODS}
+		${BM_PLATFORM_IMPLS}
+	PRIVATE
+	FILE_SET audio TYPE CXX_MODULES BASE_DIRS mod/audio impl/audio FILES
+		${BM_AUDIO_MODS}
+		${BM_AUDIO_IMPLS}
 )
 
 
@@ -197,10 +186,27 @@ target_link_libraries(BridgeMaker
 )
 
 
-if(MSVC)
-set(CMAKE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-set_target_properties(BridgeMaker PROPERTIES
-	COMPILE_PDB_NAME "BridgeMaker"
-	COMPILE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
-)
+#------------------------------------------------#
+#            Compiler Flags Section              #
+#------------------------------------------------#
+
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+
+	foreach(file ${BM_MOD} ${BM_IMPL})
+		set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "-fmodules-ts" LANGUAGE CXX)
+	endforeach()
+
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	# For cleaner output
+	add_compile_options(/nologo)
+	add_link_options(/NOLOGO)
+	#add_compile_options(/experimental:module)
+
+	set(CMAKE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+		set_target_properties(BridgeMaker PROPERTIES
+		COMPILE_PDB_NAME "BridgeMaker"
+		COMPILE_PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+	)
 endif()
+

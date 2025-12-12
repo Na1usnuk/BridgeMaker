@@ -1,4 +1,4 @@
-export module bm.config;
+export module bm.core:config;
 import std;
 
 // ============================================================================
@@ -16,9 +16,10 @@ namespace bm::gfx
 	// ------------------------------------------------------------------------
 	export struct Version
 	{
-		short major, minor;
+		int major, minor;
 		constexpr bool operator==(const Version&) const = default;
 		constexpr auto operator<=>(const Version&) const = default;
+		constexpr operator int() const { return major * 10 + minor; }
 	};
 
 	// ------------------------------------------------------------------------
@@ -153,9 +154,9 @@ namespace bm::config
 	// ------------------------------------------------------------------------
 	// Detected Configuration (Auto-detected, do not modify)
 	// ------------------------------------------------------------------------
-	export constexpr Platform platform = detect_platform();
+	export constexpr Platform  platform   = detect_platform();
 	export constexpr BuildType build_type = detect_build_type();
-	export constexpr Compiler compiler = detect_compiler();
+	export constexpr Compiler  compiler   = detect_compiler();
 
 	// ------------------------------------------------------------------------
 	// Platform Convenience Flags

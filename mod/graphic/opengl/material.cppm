@@ -1,16 +1,12 @@
-module;
+export module bm.gfx:material;
 
-#include "glm/vec4.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec2.hpp"
+import :shader;
+import :texture;
 
-export module bm.gfx.material;
+import glm;
 
-import bm.gfx.shader;
-import bm.gfx.texture;
-import bm.assetmanager;
 
-import bm.traits;
+import bm.core;
 
 import std;
 
@@ -21,10 +17,10 @@ namespace bm::gfx
 	{
 	public:
 
-		Material() : Material(AssetManager::get().loadShader("basic")) {}
-		Material(Traits<Shader>::KSPtrRef shader) : m_shader(shader) { m_texture = AssetManager::get().loadTexture("nothing"); }
-		Material(Traits<Shader>::KSPtrRef shader, Traits<Texture>::KSPtrRef texture) : m_shader(shader), m_texture(texture) {}
-		Material(Traits<Texture>::KSPtrRef texture) : Material(AssetManager::get().loadShader("basic"), texture) {}
+		Material();
+		Material(Traits<Shader>::KSPtrRef shader);
+		Material(Traits<Shader>::KSPtrRef shader, Traits<Texture>::KSPtrRef texture);
+		Material(Traits<Texture>::KSPtrRef texture);
 		~Material() = default;
 
 		void bind()

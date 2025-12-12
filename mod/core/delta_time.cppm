@@ -1,4 +1,4 @@
-module;
+export module bm.core:time;
 
 // Include Windows multimedia timer functions for high-resolution sleep
 #ifdef _WIN32
@@ -7,9 +7,7 @@ extern "C" __declspec(dllimport) unsigned long __stdcall timeEndPeriod(unsigned 
 #pragma comment(lib, "winmm.lib")
 #endif
 
-export module bm.deltatime;
-
-import bm.log;
+import :log;
 
 import std;
 

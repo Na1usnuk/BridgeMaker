@@ -2,12 +2,13 @@ module;
 
 #include "GLFW/glfw3.h"
 
-module bm.cursor;
+module bm.platform:cursor;
+import :cursor;
+import :window;
+import :input;
 
-import bm.window;
-import bm.log;
+import bm.core;
 
-import bm.input;
 
 namespace bm 
 {
@@ -17,7 +18,7 @@ unsigned int Cursor::m_ref_count = 0;
 
 void Cursor::setCursor(Type type)
 {
-    glfwSetCursor(gfx::Context::get().getCurrent().getNativeWindow(), m_cursors[type]);
+    //glfwSetCursor(gfx::Context::get().getCurrent().getNative(), m_cursors[type]);
 }
 
 void Cursor::init()
@@ -38,7 +39,7 @@ void Cursor::init()
         { Cursor::Type::NotAllowed, glfwCreateStandardCursor(GLFW_NOT_ALLOWED_CURSOR) }
     };
 
-    log::core::info("Cursor initialized");
+    core::log::info("Cursor initialized");
 }
 
 void Cursor::destroy()
@@ -49,7 +50,7 @@ void Cursor::destroy()
         if (cursor)
             glfwDestroyCursor(cursor);
     m_cursors.clear();
-    log::core::info("Cursor destroyed");
+    core::log::info("Cursor destroyed");
 }
 
 }

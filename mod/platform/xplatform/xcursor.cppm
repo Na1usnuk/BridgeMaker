@@ -2,7 +2,7 @@ module;
 
 #include "GLFW/glfw3.h"
 
-export module bm.cursor;
+export module bm.platform:cursor;
 
 import std;
 

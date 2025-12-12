@@ -2,10 +2,9 @@ module;
 
 #include "glad/glad.h"
 
-export module bm.gfx.utility;
+export module bm.gfx:utility;
 
-import bm.config;
-import bm.log;
+import bm.core;
 import std;
 
 export import "gl_call.hpp";
@@ -42,7 +41,8 @@ namespace bm::gfx
 				auto file = std::string_view(loc.file_name());
 				auto function = std::string_view(loc.function_name());
 				auto line = loc.line();
-				::bm::log::core::fatal("OpenGL function call failed [file: {}; function: {}; line: {}] {}", file, function, line, error);
+				::bm::core::log::fatal("OpenGL function call failed [FILE: {}; FUNCTION: {}; LINE: {}] {}", file, function, line, error);
+				//::bm::debugBreak();
 				return false;
 			}
 		return true;

@@ -1,17 +1,18 @@
 module;
 
 #include "glad/glad.h"
-#include "glm/mat4x4.hpp"
-#include <glm/gtc/type_ptr.hpp>
 
 #include "gl_call.hpp"
 
-module bm.gfx.shader;
+module bm.gfx:shader;
 
+import :shader;
 
-import bm.gfx.utility;
-import bm.log;
-import bm.verify;
+import :utility;
+import bm.core;
+import glm;
+import std;
+
 
 namespace bm::gfx
 {
@@ -72,7 +73,7 @@ Shader& Shader::operator=(Shader&& oth) noexcept
 void Shader::destroy()
 {
 	glCall(glDeleteProgram, m_id);
-	log::core::trace("Shader {0} was deleted!", m_id);
+	core::log::trace("Shader {0} was deleted!", m_id);
 }
 
 void Shader::bind() const
@@ -139,7 +140,7 @@ int Shader::getUniformLocation(std::string_view name)
 		int location = glCall(glGetUniformLocation, m_id, name.data());
 		if (location == -1)
 		{
-			log::core::warning("Uniform \"{0}\" doesn`t exist!", name);
+			core::log::warning("Uniform \"{0}\" doesn`t exist!", name);
 			return -1;
 		}
 		m_cache->uniform[name.data()] = location;
@@ -160,10 +161,12 @@ unsigned int Shader::compileShader(unsigned int type, std::string_view source)
 	{
 		int l;
 		glCall(glGetShaderiv, id, GL_INFO_LOG_LENGTH, &l);
-		char* msg = (char*)alloca(l * sizeof(char));
+		//char* msg = (char*)std::alloca(l * sizeof(char));
+		char* msg = new char[l * sizeof(char)];
 		glCall(glGetShaderInfoLog, id, l, &l, msg);
-		log::core::error("Failed to compile {0} shader. {1}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), msg);
+		core::log::error("Failed to compile {0} shader. {1}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), msg);
 		glCall(glDeleteShader, id);
+		delete[] msg;
 		return 0;
 	}
 	return id;

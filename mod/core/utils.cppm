@@ -1,4 +1,4 @@
-export module bm.utility;
+export module bm.core:utility;
 
 import std;
 

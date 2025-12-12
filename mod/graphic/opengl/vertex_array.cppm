@@ -1,8 +1,8 @@
-export module bm.gfx.vertexarray;
+export module bm.gfx:array;
 
-import bm.gfx.buffer.vertex;
-import bm.gfx.buffer.index;
-import bm.traits;
+import :buffer;
+
+import bm.core;
 
 import std;
 
@@ -28,6 +28,7 @@ public:
 	void bind() const;
 	void unbind() const;
 	void destroy();
+	unsigned int getID() const { return m_id; }
 
 	std::size_t getVerticesCount() const { return m_vertices_count; }
 	Traits<VertexBuffer>::KPtrRef getVertexBuffer() const { return m_vbo; }
@@ -48,7 +49,5 @@ private:
 	Traits<IndexBuffer>::Ptr m_ibo = nullptr;
 
 };
-
-export using VertexArrayPtr = Traits<VertexArray>::Ptr;
 
 }

@@ -5,418 +5,389 @@ module;
 
 #include "gl_call.hpp"
 
-module bm.window;
+module bm.platform:window;
+import :window;
+import :input;
+import :cursor;
 
-import bm.log;
-import bm.cursor;
-import bm.input;
-import bm.verify;
-import bm.event;
-import bm.gfx.utility;
-import bm.config;
+import bm.core;
 
 namespace bm 
 {
 
-static bool s_isGLFWInitialized = false;
-
-
-Window::Window(std::string_view v, int w, int h, bool vs, bool decorated, bool visible)
-	: m_data( v, w, h, vs )
-{
-	create(decorated, visible);
-}
-
-Window::~Window()
-{
-	destroy();
-}
-
-
-void Window::destroy()
-{
-	glfwDestroyWindow(m_window);
-	m_window = nullptr;
-	Cursor::destroy();
-	log::core::trace("Window \"{0}\" is destroyed", m_data.title);
-}
-
-void onFocus(Window::NativeWindow window, int focused)
-{
-	if (focused)
+	static bool s_isGLFWInitialized = false;
+	
+	
+	Window::Window(std::string_view v, int w, int h, bool vs, bool d, bool vis, Window* shared)
+		: m_data( v, w, h, vs, d, vis )
 	{
-		Window::Data* data = static_cast<Window::Data*>(glfwGetWindowUserPointer(window));
-		Input::setCurrentWindow(data->window);
+		create(shared);
 	}
-}
-
-
-void Window::onUpdate()
-{
-	glfwPollEvents();
-}
-
-std::pair<int, int> Window::getPosition() const
-{
-	int x, y;
-	glfwGetWindowPos(m_window, &x, &y);
-	return std::pair<int, int>(x, y);
-}
-
-std::pair<int, int> Window::getFramebufferSize() const
-{
-	int w, h;
-	glfwGetFramebufferSize(m_window, &w, &h);
-	return std::pair<int, int>(w, h);
-}
-
-std::pair<int, int> Window::getSize() const
-{
-	int w, h;
-	glfwGetWindowSize(m_window, &w, &h);
-	return std::pair<int, int>(w, h);
-}
-
-std::pair<int, int> Window::getFramebufferPosition() const
-{
-	auto [x, y] = getPosition();
-	int top, left;
-	glfwGetWindowFrameSize(m_window, &left, &top, nullptr, nullptr);
-	x += left;
-	y += top;
-	return std::pair<int, int>(x, y);
-}
-
-void Window::setVSync(bool enabled)
-{
-	if (enabled)
-		glfwSwapInterval(1);
-	else
-		glfwSwapInterval(0);
-
-	m_data.vsync = enabled;
-}
-
-void Window::setTitle(std::string_view title)
-{
-	glfwSetWindowTitle(m_window, title.data());
-	m_data.title = title;
-}
-
-void Window::setIcon(Icon icon)
-{
-	glfwSetWindowIcon(m_window, 1, (GLFWimage*)&icon);
-}
-
-void Window::resize(int width, int height)
-{
-	m_data.height = height;
-	m_data.width = width;
-}
-
-void Window::hide()
-{
-	glfwHideWindow(m_window);
-}
-
-void Window::show()
-{
-	glfwShowWindow(m_window);
-}
-
-void Window::setSize(int width, int height)
-{
-	resize(width, height);
-	glfwSetWindowSize(m_window, width, height);
-}
-
-void Window::setOpacity(float opacity)
-{
-	glfwSetWindowOpacity(m_window, opacity);
-}
-
-void Window::setPosition(int x, int y)
-{
-	glfwSetWindowPos(m_window, x, y);
-}
-
-void Window::setCaptureCursor(bool value)
-{
-	if(value)
-		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	else 
-		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-}
-
-void Window::close()
-{
-	glfwSetWindowShouldClose(m_window, GLFW_TRUE);
-	m_window = nullptr;
-	destroy();
-	log::core::trace("Window \"{0}\" is closed", m_data.title);
-}
-
-bool Window::isOpen() const
-{
-	return not glfwWindowShouldClose(m_window) and (m_window != nullptr);
-}
-
-void Window::create(bool decorated, bool visible)
-{
-	log::core::trace("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
-
-	if (!s_isGLFWInitialized)
+	
+	Window::~Window()
 	{
-		auto success = glfwInit();
-		core::verify(success, "Failed to initialize GLFW");
-		log::core::info("GLFW initialized");
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		s_isGLFWInitialized = true;
+		if(m_window != nullptr)
+			destroy();
+	}
+	
+	Window::Window(Window&& oth) noexcept
+		: m_data(std::move(oth.m_data)),
+		m_window(std::exchange(oth.m_window, nullptr))
+	{
 	}
 
-	glfwWindowHint(GLFW_DECORATED, decorated ? GLFW_TRUE : GLFW_FALSE);
-	glfwWindowHint(GLFW_VISIBLE, visible ? GLFW_TRUE : GLFW_FALSE);
-
-
-	constexpr auto find_version_index = []() constexpr
-		{
-			for (int i = 0; i < gfx::versions.size(); ++i)
-				if (::bm::gfx::versions[i] == config::gfx::target_version)
-					return i;
-			return -1;
-		};
-
-	constexpr int version_index = find_version_index();
-	static_assert(version_index != -1, "Wrong OpenGL target_version specified");
-
-	for (int i = version_index; i < gfx::versions.size(); ++i)
+	Window& Window::operator=(Window&& oth) noexcept
 	{
-		auto [major, minor] = gfx::versions[i];
-
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
-
-		m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, gfx::Context::get().shareContext());
-
-		if (m_window != nullptr)
+		if (this != &oth)
 		{
-			log::core::trace("Successfully created window {} with OpenGL version {}.{}", m_data.title, major, minor);
-			gfx::Context::get().setVersion(major * 10 + minor);
-			break;
+			if (m_window != nullptr)
+				destroy();
+			m_window = std::exchange(oth.m_window, nullptr);
+			m_data = std::move(oth.m_data);
 		}
-		log::core::warning("Unable to create window with context version {}.{}", major, minor);
+		return *this;
 	}
-	core::verify(m_window, "Failed to create window");
-
-	m_data.window = this;
-
-	gfx::Context::get().setCurrent(*this);
-	gfx::Context::get().init();
-	Cursor::init();
-	setVSync(m_data.vsync);
-	setGLFWPointer();
-	setAllCallbacks();
-	onFocus(m_window, GLFW_TRUE);
-}
-
-void Window::setGLFWPointer()
-{
-	glfwSetWindowUserPointer(m_window, &m_data);
-}
-
-void Window::setKeyCallback()
-{
-	glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+	
+	void Window::destroy()
+	{
+		glfwDestroyWindow(m_window);
+		m_window = nullptr;
+		Cursor::destroy();
+		core::log::trace("Window \"{0}\" is destroyed", m_data.title);
+	}
+	
+	void onFocus(Window::NativeWindow window, int focused)
+	{
+		if (focused)
 		{
-			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+			Window::Data* data = static_cast<Window::Data*>(glfwGetWindowUserPointer(window));
+			Input::setCurrentWindow(data->window);
+		}
+	}
+	
+	void Window::onUpdate()
+	{
+		glfwPollEvents();
+	}
+	
+	std::pair<int, int> Window::getPosition() const
+	{
+		int x, y;
+		glfwGetWindowPos(m_window, &x, &y);
+		return std::pair<int, int>(x, y);
+	}
+	
+	std::pair<int, int> Window::getFramebufferSize() const
+	{
+		int w, h;
+		glfwGetFramebufferSize(m_window, &w, &h);
+		return std::pair<int, int>(w, h);
+	}
+	
+	std::pair<int, int> Window::getSize() const
+	{
+		int w, h;
+		glfwGetWindowSize(m_window, &w, &h);
+		return std::pair<int, int>(w, h);
+	}
+	
+	std::pair<int, int> Window::getFramebufferPosition() const
+	{
+		auto [x, y] = getPosition();
+		int top, left;
+		glfwGetWindowFrameSize(m_window, &left, &top, nullptr, nullptr);
+		x += left;
+		y += top;
+		return std::pair<int, int>(x, y);
+	}
+	
+	void Window::setVSync(bool enabled)
+	{
+		if (enabled)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
+	
+		m_data.vsync = enabled;
+	}
+	
+	void Window::setTitle(std::string_view title)
+	{
+		glfwSetWindowTitle(m_window, title.data());
+		m_data.title = title;
+	}
+	
+	void Window::setIcon(Icon icon)
+	{
+		glfwSetWindowIcon(m_window, 1, (GLFWimage*)&icon);
+	}
+	
+	void Window::resize(int width, int height)
+	{
+		m_data.height = height;
+		m_data.width = width;
+	}
+	
+	void Window::hide()
+	{
+		glfwHideWindow(m_window);
+	}
+	
+	void Window::show()
+	{
+		glfwShowWindow(m_window);
+	}
+	
+	void Window::setSize(int width, int height)
+	{
+		resize(width, height);
+		glfwSetWindowSize(m_window, width, height);
+	}
+	
+	void Window::setOpacity(float opacity)
+	{
+		glfwSetWindowOpacity(m_window, opacity);
+	}
+	
+	void Window::setPosition(int x, int y)
+	{
+		glfwSetWindowPos(m_window, x, y);
+	}
+	
+	void Window::setCaptureCursor(bool value)
+	{
+		if(value)
+			glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		else 
+			glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	
+	void Window::close()
+	{
+		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+		m_window = nullptr;
+		destroy();
+		core::log::trace("Window \"{0}\" is closed", m_data.title);
+	}
+	
+	bool Window::isOpen() const
+	{
+		return not glfwWindowShouldClose(m_window) and (m_window != nullptr);
+	}
+	
+	void Window::create(Window* shared)
+	{
+		core::log::trace("Creating Window \"{0}\" {1}x{2}", m_data.title, m_data.width, m_data.height);
+	
+		if (!s_isGLFWInitialized)
+		{
+			auto success = glfwInit();
+			core::verify(success, "Failed to initialize GLFW");
+			core::log::info("GLFW initialized");
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			s_isGLFWInitialized = true;
+		}
+	
+		glfwWindowHint(GLFW_DECORATED, m_data.decorated ? GLFW_TRUE : GLFW_FALSE);
+		glfwWindowHint(GLFW_VISIBLE, m_data.visible ? GLFW_TRUE : GLFW_FALSE);
+	
+	
+		constexpr auto find_version_index = []() constexpr
+			{
+				for (std::size_t i = 0; i < gfx::versions.size(); ++i)
+					if (::bm::gfx::versions[i] == config::gfx::target_version)
+						return i;
+				return gfx::versions.size();
+			};
+	
+		constexpr int version_index = find_version_index();
+		static_assert(version_index != gfx::versions.size(), "Wrong OpenGL target_version specified");
 
-			switch (action)
+		GLFWwindow* shared_context = nullptr;
+		if (shared != nullptr)
+			shared_context = shared->getNative();
+	
+		for (int i = version_index; i < gfx::versions.size(); ++i)
+		{
+			auto [major, minor] = gfx::versions[i];
+	
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
+	
+			m_window = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, shared_context);
+	
+			if (m_window != nullptr)
 			{
-			case GLFW_PRESS:
-			{
-				KeyPressEvent e(key, 0);
-				data->callback(e);
-				data->last_key.key = key;
-				data->last_key.repeat_count = 0;
-				return;
+				core::log::trace("Successfully created window {} with OpenGL version {}.{}", m_data.title, major, minor);
+				break;
 			}
-			case GLFW_RELEASE:
+			core::log::warning("Unable to create window with context version {}.{}", major, minor);
+		}
+		core::verify(m_window, "Failed to create window");
+	
+		m_data.window = this;
+	
+		Cursor::init();
+		setVSync(m_data.vsync);
+		setGLFWPointer();
+		setAllCallbacks();
+		onFocus(m_window, GLFW_TRUE);
+	}
+	
+	void Window::setGLFWPointer()
+	{
+		glfwSetWindowUserPointer(m_window, &m_data);
+	}
+	
+	void Window::setKeyCallback()
+	{
+		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
-				KeyReleaseEvent e(key);
-				data->callback(e);
-				if (key == data->last_key.key)
-					data->last_key.repeat_count = 0;
-				return;
-			}
-			case GLFW_REPEAT:
-			{
-				if (key == data->last_key.key)
+				Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+				auto k = static_cast<Input::Key>(key);
+	
+				switch (action)
 				{
-					data->last_key.repeat_count++;
-					KeyPressEvent e(key, data->last_key.repeat_count);
+				case GLFW_PRESS:
+				{
+					event::KeyPress e(k, 0);
 					data->callback(e);
+					data->last_key.key = key;
+					data->last_key.repeat_count = 0;
+					return;
 				}
-				return;
-			}
-			}
-		});
-}
+				case GLFW_RELEASE:
+				{
+					event::KeyRelease e(k);
+					data->callback(e);
+					if (key == data->last_key.key)
+						data->last_key.repeat_count = 0;
+					return;
+				}
+				case GLFW_REPEAT:
+				{
+					if (key == data->last_key.key)
+					{
+						data->last_key.repeat_count++;
+						event::KeyPress e(k, data->last_key.repeat_count);
+						data->callback(e);
+					}
+					return;
+				}
+				}
+			});
+	}
+	
+	void Window::setMouseButtonCallback()
+	{
+		glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods)
+			{
+				Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+				auto b = static_cast<Input::Mouse>(button);
 
-void Window::setMuoseButtonCallback()
-{
-	glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods)
-		{
-			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-			switch (action)
+				switch (action)
+				{
+				case GLFW_PRESS:
+				{
+					event::MouseButtonPress e(b);
+					data->callback(e);
+					return;
+				}
+				case GLFW_RELEASE:
+				{
+					event::MouseButtonRelease e(b);
+					data->callback(e);
+					return;
+				}
+				}
+			});
+	}
+	
+	void Window::setResizeCallback()
+	{
+		glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
 			{
-			case GLFW_PRESS:
-			{
-				MouseButtonPressEvent e(button);
+				Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+				event::WindowResize e(width, height);
+				data->window->resize(width, height);
 				data->callback(e);
-				return;
-			}
-			case GLFW_RELEASE:
+			});
+	}
+	
+	void Window::setMouseScrollCallback()
+	{
+		glfwSetScrollCallback(m_window, [](GLFWwindow* window, double offset_x, double offset_y) 
 			{
-				MouseButtonReleaseEvent e(button);
+				Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+				event::MouseScroll e(offset_x, offset_y);
 				data->callback(e);
-				return;
-			}
-			}
-		});
-}
+			});
+	}
+	
+	
+	void Window::setAllCallbacks()
+	{
+		setKeyCallback();
+		setMouseButtonCallback();
+		setCloseCallback();
+		setResizeCallback();
+		setPosCallback();
+		setMouseMoveCallback();
+		setWindowFocusCallback();
+		setMouseScrollCallback();
+	}
+	
+	void Window::setMouseMoveCallback()
+	{
+		glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double x, double y)
+			{
+				Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+				event::MouseMove e(x, y);
+				Input::setMousePosition({ (float)x, (float)y });
+				data->callback(e);
+			});
+	}
+	
+	void Window::setWindowFocusCallback()
+	{
+		glfwSetWindowFocusCallback(m_window, &onFocus);
+	}
+	
+	void Window::setPosCallback()
+	{
+		glfwSetWindowPosCallback(m_window, [](GLFWwindow* window, int x, int y)
+			{
+				Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+				event::WindowMove e(x, y);
+				data->callback(e);
+			});
+	}
+	
+	void Window::setCloseCallback()
+	{
+		glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window)
+			{
+				Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
+				event::WindowClose e(data->window);
+				data->callback(e);
+			});
+	}
 
-void Window::setResizeCallback()
-{
-	glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
+	namespace event
+	{
+		std::string WindowMove::toString() const
 		{
-			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-			WindowResizeEvent e(width, height);
-			data->window->resize(width, height);
-			data->callback(e);
-		});
-}
+			std::stringstream ss;
+			ss << "WindowMove: " << m_x << ", " << m_y;
+			return ss.str();
+		}
 
-void Window::setMouseScrollCallback()
-{
-	glfwSetScrollCallback(m_window, [](GLFWwindow* window, double offset_x, double offset_y) 
+		std::string WindowResize::toString() const
 		{
-			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-			MouseScrollEvent e(offset_x, offset_y);
-			data->callback(e);
-		});
-}
-
-
-void Window::setAllCallbacks()
-{
-	setKeyCallback();
-	setMuoseButtonCallback();
-	setCloseCallback();
-	setResizeCallback();
-	setPosCallback();
-	setMouseMoveCallback();
-	setWindowFocusCallback();
-	setMouseScrollCallback();
-}
-
-void Window::setMouseMoveCallback()
-{
-	glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double x, double y)
-		{
-			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-			MouseMoveEvent e(x, y);
-			Input::setMousePosition({ (float)x, (float)y });
-			data->callback(e);
-		});
-}
-
-void Window::setWindowFocusCallback()
-{
-	glfwSetWindowFocusCallback(m_window, &onFocus);
-}
-
-void Window::setPosCallback()
-{
-	glfwSetWindowPosCallback(m_window, [](GLFWwindow* window, int x, int y)
-		{
-			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-			WindowMoveEvent e(x, y);
-			data->callback(e);
-		});
-}
-
-void Window::setCloseCallback()
-{
-	glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window)
-		{
-			Data* data = static_cast<Data*>(glfwGetWindowUserPointer(window));
-			WindowCloseEvent e;
-			data->callback(e);
-		});
-}
-
-
-namespace gfx
-{
-
-	Context Context::s_ctx_inst{};
-
-
-	Context& Context::get()
-	{
-		return s_ctx_inst;
+			std::stringstream ss;
+			ss << "WindowResize: " << m_width << ", " << m_heigth;
+			return ss.str();
+		}
 	}
-
-	//initialize Glad context
-	void Context::init()
-	{
-		auto status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		core::verify(status, "Failed to initialize Glad");
-		log::core::info("Glad initialized");
-
-		const char* renderer = reinterpret_cast<const char*>(glCall(glGetString, GL_RENDERER));
-		const char* vendor = reinterpret_cast<const char*>(glCall(glGetString, GL_VENDOR));
-		const char* version = reinterpret_cast<const char*>(glCall(glGetString, GL_VERSION));
-		const char* glsl_version = reinterpret_cast<const char*>(glCall(glGetString, GL_SHADING_LANGUAGE_VERSION));
-
-		log::core::info("Renderer: {}", renderer);
-		log::core::info("Vendor: {}", vendor);
-		log::core::info("OpenGL version: {}", version);
-		log::core::info("GLSL version: {}", glsl_version);
-
-	}
-
-	void Context::setCurrent(Window& window)
-	{
-		m_window = &window;
-		glfwMakeContextCurrent(m_window->getNativeWindow());
-	}
-
-	Window& Context::getCurrent() const
-	{
-		core::verify(m_window != nullptr, "Current context is invalid");
-		return *m_window;
-	}
-
-	void Context::destroy()
-	{
-		glfwTerminate();
-	}
-
-	void Context::swapBuffers()
-	{
-		core::verify(m_window != nullptr, "Current context is invalid");
-		glfwSwapBuffers(m_window->getNativeWindow());
-	}
-
-	//share context with other windows
-	Window::NativeWindow Context::shareContext()
-	{
-		if (m_window != nullptr)
-			return m_window->getNativeWindow();
-		return nullptr;
-	}
-
-}
 
 }

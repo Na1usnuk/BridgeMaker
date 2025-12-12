@@ -5,13 +5,14 @@ module;
 
 #include "gl_call.hpp"
 
-module bm.gfx.texture;
+module bm.gfx:texture;
+
+import :texture;
 
 import std;
 
-import bm.verify;
-import bm.log;
-import bm.gfx.utility;
+import bm.core;
+import :utility;
 
 namespace bm::gfx
 {
