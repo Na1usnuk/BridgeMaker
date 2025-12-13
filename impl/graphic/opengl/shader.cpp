@@ -2,7 +2,7 @@ module;
 
 #include "glad/glad.h"
 
-#include "gl_call.hpp"
+#define GL_CALL(func, ...) glCallImpl( std::source_location::current(), func, __VA_ARGS__)
 
 module bm.gfx:shader;
 
@@ -72,63 +72,63 @@ Shader& Shader::operator=(Shader&& oth) noexcept
 
 void Shader::destroy()
 {
-	glCall(glDeleteProgram, m_id);
+	GL_CALL(glDeleteProgram, m_id);
 	core::log::trace("Shader {0} was deleted!", m_id);
 }
 
 void Shader::bind() const
 {
-	glCall(glUseProgram, m_id);
+	GL_CALL(glUseProgram, m_id);
 }
 
 void Shader::unbind() const
 {
-	glCall(glUseProgram, 0);
+	GL_CALL(glUseProgram, 0);
 }
 
 void Shader::setUniform(std::string_view name, float f0, float f1, float f2, float f3)
 {
-	glCall(glUniform4f, getUniformLocation(name), f0, f1, f2, f3);
+	GL_CALL(glUniform4f, getUniformLocation(name), f0, f1, f2, f3);
 }
 
 void Shader::setUniform(std::string_view name, float f0, float f1, float f2)
 {
-	glCall(glUniform3f, getUniformLocation(name), f0, f1, f2);
+	GL_CALL(glUniform3f, getUniformLocation(name), f0, f1, f2);
 }
 
 void Shader::setUniform(std::string_view name, float f)
 {
-	glCall(glUniform1f, getUniformLocation(name), f);
+	GL_CALL(glUniform1f, getUniformLocation(name), f);
 }
 
 void Shader::setUniform(std::string_view name, int i)
 {
-	glCall(glUniform1i, getUniformLocation(name), i);
+	GL_CALL(glUniform1i, getUniformLocation(name), i);
 }
 
 void Shader::setUniform(std::string_view name, const glm::mat4& mat)
 {
-	glCall(glUniformMatrix4fv, getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+	GL_CALL(glUniformMatrix4fv, getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
 }
 
 void Shader::setUniform(std::string_view name, const glm::vec3& vec)
 {
-	glCall(glUniform3fv, getUniformLocation(name), 1, glm::value_ptr(vec));
+	GL_CALL(glUniform3fv, getUniformLocation(name), 1, glm::value_ptr(vec));
 }
 
 void Shader::setUniform(std::string_view name, const glm::vec4& vec)
 {
-	glCall(glUniform4fv, getUniformLocation(name), 1, glm::value_ptr(vec));
+	GL_CALL(glUniform4fv, getUniformLocation(name), 1, glm::value_ptr(vec));
 }
 
 void Shader::setUniform(std::string_view name, const int* values, std::size_t count)
 {
-	glCall(glUniform1iv, getUniformLocation(name), static_cast<int>(count), values);
+	GL_CALL(glUniform1iv, getUniformLocation(name), static_cast<int>(count), values);
 }
 
 void Shader::setUniform(std::string_view name, bool b)
 {
-	glCall(glUniform1i, getUniformLocation(name), b ? 1 : 0);
+	GL_CALL(glUniform1i, getUniformLocation(name), b ? 1 : 0);
 }
 
 int Shader::getUniformLocation(std::string_view name)
@@ -137,7 +137,7 @@ int Shader::getUniformLocation(std::string_view name)
 		return m_cache->uniform[name.data()];
 	else
 	{
-		int location = glCall(glGetUniformLocation, m_id, name.data());
+		int location = GL_CALL(glGetUniformLocation, m_id, name.data());
 		if (location == -1)
 		{
 			core::log::warning("Uniform \"{0}\" doesn`t exist!", name);
@@ -150,22 +150,22 @@ int Shader::getUniformLocation(std::string_view name)
 
 unsigned int Shader::compileShader(unsigned int type, std::string_view source)
 {
-	unsigned int id = glCall(glCreateShader, type);
+	unsigned int id = GL_CALL(glCreateShader, type);
 	const char* src = source.data();
-	glCall(glShaderSource, id, 1, &src, nullptr);
-	glCall(glCompileShader, id);
+	GL_CALL(glShaderSource, id, 1, &src, nullptr);
+	GL_CALL(glCompileShader, id);
 
 	int result;
-	glCall(glGetShaderiv, id, GL_COMPILE_STATUS, &result);
+	GL_CALL(glGetShaderiv, id, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE)
 	{
 		int l;
-		glCall(glGetShaderiv, id, GL_INFO_LOG_LENGTH, &l);
+		GL_CALL(glGetShaderiv, id, GL_INFO_LOG_LENGTH, &l);
 		//char* msg = (char*)std::alloca(l * sizeof(char));
 		char* msg = new char[l * sizeof(char)];
-		glCall(glGetShaderInfoLog, id, l, &l, msg);
+		GL_CALL(glGetShaderInfoLog, id, l, &l, msg);
 		core::log::error("Failed to compile {0} shader. {1}", (type == GL_VERTEX_SHADER ? "vertex" : "fragment"), msg);
-		glCall(glDeleteShader, id);
+		GL_CALL(glDeleteShader, id);
 		delete[] msg;
 		return 0;
 	}
@@ -178,13 +178,13 @@ unsigned int Shader::createProgram(std::string_view vertexShader, std::string_vi
 	unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
 	unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-	glCall(glAttachShader, prog, vs);
-	glCall(glAttachShader, prog, fs);
-	glCall(glLinkProgram, prog);
-	glCall(glValidateProgram, prog);
+	GL_CALL(glAttachShader, prog, vs);
+	GL_CALL(glAttachShader, prog, fs);
+	GL_CALL(glLinkProgram, prog);
+	GL_CALL(glValidateProgram, prog);
 
-	glCall(glDeleteShader, vs);
-	glCall(glDeleteShader, fs);
+	GL_CALL(glDeleteShader, vs);
+	GL_CALL(glDeleteShader, fs);
 
 	return prog;
 }

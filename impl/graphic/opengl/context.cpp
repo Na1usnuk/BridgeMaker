@@ -1,12 +1,18 @@
+module;
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#define GL_CALL(func, ...) glCallImpl( std::source_location::current(), func, __VA_ARGS__)
+
 module bm.gfx:context;
+
+import std;
+
 import :context;
 import :utility;
 
 import bm.platform;
-
-import <glad/glad.h>;
-import <GLFW/glfw3.h>;
-import <gl_call.hpp>;
 
 namespace bm::gfx
 {
@@ -66,18 +72,18 @@ namespace bm::gfx
 	{
 		int major, minor;
 
-		glCall(glGetIntegerv, GL_MAJOR_VERSION, &major);
-		glCall(glGetIntegerv, GL_MINOR_VERSION, &minor);
+		GL_CALL(glGetIntegerv, GL_MAJOR_VERSION, &major);
+		GL_CALL(glGetIntegerv, GL_MINOR_VERSION, &minor);
 
 		m_gl_version = { major, minor };
 	}
 
 	void Context::infoPrint()
 	{
-		const char* renderer = reinterpret_cast<const char*>(glCall(glGetString, GL_RENDERER));
-		const char* vendor = reinterpret_cast<const char*>(glCall(glGetString, GL_VENDOR));
-		const char* version = reinterpret_cast<const char*>(glCall(glGetString, GL_VERSION));
-		const char* glsl_version = reinterpret_cast<const char*>(glCall(glGetString, GL_SHADING_LANGUAGE_VERSION));
+		const char* renderer = reinterpret_cast<const char*>(GL_CALL(glGetString, GL_RENDERER));
+		const char* vendor = reinterpret_cast<const char*>(GL_CALL(glGetString, GL_VENDOR));
+		const char* version = reinterpret_cast<const char*>(GL_CALL(glGetString, GL_VERSION));
+		const char* glsl_version = reinterpret_cast<const char*>(GL_CALL(glGetString, GL_SHADING_LANGUAGE_VERSION));
 
 		core::log::info("Renderer: {}", renderer);
 		core::log::info("Vendor: {}", vendor);

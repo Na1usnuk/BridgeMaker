@@ -1,3 +1,9 @@
+module;
+
+#include <glad/glad.h>
+
+#define GL_CALL(func, ...) glCallImpl( std::source_location::current(), func, __VA_ARGS__)
+
 module bm.gfx:buffer;
 
 import :utility;
@@ -6,10 +12,6 @@ import :shader;
 import :context;
 
 import bm.core;
-import bm.platform;
-
-import <glad/glad.h>;
-import <gl_call.hpp>;
 
 namespace bm::gfx
 {
@@ -148,7 +150,7 @@ namespace bm::gfx
 		// OpenGL 3.3 
 		else
 		{
-			glCall(glGenBuffers, 1, &m_id);
+			GL_CALL(glGenBuffers, 1, &m_id);
 			bind();
 
 			GLenum gl_usage;
@@ -160,7 +162,7 @@ namespace bm::gfx
 			case Usage::Stream:  gl_usage = GL_STREAM_DRAW; break;
 			}
 
-			glCall(glBufferData, GL_ARRAY_BUFFER, size, data, gl_usage);
+			GL_CALL(glBufferData, GL_ARRAY_BUFFER, size, data, gl_usage);
 		}
 		core::log::trace("VertexBuffer {} created", m_id);
 	}
@@ -201,36 +203,36 @@ namespace bm::gfx
 		const auto gl_version = Context::getCurrent().getVersion();
 
 		if (gl_version >= 45)
-			glCall(glNamedBufferSubData, m_id, offset, size, data);
+			GL_CALL(glNamedBufferSubData, m_id, offset, size, data);
 		else
 		{
 			bind();
-			glCall(glBufferSubData, GL_ARRAY_BUFFER, offset, size, data);
+			GL_CALL(glBufferSubData, GL_ARRAY_BUFFER, offset, size, data);
 		}
 	}
 
 	void VertexBuffer::destroy()
 	{
-		glCall(glDeleteBuffers, 1, &m_id);
+		GL_CALL(glDeleteBuffers, 1, &m_id);
 		core::log::trace("VertexBuffer {} destroyed", m_id);
 	}
 
 	void VertexBuffer::bind() const
 	{
-		glCall(glBindBuffer, GL_ARRAY_BUFFER, m_id);
+		GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_id);
 	}
 
 	void VertexBuffer::unbind()
 	{
-		glCall(glBindBuffer, GL_ARRAY_BUFFER, 0);
+		GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 	}
 
 	IndexBuffer::IndexBuffer(const unsigned int* data, std::size_t count)
 		: m_count(count)
 	{
 		int gfx_version = Context::getCurrent().getVersion();
-		glCall(glCreateBuffers, 1, &m_id);
-		glCall(glNamedBufferData, m_id, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+		GL_CALL(glCreateBuffers, 1, &m_id);
+		GL_CALL(glNamedBufferData, m_id, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
 		core::log::trace("IndexBuffer {} created", m_id);
 	}
 
@@ -259,24 +261,24 @@ namespace bm::gfx
 
 	void IndexBuffer::destroy()
 	{
-		glCall(glDeleteBuffers, 1, &m_id);
+		GL_CALL(glDeleteBuffers, 1, &m_id);
 		core::log::trace("IndexBuffer {} destroyed", m_id);
 	}
 
 	void IndexBuffer::bind() const
 	{
-		glCall(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_id);
+		GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_id);
 	}
 
 	void IndexBuffer::unbind() const
 	{
-		glCall(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
+		GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	void IndexBuffer::setData(const unsigned int* data, std::size_t count, std::size_t offset)
 	{
-		glCall(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_id);
-		glCall(glBufferSubData, GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(unsigned int), count * sizeof(unsigned int), data);
+		GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_id);
+		GL_CALL(glBufferSubData, GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(unsigned int), count * sizeof(unsigned int), data);
 	}
 
 }

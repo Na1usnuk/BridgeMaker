@@ -1,7 +1,8 @@
 module;
 
 #include "glad/glad.h"
-#include "gl_call.hpp"
+
+#define GL_CALL(func, ...) glCallImpl( std::source_location::current(), func, __VA_ARGS__)
 
 module bm.gfx:renderer;
 import :renderer;
@@ -12,16 +13,14 @@ import :array;
 import :shader;
 import :asset_manager;
 
-
 import std;
-
 
 namespace bm::gfx
 {
 	
 	Renderer::Renderer()
 	{
-		glCall(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
+		GL_CALL(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
 		m_state_cache.bound_textures.resize(m_state_cache.texture_slot_count, -1);
 	
 		//glEnable(GL_CULL_FACE);
@@ -38,7 +37,7 @@ namespace bm::gfx
 	
 		if(viewport != current_viewport)
 		{
-			glCall(glViewport, viewport[0], viewport[1], viewport[2], viewport[3]);
+			GL_CALL(glViewport, viewport[0], viewport[1], viewport[2], viewport[3]);
 			current_viewport = viewport;
 		}
 	}
@@ -49,7 +48,7 @@ namespace bm::gfx
 	
 		if (rgba != current_color)
 		{
-			glCall(glClearColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+			GL_CALL(glClearColor, rgba[0], rgba[1], rgba[2], rgba[3]);
 			current_color = rgba;
 		}
 	}
@@ -60,9 +59,9 @@ namespace bm::gfx
 			return;
 	
 		if (value)
-			glCall(glEnable, GL_DEPTH_TEST);
+			GL_CALL(glEnable, GL_DEPTH_TEST);
 		else
-			glCall(glDisable, GL_DEPTH_TEST);
+			GL_CALL(glDisable, GL_DEPTH_TEST);
 	
 		m_state_cache.depth_test = value;
 	}
@@ -72,7 +71,7 @@ namespace bm::gfx
 		if (m_state_cache.depth_test_func == func)
 			return;
 	
-		glCall(glDepthFunc, static_cast<int>(func));
+		GL_CALL(glDepthFunc, static_cast<int>(func));
 	
 		m_state_cache.depth_test_func = func;
 	}
@@ -88,9 +87,9 @@ namespace bm::gfx
 			return;
 	
 		if (value)
-			glCall(glEnable, GL_BLEND);
+			GL_CALL(glEnable, GL_BLEND);
 		else
-			glCall(glDisable, GL_BLEND);
+			GL_CALL(glDisable, GL_BLEND);
 	
 		m_state_cache.blend = value;
 	}
@@ -100,7 +99,7 @@ namespace bm::gfx
 		//if (m_state_cache.blend_func == func)
 		//	return;
 	
-		glCall(glBlendFunc, static_cast<int>(src), static_cast<int>(func));
+		GL_CALL(glBlendFunc, static_cast<int>(src), static_cast<int>(func));
 	}
 	
 	void Renderer::setBackgroundColor(const RGB_t& rgb)
@@ -110,7 +109,7 @@ namespace bm::gfx
 	
 	void Renderer::clear()
 	{
-		glCall(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
 	void Renderer::clearColor(const RGBA_t& rgba)
@@ -130,7 +129,7 @@ namespace bm::gfx
 	
 		if(current_mode != mode)
 		{
-			glCall(glPolygonMode, GL_FRONT_AND_BACK, static_cast<unsigned int>(mode));
+			GL_CALL(glPolygonMode, GL_FRONT_AND_BACK, static_cast<unsigned int>(mode));
 			current_mode = mode;
 		}
 	}
@@ -142,9 +141,9 @@ namespace bm::gfx
 		vao->bind();
 	
 		if(vao->getIndexBuffer() != nullptr) [[likely]]
-			glCall(glDrawElements, static_cast<int>(draw_as), vao->getIndexBuffer()->count(), GL_UNSIGNED_INT, nullptr);
+			GL_CALL(glDrawElements, static_cast<int>(draw_as), vao->getIndexBuffer()->count(), GL_UNSIGNED_INT, nullptr);
 		else
-			glCall(glDrawArrays, static_cast<int>(draw_as), 0, vao->getVerticesCount());
+			GL_CALL(glDrawArrays, static_cast<int>(draw_as), 0, vao->getVerticesCount());
 	}
 	
 	
@@ -446,7 +445,7 @@ namespace bm::gfx
 		m_data.shader->setUniform("u_projection", m_camera->getProjection());
 
 		m_data.vao->getVertexBuffer()->setData(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
-		glCall(glDrawElements, GL_TRIANGLES, m_data.quad_count * 6, GL_UNSIGNED_INT, nullptr);
+		GL_CALL(glDrawElements, GL_TRIANGLES, m_data.quad_count * 6, GL_UNSIGNED_INT, nullptr);
 		m_data.quad_count = 0;
 		m_data.texture_slot_index = 1;
 	}

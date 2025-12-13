@@ -185,6 +185,10 @@ target_link_libraries(BridgeMaker
 		tiny_obj_loader
 )
 
+if(WIN32)
+	target_link_libraries(BridgeMaker PUBLIC ws2_32)
+endif()
+
 
 #------------------------------------------------#
 #            Compiler Flags Section              #

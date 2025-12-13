@@ -1,3 +1,9 @@
+module;
+
+#include "glad/glad.h"
+
+#define GL_CALL(func, ...) glCallImpl( std::source_location::current(), func, __VA_ARGS__)
+
 module bm.gfx:array;
 
 import :utility;
@@ -6,16 +12,13 @@ import :array;
 
 import bm.core;
 
-import "glad/glad.h";
-import "gl_call.hpp";
-
 namespace bm::gfx
 {
 
 VertexArray::VertexArray()
 	: m_id(0), m_vertices_count(0)
 {
-	glCall(glGenVertexArrays, 1, &m_id);
+	GL_CALL(glGenVertexArrays, 1, &m_id);
 	bind();
 	core::log::trace("VertexArray {} created", m_id);
 }
@@ -53,14 +56,14 @@ VertexArray& VertexArray::operator=(VertexArray&& oth) noexcept
 
 void VertexArray::destroy()
 {
-	glCall(glDeleteVertexArrays, 1, &m_id);
+	GL_CALL(glDeleteVertexArrays, 1, &m_id);
 	core::log::trace("VertexArray {0} deleted", m_id);
 }
 
 void VertexArray::setIndexBuffer(Traits<IndexBuffer>::Ptr ibo) 
 { 
 	m_ibo = std::move(ibo); 
-	glCall(glVertexArrayElementBuffer, m_id, m_ibo->id());
+	GL_CALL(glVertexArrayElementBuffer, m_id, m_ibo->id());
 }
 
 void VertexArray::setVertexBuffer(Traits<VertexBuffer>::Ptr vbo)
@@ -77,8 +80,8 @@ void VertexArray::setVertexBuffer(Traits<VertexBuffer>::Ptr vbo)
 	for (unsigned int i = 0; i < elements.size(); ++i)
 	{
 		const auto& element = elements[i];
-		glCall(glEnableVertexAttribArray, m_attrib_index);
-		glCall(glVertexAttribPointer, m_attrib_index, element.count, element.gl_type, element.normalized, m_vbo->getLayout().stride(), (const void*)offset);
+		GL_CALL(glEnableVertexAttribArray, m_attrib_index);
+		GL_CALL(glVertexAttribPointer, m_attrib_index, element.count, element.gl_type, element.normalized, m_vbo->getLayout().stride(), (const void*)offset);
 		offset += element.size;
 		++m_attrib_index;
 	}
@@ -86,12 +89,12 @@ void VertexArray::setVertexBuffer(Traits<VertexBuffer>::Ptr vbo)
 
 void VertexArray::bind() const
 {
-	glCall(glBindVertexArray, m_id);
+	GL_CALL(glBindVertexArray, m_id);
 }
 
 void VertexArray::unbind() const
 {
-	glCall(glBindVertexArray, 0);
+	GL_CALL(glBindVertexArray, 0);
 }
 
 }
