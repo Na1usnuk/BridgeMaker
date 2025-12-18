@@ -2,92 +2,127 @@ export module bm.gfx:primitives;
 
 import :buffer;
 import :array;
-import :shader;
-import :mesh;
-import :material;
-import :scene;
-
-
-
-import std;
-
+import :object;
 
 namespace bm::gfx
 {
 
-export class Triangle : public Object
-{
-public:
+    export const VertexBuffer::Layout pos_tex_norm_layout =
+    {
+        {Shader::Type::Float3, "a_pos"},
+        {Shader::Type::Float2, "a_tex"},
+        {Shader::Type::Float3, "a_norm"}
+    };
 
-    //static constexpr std::array<float, 24> vertices;
+    export Object makeTriangle()
+    {
+        static constexpr std::array<float, 24> vertices =
+        {
+            // positions       // texture coords    // normals
+            0.0f,  0.5f, 0.0f, 0.5f, 1.0f,          0.0f, 0.0f, 1.0f,
+            -0.5f,-0.5f, 0.0f, 0.0f, 0.0f,          0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f,          0.0f, 0.0f, 1.0f,
+        };
 
-    //static constexpr std::array<unsigned int, 3> indices;
+        VertexArray vao({ vertices });
+        vao.setLayout
+        ({
+            {Shader::Type::Float3, "a_pos"},
+            {Shader::Type::Float2, "a_tex"},
+            {Shader::Type::Float3, "a_norm"}
+            });
 
-public:
+        return Object(Mesh(std::move(vao)));
+    }
 
-    Triangle();
-};
+    export Object makeCube()
+    {
+        static constexpr std::array<float, 192> vertices =
+        {
+            // Position          // TexCoords  // Normal
+            // Back face (Z-)
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   0.0f,  0.0f, -1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,   0.0f,  0.0f, -1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0.0f,  0.0f, -1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0.0f,  0.0f, -1.0f,
 
+            // Front face (Z+)
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0.0f,  0.0f,  1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0.0f,  0.0f,  1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   0.0f,  0.0f,  1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   0.0f,  0.0f,  1.0f,
 
-export class Square : public Object
-{
-public:
+            // Left face (X-)
+            -0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
 
-    Square();
+            // Right face (X+)
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,   1.0f,  0.0f,  0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+             0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   1.0f,  0.0f,  0.0f,
 
-private:
-};
+             // Bottom face (Y-)
+             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+              0.5f, -0.5f, -0.5f,  1.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   0.0f, -1.0f,  0.0f,
 
+             // Top face (Y+)
+             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0.0f,  1.0f,  0.0f,
+              0.5f,  0.5f, -0.5f,  1.0f, 1.0f,   0.0f,  1.0f,  0.0f,
+              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+             -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+        };
 
-export class Cube : public Object
-{
+        static constexpr std::array<unsigned int, 36> indices =
+        {
+            0, 1, 2,
+            2, 3, 0,
 
-public:
+            4, 5, 6,
+            6, 7, 4,
 
-    Cube();
-};
+            8, 9,10,
+            10,11, 8,
 
+            12,13,14,
+            14,15,12,
 
-export class Grid : public Object
-{
-public:
+            16,17,18,
+            18,19,16,
 
-    Grid(float size_of_line = 100.f, float size_of_square_side = 0.2f);
+            20,21,22,
+            22,23,20
+        };
 
-};
+        VertexArray vao({ vertices }, { indices });
+        vao.setLayout
+        ({
+            {Shader::Type::Float3, "a_pos"},
+            {Shader::Type::Float2, "a_tex"},
+            {Shader::Type::Float3, "a_norm"}
+        });
 
+        Mesh mesh(std::move(vao));
 
-// Sphere
-export class Sphere : public Object
-{
-public:
-    Sphere(int sectors = 36, int stacks = 18);
-};
+        return Object(std::move(mesh));
+    }
 
-// Pyramid (square base)
-export class Pyramid : public Object
-{
-public:
-    Pyramid();
-};
+   /* Object makeSquare();
 
-// Cone
-// Cone
-export class Cone : public Object
-{
-public:
-    Cone(int segments = 36);
-    
-};
+    Object makeCube();
 
-// Cylinder
-export class Cylinder : public Object
-{
-public:
-    Cylinder(int segments = 36);
-};
+    Object makeGrid(float size_of_line = 100.f, float size_of_square_side = 0.2f);
 
+    Object makeSphere(int sectors = 36, int stacks = 18);
 
+    Object makePyramid();
 
+    Object makeCone(int segments = 36);
+
+    Object makeCylinder(int segments = 36);*/
 
 }

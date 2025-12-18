@@ -25,10 +25,10 @@ namespace bm
             msg
         );
 
-        //if (is_core)
-        //    bm::log::Log::getCoreLogger()->log(spdlog::level::critical, full_message);
-        //else
-        //    bm::log::Log::getClientLogger()->log(spdlog::level::critical, full_message);
+        if (is_core)
+            bm::log::Log::getCoreLogger()->log(spdlog::level::critical, full_message);
+        else
+            bm::log::Log::getClientLogger()->log(spdlog::level::critical, full_message);
 
         debugBreak();
     }

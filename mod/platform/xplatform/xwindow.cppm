@@ -124,11 +124,10 @@ namespace bm
 		{
 		public:
 
-			WindowResize(int x, int y) : m_width(x), m_heigth(y) {}
+			WindowResize(int x, int y) : m_width(x), m_height(y) {}
 
 			int getWidth() const { return m_width; }
-			int getHeigth() const { return m_heigth; }
-
+			int getHeight() const { return m_height; }
 
 			std::string toString() const override;
 			constexpr const char* getName() const override { return "WindowResize"; }
@@ -139,7 +138,7 @@ namespace bm
 
 		private:
 
-			int	m_heigth, m_width;
+			int	m_height, m_width;
 
 		};
 

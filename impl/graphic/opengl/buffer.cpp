@@ -170,8 +170,7 @@ namespace bm::gfx
 	VertexBuffer::VertexBuffer(VertexBuffer&& oth) noexcept
 		: m_id(std::exchange(oth.m_id, 0)),
 		m_size(std::exchange(oth.m_size, 0)),
-		m_usage(oth.m_usage),
-		m_layout(std::move(oth.m_layout))
+		m_usage(oth.m_usage)
 	{
 	}
 
@@ -184,7 +183,6 @@ namespace bm::gfx
 			m_id = std::exchange(oth.m_id, 0);
 			m_size = std::exchange(oth.m_size, 0);
 			m_usage = oth.m_usage;
-			m_layout = std::move(oth.m_layout);
 		}
 		return *this;
 	}

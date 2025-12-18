@@ -84,20 +84,12 @@ namespace bm::gfx
 		void setData(const void* data, std::size_t size, std::size_t offset = 0);
 		std::size_t size() const { return m_size; }
 
-		void setLayout(const Layout& layout) { m_layout = layout; }
-
-		const Layout& getLayout() const { return m_layout; }
-
-		template<typename... Args>
-		static Traits<VertexBuffer>::Ptr make(Args&&... args) { return std::make_unique<VertexBuffer>(std::forward<Args>(args)...); }
-
 	private:
 
 		unsigned int m_id;
 		std::size_t m_size;
 		Usage m_usage;
 
-		Layout m_layout;
 	};
 
 

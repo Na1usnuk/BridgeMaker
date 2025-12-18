@@ -15,23 +15,23 @@ import bm.core;
 namespace bm::gfx
 {
 
-VertexArray::VertexArray()
-	: m_id(0), m_vertices_count(0)
+VertexArray::VertexArray(VertexBuffer&& vbo) :
+	m_vbo(std::move(vbo)),
+	m_ibo(std::nullopt),
+	m_id(0),
+	m_vertices_count(0)
 {
-	GL_CALL(glGenVertexArrays, 1, &m_id);
-	bind();
-	core::log::trace("VertexArray {} created", m_id);
+	init();
 }
 
-VertexArray::VertexArray(Traits<VertexBuffer>::Ptr vbo) : VertexArray()
+VertexArray::VertexArray(VertexBuffer&& vbo, IndexBuffer&& ibo) : 
+	m_vbo(std::move(vbo)),
+	m_ibo(std::move(ibo)),
+	m_id(0),
+	m_vertices_count(0)
 {
-	setVertexBuffer(std::move(vbo));
-}
-
-VertexArray::VertexArray(Traits<VertexBuffer>::Ptr vbo, Traits<IndexBuffer>::Ptr ibo) : VertexArray()
-{
-	setVertexBuffer(std::move(vbo));
-	setIndexBuffer(std::move(ibo));
+	init();
+	tieIBO();
 }
 
 VertexArray::~VertexArray()
@@ -39,52 +39,79 @@ VertexArray::~VertexArray()
 	destroy();
 }
 
-VertexArray::VertexArray(VertexArray&& oth) noexcept
+VertexArray::VertexArray(VertexArray&& oth) noexcept : 
+	m_id(std::exchange(oth.m_id, 0)),
+	m_vbo(std::move(oth.m_vbo)),
+	m_ibo(std::move(oth.m_ibo)),
+	m_vertices_count(std::exchange(oth.m_vertices_count, 0)),
+	m_attrib_index(std::exchange(oth.m_attrib_index, 0))
 {
-	auto id = oth.m_id;
-	oth.m_id = 0;
-	m_id = id;
 }
 
 VertexArray& VertexArray::operator=(VertexArray&& oth) noexcept
 {
-	auto id = oth.m_id;
-	oth.m_id = 0;
-	m_id = id;
+	if (this != &oth)
+	{
+		if (m_id != 0)
+			destroy();
+		m_id = std::exchange(oth.m_id, 0);
+		m_vbo = std::move(oth.m_vbo);
+		m_ibo = std::move(oth.m_ibo);
+		m_vertices_count = std::exchange(oth.m_vertices_count, 0);
+		m_attrib_index = std::exchange(oth.m_attrib_index, 0);
+	}
 	return *this;
+}
+
+void VertexArray::init()
+{
+	GL_CALL(glCreateVertexArrays, 1, &m_id);
+	core::log::trace("VertexArray {} created", m_id);
 }
 
 void VertexArray::destroy()
 {
 	GL_CALL(glDeleteVertexArrays, 1, &m_id);
-	core::log::trace("VertexArray {0} deleted", m_id);
+	core::log::trace("VertexArray {} deleted", m_id);
 }
 
-void VertexArray::setIndexBuffer(Traits<IndexBuffer>::Ptr ibo) 
+void VertexArray::setIndexBuffer(IndexBuffer&& ibo) 
 { 
-	m_ibo = std::move(ibo); 
-	GL_CALL(glVertexArrayElementBuffer, m_id, m_ibo->id());
+	m_ibo = std::move(ibo);
+	tieIBO();
 }
 
-void VertexArray::setVertexBuffer(Traits<VertexBuffer>::Ptr vbo)
+void VertexArray::tieIBO()
+{
+	if(m_ibo)
+		GL_CALL(glVertexArrayElementBuffer, m_id, m_ibo->id());
+}
+
+void VertexArray::setLayout(const VertexBuffer::Layout& layout)
 {
 	bind();
-	m_vbo = std::move(vbo);
-	m_vbo->bind();
+	m_vbo.bind();
 
-	const auto& elements = m_vbo->getLayout().elements();
+	m_attrib_index = 0;
+
+	const auto& elements = layout.elements();
 	unsigned long long offset = 0;
 
-	m_vertices_count = m_vbo->size() / m_vbo->getLayout().stride();
+	m_vertices_count = m_vbo.size() / layout.stride();
 
 	for (unsigned int i = 0; i < elements.size(); ++i)
 	{
 		const auto& element = elements[i];
 		GL_CALL(glEnableVertexAttribArray, m_attrib_index);
-		GL_CALL(glVertexAttribPointer, m_attrib_index, element.count, element.gl_type, element.normalized, m_vbo->getLayout().stride(), (const void*)offset);
+		GL_CALL(glVertexAttribPointer, m_attrib_index, element.count, element.gl_type, element.normalized, layout.stride(), (const void*)offset);
 		offset += element.size;
 		++m_attrib_index;
 	}
+}
+
+void VertexArray::setVertexBuffer(VertexBuffer&& vbo)
+{
+	m_vbo = std::move(vbo);
 }
 
 void VertexArray::bind() const

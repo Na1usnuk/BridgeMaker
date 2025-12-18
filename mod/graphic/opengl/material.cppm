@@ -72,7 +72,6 @@ namespace bm::gfx
 		glm::vec3 m_spec{ 0.5f, 0.5f, 0.5f };       
 		float m_shininess{ 32.0f };                 
 
-
 	};
 
 }

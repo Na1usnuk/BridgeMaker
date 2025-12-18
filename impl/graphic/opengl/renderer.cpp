@@ -134,16 +134,16 @@ namespace bm::gfx
 		}
 	}
 	
-	void Renderer::draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef shader, Mesh::DrawAs draw_as)
+	void Renderer::draw(VertexArray& vao, Shader& shader, Mesh::DrawAs draw_as)
 	{
 		// Shader should be already bound and uniforms set before calling this method
 		//shader->bind();
-		vao->bind();
+		vao.bind();
 	
-		if(vao->getIndexBuffer() != nullptr) [[likely]]
-			GL_CALL(glDrawElements, static_cast<int>(draw_as), vao->getIndexBuffer()->count(), GL_UNSIGNED_INT, nullptr);
+		if(vao.getIndexBuffer()) [[likely]]
+			GL_CALL(glDrawElements, static_cast<int>(draw_as), vao.getIndexBuffer()->count(), GL_UNSIGNED_INT, nullptr);
 		else
-			GL_CALL(glDrawArrays, static_cast<int>(draw_as), 0, vao->getVerticesCount());
+			GL_CALL(glDrawArrays, static_cast<int>(draw_as), 0, vao.getVerticesCount());
 	}
 	
 	
@@ -152,54 +152,29 @@ namespace bm::gfx
 		auto& objects = scene.getObjects();
 		auto& light = scene.getLights()[0];
 	
-		// 1. Sort all objects by shader/texture for opaque pass
-		std::sort(objects.begin(), objects.end(),
-			[](const Traits<Object>::Ptr& a, const Traits<Object>::Ptr& b)
-			{
-				auto ma = a->getMaterial();
-				auto mb = b->getMaterial();
-	
-				GLuint sa = ma->getShader()->getID();
-				GLuint sb = mb->getShader()->getID();
-	
-				if (sa != sb)
-					return sa < sb;
-	
-				GLuint ta = ma->getTexture() ? ma->getTexture()->getID() : 0;
-				GLuint tb = mb->getTexture() ? mb->getTexture()->getID() : 0;
-				if (ta != tb)
-					return ta < tb;
-	
-				GLuint na = ma->getNormalMap() ? ma->getNormalMap()->getID() : 0;
-				GLuint nb = mb->getNormalMap() ? mb->getNormalMap()->getID() : 0;
-				return na < nb;
-			});
-	
-	
-		// 2. Opaque pass
 		int shader_id = -1;
 		int texture_id = -1;
 		int normal_id = -1;
 	
 		auto draw_impl = [&](auto& obj)
 			{
-				auto material = obj->getMaterial();
-				auto mesh = obj->getMesh();
-				auto texture = material->getTexture();
-				auto normalMap = material->getNormalMap();
-				auto shader = material->getShader();
+				auto& material = obj.getMaterial();
+				auto& mesh = obj.getMesh();
+				auto& texture = material.getTexture();
+				auto& normalMap = material.getNormalMap();
+				auto& shader = material.getShader();
 	
 				if (shader->getID() != shader_id)
 				{
 					shader_id = shader->getID();
-					material->bind();
-					material->setUniform("u_view", camera.getView());
-					material->setUniform("u_projection", camera.getProjection());
-					material->setUniform("u_view_pos", camera.getPosition());
-					material->setUniform("u_light_pos", light->getPosition());
-					material->setUniform("u_light_color", light->getColor());
-					material->setUniform("u_sampler2d", 0 + 16);      // albedo
-					material->setUniform("u_normal_map", 1 + 16);      // NEW
+					material.bind();
+					material.setUniform("u_view", camera.getView());
+					material.setUniform("u_projection", camera.getProjection());
+					material.setUniform("u_view_pos", camera.getPosition());
+					material.setUniform("u_light_pos", light.getPosition());
+					material.setUniform("u_light_color", light.getColor());
+					material.setUniform("u_sampler2d", 0 + 16);
+					material.setUniform("u_normal_map", 1 + 16);
 				}
 	
 				if (texture && texture->getID() != texture_id)
@@ -211,53 +186,36 @@ namespace bm::gfx
 				if (normalMap && normalMap->getID() != normal_id)
 				{
 					normal_id = normalMap->getID();
-					normalMap->bind(1 + 16); // texture unit 1
+					normalMap->bind(1 + 16);
 				}
 	
-				material->setUniform("u_has_normal_map", normalMap != nullptr);
+				material.setUniform("u_has_normal_map", normalMap != nullptr);
+						
+				material.setUniform("u_model", obj.transform.getModel());
+				material.setUniform("u_material.color", material.getColor());
+				material.setUniform("u_material.ambient", material.getAmbient());
+				material.setUniform("u_material.diffuse", material.getDiffuse());
+				material.setUniform("u_material.specular", material.getSpecular());
+				material.setUniform("u_material.shininess", material.getShininess());
 	
-				material->setUniform("u_model", obj->getTransform().getModel());
-				material->setUniform("u_material.color", material->getColor());
-				material->setUniform("u_material.ambient", material->getAmbient());
-				material->setUniform("u_material.diffuse", material->getDiffuse());
-				material->setUniform("u_material.specular", material->getSpecular());
-				material->setUniform("u_material.shininess", material->getShininess());
-	
-				draw(mesh->getVertexArray(), shader, mesh->getDrawAs());
+				draw(mesh.getVertexArray(), *shader, mesh.getDrawAs());
 			};
+
+		auto opaque = objects | std::views::filter([](auto& obj) {return obj.getMaterial().getColor().a == 1.f; });
+		auto transparent = objects | std::views::filter([](auto& obj) {return obj.getMaterial().getColor().a != 1.f; });
 	
-		// draw opaque
-		for (auto& obj : objects)
-		{
-			if (obj->getMaterial()->getColor()[3] == 1.f)
-				draw_impl(obj);
-		}
-	
-		// 3. Build transparent index list
-		std::vector<std::size_t> transparent;
-		transparent.reserve(objects.size());
-	
-		for (std::size_t i = 0; i < objects.size(); ++i)
-		{
-			if (objects[i]->getMaterial()->getColor()[3] < 1.f)
-				transparent.push_back(i);
-		}
-	
-		// 4. Sort transparent back-to-front
-		std::ranges::sort(transparent, [&](std::size_t a, std::size_t b) {
-			float da = glm::distance(camera.getPosition(), objects[a]->getTransform().getPosition());
-			float db = glm::distance(camera.getPosition(), objects[b]->getTransform().getPosition());
-			return da > db; // far first
-			});
-	
-	
-		// 5. Transparent pass
-		setDepthWrite(false);
-		for (std::size_t i : transparent)
-			draw_impl(objects[i]);
 		setDepthWrite(true);
-	
-	
+
+		for (auto& obj : opaque)
+				draw_impl(obj);
+
+		setDepthWrite(false);
+
+		for (auto& obj : transparent)
+			draw_impl(obj);
+
+		setDepthWrite(true);
+
 	}
 
 
@@ -318,24 +276,8 @@ namespace bm::gfx
 	{
 	}
 
-	ScreenRenderer::Data::Data() :
-		vao(VertexArray::make()),
-		shader(Shader::make(vertex2d_src, fragment2d_src)),
-		vertices()
+	std::array<unsigned int, ScreenRenderer::Data::max_indices> ScreenRenderer::Data::makeIndices()
 	{
-		// Bind shader and set texture samplers
-		shader->bind();
-
-		int samplers[32];
-		for (int i = 0; i < 32; i++)
-			samplers[i] = i;
-
-		shader->setUniform("u_sampler", samplers, 32);
-
-
-		// Allocate buffer for max amount of vertices
-		auto vbo(VertexBuffer::make(max_vertices * sizeof(QuadVertex), Usage::Stream));
-
 		// Static indices for every quad
 		std::array<unsigned int, max_indices> indices;
 		std::size_t offset = 0;
@@ -352,20 +294,32 @@ namespace bm::gfx
 
 			offset += 4;
 		}
-		auto ibo(IndexBuffer::make(indices));
+		return indices;
+	}
 
+	ScreenRenderer::Data::Data() :
+		vao(VertexBuffer(max_vertices * sizeof(QuadVertex), Usage::Stream), IndexBuffer(makeIndices())),
+		shader(Shader::make(vertex2d_src, fragment2d_src)),
+		vertices()
+	{
+		// Bind shader and set texture samplers
+		shader->bind();
+
+		int samplers[32];
+		for (int i = 0; i < 32; i++)
+			samplers[i] = i;
+
+		shader->setUniform("u_sampler", samplers, 32);
+
+		
 		// Why you read this comment? Dont know what it is? 
-		vbo->setLayout
+		vao.setLayout
 		({
 			{Shader::Type::Float3, "a_pos"},
 			{Shader::Type::Float2, "a_tex"},
 			{Shader::Type::Float4, "a_color"},
 			{Shader::Type::Float,  "a_slot"}
-			});
-
-		// Give ownership to VertexArray
-		vao->setVertexBuffer(std::move(vbo));
-		vao->setIndexBuffer(std::move(ibo));
+		});
 	}
 
 	void ScreenRenderer::submit(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, Traits<Texture>::KSPtrRef texture)
@@ -435,7 +389,7 @@ namespace bm::gfx
 
 	void ScreenRenderer::draw()
 	{
-		m_data.vao->bind();
+		m_data.vao.bind();
 		m_data.shader->bind();
 
 		// Camera needs to be set at this point 
@@ -444,7 +398,7 @@ namespace bm::gfx
 		m_data.shader->setUniform("u_view", m_camera->getView());
 		m_data.shader->setUniform("u_projection", m_camera->getProjection());
 
-		m_data.vao->getVertexBuffer()->setData(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
+		m_data.vao.getVertexBuffer().setData(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
 		GL_CALL(glDrawElements, GL_TRIANGLES, m_data.quad_count * 6, GL_UNSIGNED_INT, nullptr);
 		m_data.quad_count = 0;
 		m_data.texture_slot_index = 1;

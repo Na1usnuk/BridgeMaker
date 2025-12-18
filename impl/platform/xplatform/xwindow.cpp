@@ -385,7 +385,7 @@ namespace bm
 		std::string WindowResize::toString() const
 		{
 			std::stringstream ss;
-			ss << "WindowResize: " << m_width << ", " << m_heigth;
+			ss << "WindowResize: " << m_width << ", " << m_height;
 			return ss.str();
 		}
 	}

@@ -8,46 +8,52 @@ import std;
 
 namespace bm::gfx
 {
+	
+	export class VertexArray
+	{
+	public:
+	
+		explicit VertexArray(VertexBuffer&& vbo);
+		VertexArray(VertexBuffer&& vbo, IndexBuffer&& ibo);
+		~VertexArray();
+		VertexArray(const VertexArray&) = delete;
+		VertexArray& operator=(const VertexArray&) = delete;
+		VertexArray(VertexArray&& oth) noexcept;
+		VertexArray& operator=(VertexArray&& oth) noexcept;
+	
+		void setVertexBuffer(VertexBuffer&& vbo);
+		void setIndexBuffer(IndexBuffer&& ibo);
+		void setLayout(const VertexBuffer::Layout& layout);
+	
+		void bind() const;
+		void unbind() const;
+		unsigned int getID() const { return m_id; }
+	
+		std::size_t getVerticesCount() const { return m_vertices_count; }
 
-export class VertexArray
-{
-public:
+		const VertexBuffer& getVertexBuffer() const { return m_vbo; }
+		const std::optional<IndexBuffer>& getIndexBuffer() const { return m_ibo; }
 
-	VertexArray();
-	VertexArray(Traits<VertexBuffer>::Ptr vbo, Traits<IndexBuffer>::Ptr ibo);
-	VertexArray(Traits<VertexBuffer>::Ptr vbo);
-	~VertexArray();
-	VertexArray(const VertexArray&) = delete;
-	VertexArray& operator=(const VertexArray&) = delete;
-	VertexArray(VertexArray&& oth) noexcept;
-	VertexArray& operator=(VertexArray&& oth) noexcept;
+		VertexBuffer& getVertexBuffer() { return m_vbo; }
+		std::optional<IndexBuffer>& getIndexBuffer() { return m_ibo; }
+	
+	private:
+	
+		void init();
+		void destroy();
+		void tieIBO();
 
-	void setVertexBuffer(Traits<VertexBuffer>::Ptr vbo);
-	void setIndexBuffer(Traits<IndexBuffer>::Ptr ibo);
+	private:
 
-	void bind() const;
-	void unbind() const;
-	void destroy();
-	unsigned int getID() const { return m_id; }
-
-	std::size_t getVerticesCount() const { return m_vertices_count; }
-	Traits<VertexBuffer>::KPtrRef getVertexBuffer() const { return m_vbo; }
-	Traits<IndexBuffer>::KPtrRef getIndexBuffer() const { return m_ibo; }
-
-	template<typename... Args>
-	static Traits<VertexArray>::Ptr make(Args&&... args) { return std::make_unique<VertexArray>(std::forward<Args>(args)...); }
-
-private:
-
-	unsigned int m_id = 0;
-	std::size_t m_vertices_count;
-
-	std::size_t m_attrib_index = 0;
-
-	// VertexArray owns vbo and ibo
-	Traits<VertexBuffer>::Ptr m_vbo = nullptr; 
-	Traits<IndexBuffer>::Ptr m_ibo = nullptr;
-
-};
+		unsigned int m_id = 0;
+		std::size_t m_vertices_count;
+	
+		std::size_t m_attrib_index = 0;
+	
+		// VertexArray owns vbo and ibo
+		VertexBuffer m_vbo; 
+		std::optional<IndexBuffer> m_ibo;
+	
+	};
 
 }

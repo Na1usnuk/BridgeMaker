@@ -86,8 +86,7 @@ namespace bm::gfx
 		~Renderer();
 	
 		void clear();
-		void draw(Traits<VertexArray>::KPtrRef vao, Traits<Shader>::KSPtrRef shader, Mesh::DrawAs draw_as);
-		void draw(Traits<Scene>::PtrRef scene, Traits<Camera>::KPtrRef camera) { draw(*scene, *camera); }
+		void draw(VertexArray& vao, Shader& shader, Mesh::DrawAs draw_as);
 		void draw(Scene& scene, Camera& camera);
 	
 		void setPolygonMode(PolygonMode mode = PolygonMode::Fill);
@@ -161,13 +160,14 @@ namespace bm::gfx
 		struct Data
 		{
 			Data();
-
 			static constexpr std::uint32_t max_quads = 10;
 			static constexpr std::uint32_t max_vertices = max_quads * 4;
 			static constexpr std::uint32_t max_indices = max_quads * 6;
 			static constexpr std::uint16_t max_texture_slots = 8;
 
-			Traits<VertexArray>::Ptr vao = nullptr;
+			std::array<unsigned int, max_indices> makeIndices();
+
+			VertexArray vao;
 			Traits<Shader>::SPtr shader = nullptr;
 
 			std::size_t quad_count = 0;
@@ -202,7 +202,7 @@ namespace bm::gfx
 
 		void draw();
 
-		void setCamera(Traits<ScreenCamera>::KPtrRef camera) { m_camera = camera; }
+		void setCamera(ScreenCamera& camera) { m_camera = &camera; }
 
 	private:
 

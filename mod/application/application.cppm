@@ -41,6 +41,8 @@ namespace bm
 		virtual void onEvent(event::Event& e);
 		virtual void onShutdown() {}
 
+		Window& getWindow() { return m_window; }
+
 		void close() noexcept { m_is_running = false; }
 
 	private:
