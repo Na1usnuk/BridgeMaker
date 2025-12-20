@@ -94,76 +94,7 @@ namespace bm::gfx
 
 
 
-    //Sphere::Sphere(int sectors, int stacks )
-    //{
-    //    std::vector<float> vertices;
-    //    std::vector<unsigned int> indices;
-    //
-    //    float sectorStep = 2 * 3.14159f / sectors;
-    //    float stackStep = 3.14159f / stacks;
-    //
-    //    // Generate vertices
-    //    for (int i = 0; i <= stacks; ++i) {
-    //        float stackAngle = 3.14159f / 2 - i * stackStep;
-    //        float xy = 0.5f * std::cosf(stackAngle);
-    //        float z = 0.5f * std::sinf(stackAngle);
-    //
-    //        for (int j = 0; j <= sectors; ++j) {
-    //            float sectorAngle = j * sectorStep;
-    //
-    //            float x = xy * std::cosf(sectorAngle);
-    //            float y = xy * std::sinf(sectorAngle);
-    //
-    //            // Position
-    //            vertices.push_back(x);
-    //            vertices.push_back(y);
-    //            vertices.push_back(z);
-    //
-    //            // Texture coordinates
-    //            vertices.push_back((float)j / sectors);
-    //            vertices.push_back((float)i / stacks);
-    //
-    //            // Normal (for sphere, normalized position IS the normal)
-    //            float length = std::sqrtf(x * x + y * y + z * z);
-    //            vertices.push_back(x / length);
-    //            vertices.push_back(y / length);
-    //            vertices.push_back(z / length);
-    //        }
-    //    }
-    //
-    //    // Generate indices
-    //    for (int i = 0; i < stacks; ++i) {
-    //        int k1 = i * (sectors + 1);
-    //        int k2 = k1 + sectors + 1;
-    //
-    //        for (int j = 0; j < sectors; ++j, ++k1, ++k2) {
-    //            if (i != 0) {
-    //                indices.push_back(k1);
-    //                indices.push_back(k2);
-    //                indices.push_back(k1 + 1);
-    //            }
-    //
-    //            if (i != (stacks - 1)) {
-    //                indices.push_back(k1 + 1);
-    //                indices.push_back(k2);
-    //                indices.push_back(k2 + 1);
-    //            }
-    //        }
-    //    }
-    //
-    //    auto vbo = VertexBuffer::make(vertices);
-    //    vbo->setLayout({
-    //        {Shader::Type::Float3, "a_pos"},
-    //        {Shader::Type::Float2, "a_tex"},
-    //        {Shader::Type::Float3, "a_norm"}
-    //        });
-    //    auto ibo = IndexBuffer::make(indices);
-    //    auto vao = VertexArray::make(std::move(vbo), std::move(ibo));
-    //    auto mesh = Mesh::make(std::move(vao));
-    //    auto material = Material::make();
-    //    setMaterial(material);
-    //    setMesh(mesh);
-    //}
+    
     //
 
     //Pyramid::Pyramid()

@@ -3,8 +3,6 @@ module;
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "gl_call.hpp"
-
 module bm.platform:window;
 import :window;
 import :input;

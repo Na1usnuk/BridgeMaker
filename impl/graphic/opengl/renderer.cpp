@@ -23,6 +23,7 @@ namespace bm::gfx
 		GL_CALL(glGetIntegerv, GL_MAX_TEXTURE_IMAGE_UNITS, &m_state_cache.texture_slot_count);
 		m_state_cache.bound_textures.resize(m_state_cache.texture_slot_count, -1);
 	
+		//glFrontFace(GL_CCW);
 		//glEnable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
 	}

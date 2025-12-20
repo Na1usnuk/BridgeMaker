@@ -7,8 +7,6 @@ export module bm.gfx:utility;
 import bm.core;
 import std;
 
-export import "gl_call.hpp";
-
 
 namespace bm::gfx 
 {

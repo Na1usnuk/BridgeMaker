@@ -31,40 +31,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BridgeMaker_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BridgeMaker_SOURCE_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BridgeMaker_SOURCE_DIR}/bin)
 
-# Currently only crossplatform is supported.
-# Crossplatform uses glfw + opengl
-# When first platform specific implementation will be writen, than this should be removed.
-set(BM_PLATFORM xplatform)
-set(BM_GRAPHIC opengl)
-
 
 #------------------------------------------------#
 #          Platform Selection Section            #
 #------------------------------------------------#
 
 
-if(NOT DEFINED BM_PLATFORM)
-	if(CMAKE_SYSTEM_NAME STREQUAL "Windows")                         #use directx + win32
-		set(BM_PLATFORM windows)
-		set(BM_GRAPHIC directx)
-	elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")                       #use vulcan + x11
-		set(BM_PLATFORM linux)
-		set(BM_GRAPHIC vulcan)
-	elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")                     #use vulcan + android.native_window
-		set(BM_PLATFORM android)
-		set(BM_GRAPHIC vulcan)
-	elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-		if(CMAKE_OSX_SYSROOT MATCHES "iphoneos|iphonesimulator") #use metal + uikit
-			set(BM_PLATFORM ios)
-		else() #MacOS                                            #use metal + cocoa
-			set(BM_PLATFORM macos)
-		endif()
-		set(BM_GRAPHIC metal)
-	else()
-		set(BM_PLATFORM xplatform)
-		set(BM_GRAPHIC opengl)
-	endif()
-endif() #NOT DEFINED BM_PLATFORM
+# Currently only crossplatform is supported.
+# Crossplatform uses glfw + opengl
+# When first platform specific implementation will be writen, than this should be removed.
+set(BM_PLATFORM xplatform)
+set(BM_GRAPHIC opengl)
 
 
 #------------------------------------------------#
@@ -107,6 +84,11 @@ file(GLOB_RECURSE BM_APP_MODS mod/application/*.cppm)
 file(GLOB_RECURSE BM_APP_IMPLS impl/application/*.cpp)
 source_group(Application FILES ${BM_APP_MODS} ${BM_APP_IMPLS})
 
+# UI group
+file(GLOB_RECURSE BM_UI_MODS mod/ui/*.cppm)
+file(GLOB_RECURSE BM_UI_IMPLS impl/ui/*.cpp)
+source_group(UI FILES ${BM_UI_MODS} ${BM_UI_IMPLS})
+
 
 #------------------------------------------------#
 #                  Target Here                   #
@@ -139,6 +121,10 @@ target_sources(BridgeMaker
 	FILE_SET audio TYPE CXX_MODULES BASE_DIRS mod/audio impl/audio FILES
 		${BM_AUDIO_MODS}
 		${BM_AUDIO_IMPLS}
+	PRIVATE
+	FILE_SET ui TYPE CXX_MODULES BASE_DIRS mod/ui impl/ui FILES
+		${BM_UI_MODS}
+		${BM_UI_IMPLS}
 )
 
 
@@ -157,31 +143,31 @@ add_subdirectory(deps/tiny_obj_loader)
 
 target_include_directories(BridgeMaker
 	PUBLIC
+		deps/stb
+	PRIVATE
 		deps/imgui/
 		deps/imgui/backends
 		deps/imgui/misc/cpp
-		deps/glm
-		deps/stb
-	PRIVATE
       		deps/spdlog/include 
-		deps/glad/include
 		deps/glfw/include
 		include/
 		include/core
 		include/graphic
 		deps/tiny_obj_loader
 		mod/graphic/opengl
+		deps/glad/include
+		deps/glm
 )
 
 target_link_libraries(BridgeMaker
 	PUBLIC 
-        	spdlog
 		imgui
 		glm
 		stb
 	PRIVATE
-		glfw
+        	spdlog
 		glad
+		glfw
 		tiny_obj_loader
 )
 
@@ -201,7 +187,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 		set_source_files_properties(${file} PROPERTIES COMPILE_FLAGS "-fmodules-ts" LANGUAGE CXX)
 	endforeach()
 
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif(MSVC)
 	# For cleaner output
 	add_compile_options(/nologo)
 	add_link_options(/NOLOGO)
