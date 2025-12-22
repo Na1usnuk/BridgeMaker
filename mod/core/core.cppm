@@ -9,3 +9,5 @@ export import :layer;
 export import :camera;
 export import :traits;
 export import :event;
+export import :utility;
+export import :image;
