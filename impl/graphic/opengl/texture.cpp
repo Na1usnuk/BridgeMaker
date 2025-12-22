@@ -1,6 +1,5 @@
 module;
 
-#include "stb_image.h"
 #include "glad/glad.h"
 
 #define GL_CALL(func, ...) glCallImpl( std::source_location::current(), func, __VA_ARGS__)
@@ -8,108 +7,115 @@ module;
 module bm.gfx:texture;
 
 import :texture;
+import :utility;
+import :context;
 
 import std;
 
 import bm.core;
-import :utility;
 
 namespace bm::gfx
 {
 
-	Texture::Wrappering Texture::s_default_wrappering = Texture::Wrappering::REPEAT;
-	Texture::Filtering Texture::s_default_filtering = Texture::Filtering::NEAREST;
-
-	Texture::Texture(const std::filesystem::path& filepath)
-		: m_id(0), m_data(0, 0, 0, 0, filepath, nullptr)
+	static GLenum getInternalGLFormat(int bpp)
 	{
-
-		stbi_set_flip_vertically_on_load(true);
-		m_data.buffer = stbi_load(filepath.string().c_str(), &m_data.width, &m_data.height, &m_data.bpp, 4);
-
-		const char* reason = stbi_failure_reason();
-		std::string reason_str = reason ? reason : "unknown reason";
-
-		core::verify(
-			m_data.buffer,
-			std::format("Failed to load {} while creating texture! Reason: {}",
-			filepath.string(),
-			reason_str)
-		);
-
-
-		GL_CALL(glGenTextures, 1, &m_id);
-		GL_CALL(glBindTexture, GL_TEXTURE_2D, m_id);
-
-		const int levels = 1 + std::floor(std::log2(std::max(m_data.width, m_data.height)));
-
-		GL_CALL(glTexStorage2D, GL_TEXTURE_2D, levels, GL_RGBA8, m_data.width, m_data.height);
-		GL_CALL(glTexSubImage2D, GL_TEXTURE_2D, 0, 0, 0, m_data.width, m_data.height, GL_RGBA, GL_UNSIGNED_BYTE, m_data.buffer);
-
-		GL_CALL(glGenerateMipmap, GL_TEXTURE_2D);
-
-		//setWrappering(true, true, s_default_wrappering);
-		//setFiltering(true, true, s_default_filtering);
-
-		stbi_image_free(m_data.buffer);
+		switch (bpp)
+		{
+		case 1:  return GL_R8;
+		case 3: return GL_SRGB8;
+		case 4:  return  GL_SRGB8_ALPHA8;
+		}
+		throw TextureException("Unsupported texture format");
 	}
 
-	Texture::Texture()
-		: m_id(0), m_data(1, 1, 0, 4, "", nullptr)
+	static GLenum getGLFormat(int bpp)
 	{
-		unsigned char white_pixel[4] = { 255, 255, 255, 255 };
-
-		GL_CALL(glGenTextures, 1, &m_id);
-		GL_CALL(glBindTexture, GL_TEXTURE_2D, m_id);
-
-		GL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white_pixel);
-
-		GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		switch (bpp)
+		{
+		case 1:  return GL_RED;
+		case 3: return GL_RGB;
+		case 4: return GL_RGBA;
+		}
+		throw TextureException("Unsupported texture format");
 	}
 
-	void Texture::setWrappering(bool wrap_s, bool wrap_t, Wrappering wrappering) const
+	void Texture::init() noexcept
 	{
-		if (wrap_s)
-			GL_CALL(glTextureParameteri, m_id, GL_TEXTURE_WRAP_S, (int)wrappering);
-		if (wrap_t)
-			GL_CALL(glTextureParameteri, m_id, GL_TEXTURE_WRAP_T, (int)wrappering);
+		const int gl_ver = Context::getCurrent().getVersion();
+
+		if (gl_ver >= 45)
+		{
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+		}
+		else
+		{
+			GL_CALL(glGenTextures, 1, &m_id);
+			GL_CALL(glBindTexture, GL_TEXTURE_2D, m_id);
+		}
 	}
 
-	void Texture::setFiltering(bool filter_mag, bool filter_min, Filtering filtering) const
+	Texture::Texture(const Image& image) :
+		m_meta(image.getWidth(), image.getHeight(), 0, image.getChannelsCount())
 	{
-		if (filter_mag)
-			GL_CALL(glTextureParameteri, m_id, GL_TEXTURE_MAG_FILTER, (int)filtering);
-		if (filter_min)
-			GL_CALL(glTextureParameteri, m_id, GL_TEXTURE_MIN_FILTER, (int)filtering);
+		init();
+
+		const int gl_ver = Context::getCurrent().getVersion();
+
+		if (gl_ver >= 45)
+		{
+			glTextureStorage2D(m_id, 1, getInternalGLFormat(m_meta.bytes_pp), m_meta.width, m_meta.height);
+			glTextureSubImage2D(m_id, 0, 0, 0, m_meta.width, m_meta.height, getGLFormat(m_meta.bytes_pp), GL_UNSIGNED_BYTE, image.getData().data());
+		}
+		else
+			GL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, getInternalGLFormat(m_meta.bytes_pp), m_meta.width, m_meta.height, 0, getGLFormat(m_meta.bytes_pp), GL_UNSIGNED_BYTE, image.getData().data());
+	}
+
+
+	Texture::Texture(Texture&& oth) noexcept :
+		m_id(std::exchange(oth.m_id, 0)),
+		m_meta(std::exchange(oth.m_meta, MetaData{})) // Set oth data to defaults
+	{
+	}
+
+	Texture& Texture::operator=(Texture&& oth) noexcept
+	{
+		if (this != &oth)
+		{
+			destroy();
+			m_id = std::exchange(oth.m_id, 0);
+			m_meta = std::exchange(oth.m_meta, MetaData{});
+		}
+		return *this;
 	}
 
 	Texture::~Texture()
 	{
+		if(m_id != 0)
+			destroy();
+	}
+
+	void Texture::destroy() noexcept
+	{
+		core::log::trace("Texture {} destroyed", m_id);
 		GL_CALL(glDeleteTextures, 1, &m_id);
 	}
 
-	void Texture::bind(unsigned int tex_unit) const
+	void Texture::bind(unsigned int tex_unit) const noexcept
 	{
-		GL_CALL(glActiveTexture, GL_TEXTURE0 + tex_unit);
-		GL_CALL(glBindTexture, GL_TEXTURE_2D, m_id);
+		const int gl_ver = Context::getCurrent().getVersion();
+
+		if (gl_ver >= 45)
+			glBindTextureUnit(tex_unit, m_id);
+		else
+		{
+			GL_CALL(glActiveTexture, GL_TEXTURE0 + tex_unit);
+			GL_CALL(glBindTexture, GL_TEXTURE_2D, m_id);
+		}
 	}
 
-	void Texture::unbind() const
+	void Texture::unbind()
 	{
 		GL_CALL(glBindTexture, GL_TEXTURE_2D, 0);
-	}
-
-	void Texture::setDefaultWrappering(Wrappering wrapping)
-	{
-		s_default_wrappering = wrapping;
-	}
-
-	void Texture::setDefaultFiltering(Filtering filtering)
-	{
-		s_default_filtering = filtering;
 	}
 
 }
