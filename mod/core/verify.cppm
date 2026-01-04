@@ -7,30 +7,47 @@ import std;
 
 namespace bm
 {
-    inline void logFailure(bool is_core,
-        bool condition,
-        std::string_view msg,
-        std::source_location loc)
+    export inline void breakpoint()
     {
-        auto file = std::string_view(loc.file_name());
-        auto function = std::string_view(loc.function_name());
-        auto line = loc.line();
+#if defined(_MSC_VER)
+        __debugbreak();
+#elif defined(__clang__)
+        __builtin_debugtrap();
+#elif defined(__GNUC__)
+        __builtin_trap();
+#else
+        * (volatile int*)0 = 0;
+#endif
+    }
 
-        std::string full_message = std::format(
-            "{} failed [file: {}; function: {}; line: {}] {}",
-            is_core ? "Core verify" : "Verify",
-            file,
-            function,
-            line,
-            msg
-        );
+    void logFailure(bool is_core, std::string_view msg, std::source_location loc = std::source_location{})
+    {
+        using namespace std::string_literals;
+        using namespace std::string_view_literals;
+        std::string loc_msg{ "" };
+		if (std::string_view is_meaningles = loc.file_name(); not is_meaningles.empty())
+        {
+			std::string_view file = loc.file_name();
+			std::size_t line_num = loc.line();
+			std::string_view function = loc.function_name();
+            loc_msg = std::vformat(
+                "[FILE: {}; FUNCTION: {}; LINE: {}]"sv,
+                std::make_format_args(
+                    file,
+                    function,
+                    line_num
+                )
+            );
+        }
+
+		std::string full_message = 
+            std::vformat("!VERIFY FAILED! {} {}"s,
+                std::make_format_args(msg, loc_msg));
 
         if (is_core)
             bm::log::Log::getCoreLogger()->log(spdlog::level::critical, full_message);
         else
             bm::log::Log::getClientLogger()->log(spdlog::level::critical, full_message);
-
-        debugBreak();
     }
 
 
@@ -38,26 +55,38 @@ namespace core
 {
 
 	export template<typename... Args>
-	void verify(const bool condition, std::string_view msg = {}, Args&&... args, std::source_location loc = std::source_location::current())
+	void verify(std::source_location loc, const bool condition, std::string_view msg = {}, Args&&... args)
 	{
         if constexpr (config::enable_verify)
         {
             if (condition) [[likely]]
 				return;
             
-            std::string formatted_msg = std::string(msg);
+            std::string formatted_msg(msg);
             if constexpr (sizeof...(args) > 0)
                 formatted_msg = std::vformat(msg, std::make_format_args(std::forward<Args>(args)...));
 
-            logFailure(true, condition, formatted_msg, loc);
-            
+            using namespace std;
+            if constexpr (config::is_debug)
+            {
+                logFailure(true, formatted_msg, loc);
+                breakpoint();
+            }
+			else
+                terminate();
 		}
 	}
+
+    export template<typename... Args>
+    void verify(const bool condition, std::string_view msg = {}, Args&&... args)
+    {
+        verify(std::source_location{}, condition, msg, std::forward<Args>(args)...);
+    }
 
 }
 
 	export template<typename... Args>
-	void verify(const bool condition, std::string_view msg = {}, Args&&... args, std::source_location loc = std::source_location::current())
+	void verify(std::source_location loc, const bool condition, std::string_view msg = {}, Args&&... args)
 	{
         if constexpr (config::enable_verify)
         {
@@ -68,9 +97,20 @@ namespace core
             if constexpr (sizeof...(args) > 0)
                 formatted_msg = std::vformat(msg, std::make_format_args(std::forward<Args>(args)...));
 
-            logFailure(false, condition, formatted_msg, loc);
-
+            using namespace std;
+            if constexpr (config::is_debug)
+            {
+                logFailure(false, formatted_msg, loc);
+                breakpoint();
+            }
+            else
+                terminate();
         }
 	}
 
+    export template<typename... Args>
+    void verify(const bool condition, std::string_view msg = {}, Args&&... args)
+    {
+        verify(std::source_location{}, condition, msg, std::forward<Args>(args)...);
+    }
 }

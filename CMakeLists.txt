@@ -55,23 +55,13 @@ file(GLOB_RECURSE BM_CORE_IMPLS impl/core/*.cpp)
 source_group(Core FILES ${BM_CORE_MODS} ${BM_CORE_IMPLS})
 
 # Graphic group
-file(GLOB_RECURSE BM_GFX_MODS mod/graphic/${BM_GRAPHIC}/*.cppm 
-	mod/graphic/asset_manager.cppm
-	mod/graphic/platform.cppm
-	mod/graphic/scene.cppm
-	mod/graphic/graphic.cppm
-)
-file(GLOB_RECURSE BM_GFX_IMPLS impl/graphic/${BM_GRAPHIC}/*.cpp)
+file(GLOB BM_GFX_MODS LIST_DIRECTORIES NO mod/gfx/${BM_GRAPHIC}/*.cppm mod/gfx/*.cppm)
+file(GLOB BM_GFX_IMPLS LIST_DIRECTORIES NO impl/gfx/${BM_GRAPHIC}/*.cpp impl/gfx/*.cpp)
 source_group(Graphic FILES ${BM_GFX_MODS} ${BM_GFX_IMPLS})
 
 # Platform group
-file(GLOB_RECURSE BM_PLATFORM_MODS mod/platform/${BM_PLATFORM}/*.cppm
-	mod/platform/platform.cppm
-	mod/platform/controller.cppm
-)
-file(GLOB_RECURSE BM_PLATFORM_IMPLS impl/platform/${BM_PLATFORM}/*.cpp
-	impl/platform/controller.cpp
-)
+file(GLOB BM_PLATFORM_MODS LIST_DIRECTORIES NO mod/platform/${BM_PLATFORM}/*.cppm mod/platform/*.cppm)
+file(GLOB BM_PLATFORM_IMPLS LIST_DIRECTORIES NO impl/platform/${BM_PLATFORM}/*.cpp impl/platform/*.cpp)
 source_group(Platform FILES ${BM_PLATFORM_MODS} ${BM_PLATFORM_IMPLS})
 
 # Audio group
@@ -80,14 +70,19 @@ file(GLOB_RECURSE BM_AUDIO_IMPLS impl/audio/*.cpp)
 source_group(Audio FILES ${BM_AUDIO_MODS} ${BM_AUDIO_IMPLS})
 
 # Application group
-file(GLOB_RECURSE BM_APP_MODS mod/application/*.cppm)
-file(GLOB_RECURSE BM_APP_IMPLS impl/application/*.cpp)
+file(GLOB_RECURSE BM_APP_MODS mod/app/*.cppm)
+file(GLOB_RECURSE BM_APP_IMPLS impl/app/*.cpp)
 source_group(Application FILES ${BM_APP_MODS} ${BM_APP_IMPLS})
 
 # UI group
 file(GLOB_RECURSE BM_UI_MODS mod/ui/*.cppm)
 file(GLOB_RECURSE BM_UI_IMPLS impl/ui/*.cpp)
 source_group(UI FILES ${BM_UI_MODS} ${BM_UI_IMPLS})
+
+# Resources group
+file(GLOB_RECURSE BM_RES_MODS mod/res/*.cppm)
+file(GLOB_RECURSE BM_RES_IMPLS impl/res/*.cpp)
+source_group(Resources FILES ${BM_RES_MODS} ${BM_RES_IMPLS})
 
 
 #------------------------------------------------#
@@ -106,11 +101,11 @@ target_sources(BridgeMaker
 		${BM_CORE_MODS}
 		${BM_CORE_IMPLS}
 	PRIVATE
-	FILE_SET application TYPE CXX_MODULES BASE_DIRS mod/application impl/application FILES
+	FILE_SET application TYPE CXX_MODULES BASE_DIRS mod/app impl/app FILES
 		${BM_APP_MODS}
 		${BM_APP_IMPLS}
 	PRIVATE 
-	FILE_SET graphic TYPE CXX_MODULES BASE_DIRS mod/graphic impl/graphic FILES
+	FILE_SET graphic TYPE CXX_MODULES BASE_DIRS mod/gfx impl/gfx FILES
 		${BM_GFX_MODS}
 		${BM_GFX_IMPLS}
 	PRIVATE
@@ -125,6 +120,10 @@ target_sources(BridgeMaker
 	FILE_SET ui TYPE CXX_MODULES BASE_DIRS mod/ui impl/ui FILES
 		${BM_UI_MODS}
 		${BM_UI_IMPLS}
+	PRIVATE
+	FILE_SET resources TYPE CXX_MODULES BASE_DIRS mod/res impl/res FILES
+		${BM_RES_MODS}
+		${BM_RES_IMPLS}
 )
 
 

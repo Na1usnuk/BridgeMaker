@@ -18,6 +18,7 @@ namespace bm::ui
 		~ImGuiRenderer();
 
 		template<class T>
+			requires not std::is_invocable_v<T>
 		void submit(T& t)
 		{
 			std::type_index id(typeid(T));
@@ -33,11 +34,15 @@ namespace bm::ui
 			m_calls.push_back(call_func);
 		}
 
-		template<class T>
-		void submit(T&& t) = delete; // Rvalues are forbidden 
+		template<class F>
+			requires std::is_invocable_v<F>
+		void submit(F&& func)
+		{
+			m_calls.emplace_back(func);
+		}
 
 		template<typename T>
-		void registerFunction(std::function<void(T&)> func)
+		void registerType(std::function<void(T&)> func)
 		{
 			std::type_index id(typeid(T));
 			if (m_funcs.contains(id))

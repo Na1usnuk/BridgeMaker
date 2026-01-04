@@ -61,7 +61,7 @@ namespace bm
 	
 		bool operator==(const Window& oth) const { return m_window == oth.m_window; }
 	
-		Window(std::string_view v, int w, int h, bool vs = true, bool decorated = true, bool visible = true, /*to allow context make window*/ Window* shared = nullptr);
+		Window(std::string_view v, int w, int h, bool vs, bool decorated = true, bool visible = true, /*to allow context make window*/ Window* shared = nullptr);
 		~Window();
 	
 		void onUpdate();
