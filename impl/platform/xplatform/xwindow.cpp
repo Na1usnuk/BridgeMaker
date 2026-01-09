@@ -6,7 +6,6 @@ module;
 module bm.platform:window;
 import :window;
 import :input;
-import :cursor;
 
 import bm.core;
 
@@ -50,7 +49,6 @@ namespace bm
 	{
 		glfwDestroyWindow(m_window);
 		m_window = nullptr;
-		Cursor::destroy();
 		core::log::trace("Window \"{0}\" is destroyed", m_data.title);
 	}
 	
@@ -216,7 +214,6 @@ namespace bm
 	
 		m_data.window = this;
 	
-		Cursor::init();
 		setVSync(m_data.vsync);
 	}
 	
