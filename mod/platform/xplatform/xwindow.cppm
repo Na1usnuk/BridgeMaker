@@ -42,7 +42,6 @@ namespace bm
 			bool vsync;
 			bool decorated;
 			bool visible;
-			event::Event::EventCallbackFn callback;
 			Window* window = nullptr;
 	
 			struct
@@ -84,7 +83,6 @@ namespace bm
 		void setSize(int width, int height);
 		void setOpacity(float opacity = 1.f);
 		void setPosition(int x, int y);
-		void setEventCallback(event::Event::EventCallbackFn fn) { m_data.callback = fn; }
 	
 		void setCaptureCursor(bool value);
 		
@@ -99,16 +97,6 @@ namespace bm
 	private:
 	
 		void create(Window* shared);
-		void setGLFWPointer();
-		void setKeyCallback();
-		void setMouseButtonCallback();
-		void setCloseCallback();
-		void setResizeCallback();
-		void setPosCallback();
-		void setAllCallbacks();
-		void setMouseMoveCallback();
-		void setWindowFocusCallback();
-		void setMouseScrollCallback();
 	
 	private:
 	
@@ -116,76 +104,5 @@ namespace bm
 		Data m_data;
 	};
 	
-
-	// Window events
-	namespace event
-	{
-		export class  WindowResize : public Event
-		{
-		public:
-
-			WindowResize(int x, int y) : m_width(x), m_height(y) {}
-
-			int getWidth() const { return m_width; }
-			int getHeight() const { return m_height; }
-
-			std::string toString() const override;
-			constexpr const char* getName() const override { return "WindowResize"; }
-
-			static Type getStaticType() { return Type::WindowResize; }
-			Type getType() const override { return getStaticType(); }
-			int getCategoryFlags() const override { return Category::Application; }
-
-		private:
-
-			int	m_height, m_width;
-
-		};
-
-
-		export class  WindowClose : public Event
-		{
-		public:
-
-			WindowClose(Window* window) : m_window(window) {}
-
-			constexpr const char* getName() const override { return "WindowClose"; }
-
-			static Type getStaticType() { return Type::WindowClose; }
-			Type getType() const override { return getStaticType(); }
-			int getCategoryFlags() const override { return Category::Application; }
-
-			Window& getWindow() { return *m_window; }
-
-		private:
-
-			Window* m_window;
-
-		};
-
-
-		export class WindowMove : public Event
-		{
-		public:
-
-			WindowMove(const int x, const int y) : m_x(x), m_y(y) {}
-
-			std::string toString() const override;
-			constexpr const char* getName() const override { return "WindowMove"; }
-
-			static Type getStaticType() { return Type::WindowMove; }
-			Type getType() const override { return getStaticType(); }
-			int getCategoryFlags() const override { return Category::Application; }
-
-			const int getX() const { return m_x; }
-			const int getY() const { return m_y; }
-			std::pair<const int, const int> getPosition() const { return { getX(), getY() }; }
-
-		private:
-
-			const int m_x, m_y;
-
-		};
-	}
 
 }

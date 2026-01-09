@@ -6,5 +6,4 @@ export import :config;
 export import :time;
 export import :layer;
 export import :traits;
-export import :event;
 export import :utility;

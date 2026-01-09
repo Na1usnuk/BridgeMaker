@@ -9,7 +9,7 @@ import :image;
 
 import std;
 
-namespace bm
+namespace bm::gfx
 {
 	Image::Image(const std::filesystem::path& filepath) :
 		m_meta(0, 0, Format::None, filepath),

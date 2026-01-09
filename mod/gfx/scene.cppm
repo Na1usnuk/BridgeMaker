@@ -27,7 +27,6 @@ namespace bm::gfx
 
 		// Optional overrides
 		virtual void onUpdate(float deltaTime) {}
-		virtual void onEvent(event::Event& event) {}
 		virtual void onRender() {}
 
 		void addObject(Handler<Object> handler) noexcept

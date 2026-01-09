@@ -4,7 +4,7 @@ import bm.core;
 
 import std;
 
-namespace bm
+namespace bm::gfx
 {
 	export class Image
 	{

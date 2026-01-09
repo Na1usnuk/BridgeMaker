@@ -8,7 +8,7 @@ import bm.core;
 namespace bm
 {
 
-	DebugCameraController::DebugCameraController(gfx::Camera& camera_to_control, float speed, float sensetivity)
+	/*DebugCameraController::DebugCameraController(gfx::Camera& camera_to_control, float speed, float sensetivity)
 		: Layer("Debug Camera Controller"),
 		m_camera(&camera_to_control),
 		m_speed(speed),
@@ -124,5 +124,5 @@ namespace bm
 		if (Input::isPressed(Input::Key::Q) || Input::isPressed(Input::Key::LEFT_CONTROL))
 			m_camera->setPosition(m_camera->getPosition() - world_up * speed);
 
-	}
+	}*/
 }

@@ -39,7 +39,7 @@ namespace bm
 		virtual void onStartup() {}
 		virtual void onUpdate(float delta_time) = 0;
 		virtual void onRender() {}
-		virtual void onEvent(event::Event& e);
+		//virtual void onEvent(event::Event& e);
 		virtual void onShutdown() {}
 
 		Window& getWindow() { return m_window; }

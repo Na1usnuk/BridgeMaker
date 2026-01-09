@@ -34,7 +34,7 @@ namespace bm::gfx
 	
 	public:
 	
-		Texture(const bm::Image& image);
+		Texture(const Image& image);
 		
 		~Texture();
 

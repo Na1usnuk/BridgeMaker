@@ -10,7 +10,7 @@ namespace bm
 		m_is_running(true),
 		m_return_code(0)
 	{
-		m_window.setEventCallback([this](event::Event& e) { onEvent(e); });
+		//m_window.setEventCallback([this](event::Event& e) { onEvent(e); });
 	}
 
 	int Application::run(int argc, char** argv)
@@ -39,9 +39,9 @@ namespace bm
 		return m_return_code;
 	}
 
-	void Application::onEvent(event::Event& e)
-	{
-		event::Dispatcher d(e);
-		d.dispatch<event::WindowClose>([this](event::WindowClose& c) {close(); return true; });
-	}
+	//void Application::onEvent(event::Event& e)
+	//{
+	//	event::Dispatcher d(e);
+	//	d.dispatch<event::WindowClose>([this](event::WindowClose& c) {close(); return true; });
+	//}
 }

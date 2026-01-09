@@ -3,7 +3,6 @@ export module bm.core:layer;
 import std;
 
 import :traits;
-import :event;
 
 namespace bm 
 {
@@ -34,9 +33,7 @@ namespace bm
 	
 		virtual void onAttach() {}
 		virtual void onDetach() {}
-		virtual void onEvent(event::Event& e) {}
 		virtual void onUpdate(float delta_time) {}
-		virtual void onImGuiRender() {}
 	
 		template<class L, typename... Args>
 			requires std::is_base_of_v<Layer, L>
