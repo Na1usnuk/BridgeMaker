@@ -16,187 +16,32 @@ namespace bm
 		enum class Mouse;
 	
 	public:
+
+		explicit Input(const Window& window) noexcept;
+
+		bool isPressed(Key key) const noexcept;
+		bool isReleased(Key key) const noexcept;
+		bool isPressed(Mouse key) const noexcept;
+		bool isReleased(Mouse key) const noexcept;
+
+		std::pair<double, double> getMousePosition() const noexcept;
 	
-		static bool isPressed(Key key);
-		static bool isReleased(Key key);
-		static bool isPressed(Mouse key);
-		static bool isReleased(Mouse key);
-		static std::pair<float, float> getMousePosition();
-		static void setMousePosition(const std::pair<float, float>& pos);
-	
-		static Window* getCurrentWindow() { return s_window; }
-		static void    setCurrentWindow(Window* window) { s_window = window; }
-	
+		const Window& getWindow() const { return m_window; }
+
 	private:
 	
-		static bool isPressedImpl(Window& window, int key);
-		static bool isReleasedImpl(Window& window, int key);
-	
-		static Window* s_window;
-	
-		static std::pair<float, float> s_mouse_pos;
+		const Window& m_window;
 	
 	};
 
-	namespace event
+	export bool operator==(const Input& lhs, const Input& rhs) noexcept
 	{
-		export class  MouseMove : public Event
-		{
-		public:
+		return lhs.getWindow() == rhs.getWindow();
+	}
 
-			MouseMove(float x, float y) : m_mouseX(x), m_mouseY(y) {}
-
-			float getX() const { return m_mouseX; }
-			float getY() const { return m_mouseY; }
-
-			std::string toString() const override;
-
-			const char* getName() const override { return "MouseMovedEvent"; }
-
-			static Type getStaticType() { return Type::MouseMove; }
-			Type getType() const override { return getStaticType(); }
-			int getCategoryFlags() const override { return Category::Mouse | Category::Input; }
-
-		private:
-
-			float m_mouseX, m_mouseY;
-
-		};
-
-
-		export class  MouseScroll : public Event
-		{
-		public:
-
-			MouseScroll(float x, float y) : m_offsetX(x), m_offsetY(y) {}
-
-			float getX() const { return m_offsetX; }
-			float getY() const { return m_offsetY; }
-
-			std::string toString() const override;
-			const char* getName() const override { return "MouseScroll"; }
-
-			static Type getStaticType() { return Type::MouseScroll; }
-			Type getType() const override { return getStaticType(); }
-			int getCategoryFlags() const override { return Category::Mouse | Category::Input; }
-
-		private:
-
-			float m_offsetX, m_offsetY;
-
-		};
-
-
-		class  MouseButton : public Event
-		{
-		public:
-
-			::bm::Input::Mouse getKey() const { return m_button; }
-
-			int getCategoryFlags() const override { return Category::Mouse | Category::Input; }
-
-		protected:
-
-			MouseButton(::bm::Input::Mouse button) : m_button(button) {}
-
-			::bm::Input::Mouse m_button;
-
-		};
-
-
-		export class  MouseButtonPress : public MouseButton
-		{
-		public:
-
-			MouseButtonPress(::bm::Input::Mouse button) :
-				MouseButton(button)
-			{}
-
-			std::string toString() const override;
-			const char* getName() const override { return "MouseButtonPress"; }
-
-			static Type getStaticType() { return Type::MouseButtonPress; }
-			Type getType() const override { return getStaticType(); }
-
-		};
-
-
-		export class  MouseButtonRelease : public MouseButton
-		{
-		public:
-
-			MouseButtonRelease(::bm::Input::Mouse button) :
-				MouseButton(button)
-			{}
-
-			std::string toString() const override;
-			const char* getName() const override { return "MouseButtonRelease"; }
-
-			static Type getStaticType() { return Type::MouseButtonRelease; }
-			Type getType() const override { return getStaticType(); }
-
-		};
-
-
-		class  Key : public Event
-		{
-		public:
-
-			::bm::Input::Key getKey() const { return m_key; }
-
-			int getCategoryFlags() const override { return Category::Keyboard | Category::Input; }
-
-		protected:
-
-			Key(::bm::Input::Key key) : m_key(key) {}
-
-			::bm::Input::Key m_key;
-
-		};
-
-
-		export class  KeyPress : public Key
-		{
-		public:
-
-			KeyPress(::bm::Input::Key key, int repeatCount) :
-				Key(key), m_repeatCount(repeatCount)
-			{}
-
-			int getRepeatCount() const { return m_repeatCount; }
-
-			std::string toString() const override;
-			const char* getName() const override { return "KeyPress"; }
-
-			static Type getStaticType() { return Type::KeyPress; }
-			Type getType() const override { return getStaticType(); }
-
-		private:
-
-			int m_repeatCount;
-
-		};
-
-
-		export class  KeyRelease : public Key
-		{
-		public:
-
-			KeyRelease(::bm::Input::Key key) :
-				Key(key)
-			{}
-
-			std::string toString() const override;
-			const char* getName() const override { return "KeyRelease"; }
-
-			static Type getStaticType() { return Type::KeyRelease; }
-			Type getType() const override { return getStaticType(); }
-
-		private:
-
-			int m_repeat_count;
-
-		};
+	export bool operator!=(const Input& lhs, const Input& rhs) noexcept
+	{
+		return not (lhs == rhs);
 	}
 	
 	//from glfw3.h
