@@ -122,22 +122,24 @@ namespace bm
 		EventSystem(const EventSystem&) = delete;
 		EventSystem& operator=(const EventSystem&) = delete;
 
-		EventSystem(EventSystem&&) = default;
-		EventSystem& operator=(EventSystem&&) = default;
+		EventSystem(EventSystem&&) noexcept = default;
+		EventSystem& operator=(EventSystem&&) noexcept = default;
 
-		void setEventCallback(EventCallback callback) { m_callbacks.event = std::move(callback); }
+		void pollEvents() const noexcept;
 
-		void setWindowResizeCallback(WindowResizeCallback callback) { m_callbacks.window.resize = std::move(callback); }
-		void setWindowMoveCallback(WindowMoveCallback callback) { m_callbacks.window.move = std::move(callback); }
-		void setWindowCloseCallback(WindowCloseCallback callback) { m_callbacks.window.close = std::move(callback); }
+		void setEventCallback(EventCallback callback) noexcept { m_callbacks.event = std::move(callback); }
 
-		void setKeyPressCallback(KeyPressCallback callback) { m_callbacks.key.press = std::move(callback); }
-		void setKeyReleaseCallback(KeyReleaseCallback callback) { m_callbacks.key.release = std::move(callback); }
+		void setWindowResizeCallback(WindowResizeCallback callback) noexcept { m_callbacks.window.resize = std::move(callback); }
+		void setWindowMoveCallback(WindowMoveCallback callback) noexcept { m_callbacks.window.move = std::move(callback); }
+		void setWindowCloseCallback(WindowCloseCallback callback) noexcept { m_callbacks.window.close = std::move(callback); }
+
+		void setKeyPressCallback(KeyPressCallback callback) noexcept { m_callbacks.key.press = std::move(callback); }
+		void setKeyReleaseCallback(KeyReleaseCallback callback) noexcept { m_callbacks.key.release = std::move(callback); }
 		
-		void setMouseMoveCallback(MouseMoveCallback callback) { m_callbacks.mouse.move = std::move(callback); }
-		void setMouseButtonPressCallback(MouseButtonPressCallback callback) { m_callbacks.mouse.press = std::move(callback); }
-		void setMouseButtonReleaseCallback(MouseButtonReleaseCallback callback) { m_callbacks.mouse.release = std::move(callback); }
-		void setMouseScrollCallback(MouseScrollCallback callback) { m_callbacks.mouse.scroll = std::move(callback); }
+		void setMouseMoveCallback(MouseMoveCallback callback) noexcept { m_callbacks.mouse.move = std::move(callback); }
+		void setMouseButtonPressCallback(MouseButtonPressCallback callback) noexcept { m_callbacks.mouse.press = std::move(callback); }
+		void setMouseButtonReleaseCallback(MouseButtonReleaseCallback callback) noexcept { m_callbacks.mouse.release = std::move(callback); }
+		void setMouseScrollCallback(MouseScrollCallback callback) noexcept { m_callbacks.mouse.scroll = std::move(callback); }
 
 	private:
 

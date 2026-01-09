@@ -12,11 +12,14 @@ namespace bm::gfx
 		Context(bm::Window& window, Context& shared);
 		Context(bm::Window& window);
 
-		Version getVersion() const { return m_gl_version; }
-		void swapBuffers();
-		void makeCurrent();
+		Version getVersion() const noexcept { return m_gl_version; }
+		void swapBuffers() noexcept;
+		void makeCurrent() noexcept;
 
-		static Context& getCurrent() { core::verify(s_current_ctx, "Current context is not set"); return *s_current_ctx; }
+		bool getVSync() const noexcept { return m_vsync; }
+		void setVSync(bool enable) noexcept;
+
+		static Context& getCurrent() noexcept { core::verify(s_current_ctx, "Current context is not set"); return *s_current_ctx; }
 
 	private:
 
@@ -32,6 +35,7 @@ namespace bm::gfx
 
 		bm::Window* m_window;
 		Version m_gl_version;
+		bool m_vsync = true;
 		static Context* s_current_ctx;
 
 	};

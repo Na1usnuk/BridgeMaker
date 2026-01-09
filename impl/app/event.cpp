@@ -114,6 +114,11 @@ namespace bm
 		glfwSetScrollCallback(m_window.getNative(), nullptr);
 	}
 
+	void EventSystem::pollEvents() const noexcept
+	{
+		glfwPollEvents();
+	}
+
 	EventSystem::Callbacks::Callbacks()
 	{
 		// Default universal callback

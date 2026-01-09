@@ -4,8 +4,8 @@ import bm.core;
 
 namespace bm
 {
-	Application::Application(std::string_view title, int width, int heigth, bool vsync, bool decorated, bool visible) :
-		m_window(title, width, heigth, vsync, decorated, visible),
+	Application::Application(std::string_view title, int width, int heigth, bool decorated, bool visible) :
+		m_window(title, width, heigth, decorated, visible),
 		m_ctx(m_window),
 		m_is_running(true),
 		m_return_code(0)
@@ -27,7 +27,7 @@ namespace bm
 		{
 			m_timestep.onUpdate();
 
-			m_window.onUpdate(); // Poll events
+			//m_window.onUpdate(); // Poll events
 			onUpdate(m_timestep.getDeltaTime());
 			onRender();
 

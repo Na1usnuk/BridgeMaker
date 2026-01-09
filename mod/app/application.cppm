@@ -29,7 +29,7 @@ namespace bm
 
 	protected:
 
-		Application(std::string_view title = "Bridge Maker App", int width = 1280, int heigth = 720, bool vsync = false, bool decorated = true, bool visible = true);
+		Application(std::string_view title = "Bridge Maker App", int width = 1280, int heigth = 720, bool decorated = true, bool visible = true);
 
 		virtual ~Application() = default;
 

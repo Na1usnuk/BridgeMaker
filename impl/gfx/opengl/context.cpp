@@ -33,10 +33,16 @@ namespace bm::gfx
 		init(window, shared);
 	}
 
-	void Context::makeCurrent()
+	void Context::makeCurrent() noexcept
 	{
 		s_current_ctx = this;
 		glfwMakeContextCurrent(m_window->getNative());
+	}
+
+	void Context::setVSync(bool enabled) noexcept
+	{
+		glfwSwapInterval(enabled ? 1 : 0);
+		m_vsync = enabled;
 	}
 
 	void Context::init(bm::Window& window, Context& shared)
@@ -47,10 +53,11 @@ namespace bm::gfx
 			window.getTitle(), 
 			window.getWidth(), 
 			window.getHeight(), 
-			window.getVSync(), 
 			window.isDecorated(), 
 			window.isVisible(), 
 			&shared.getWindow());
+
+		setVSync(m_vsync);
 
 		infoPrint();
 		recognizeVersion();
@@ -63,6 +70,8 @@ namespace bm::gfx
 		auto status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		core::verify(status, "Failed to initialize Glad");
 		core::log::info("Glad initialized");
+
+		setVSync(m_vsync);
 
 		infoPrint();
 		recognizeVersion();
@@ -102,7 +111,7 @@ namespace bm::gfx
 		glfwTerminate();
 	}
 
-	void Context::swapBuffers()
+	void Context::swapBuffers() noexcept
 	{
 		core::verify(m_window, "Current context is invalid");
 		glfwSwapBuffers(m_window->getNative());
