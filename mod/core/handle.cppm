@@ -30,22 +30,22 @@ namespace bm
 		}
 	};
 
-	export template<class T>
-		requires std::is_object_v<T> and std::is_move_constructible_v<T>
+	export template<class K, class V = K>
+		requires std::is_object_v<V> and std::is_move_constructible_v<V>
 		class HandleStorage
 	{
 	public:
 
-		using Handle = Handle<T>;
+		using Handle = Handle<K>;
 
-		using OptionalRef = std::optional<std::reference_wrapper<T>>;
-		using ConstOptionalRef = std::optional<std::reference_wrapper<const T>>;
+		using OptionalRef = std::optional<std::reference_wrapper<V>>;
+		using ConstOptionalRef = std::optional<std::reference_wrapper<const V>>;
 
 	private:
 
 		struct Slot
 		{
-			std::optional<T> asset;
+			std::optional<V> asset;
 			std::uint32_t generation = 1;
 		};
 
@@ -63,7 +63,7 @@ namespace bm
 			const auto slot = nextSlot();
 
 			if (slot == m_storage.slots.size())
-				m_storage.slots.emplace_back(Slot{ .asset = T(std::forward<Args>(args)...) });
+				m_storage.slots.emplace_back(Slot{ .asset = V(std::forward<Args>(args)...) });
 			else
 				m_storage.slots[slot].asset.emplace(std::forward<Args>(args)...);
 
@@ -87,7 +87,7 @@ namespace bm
 			m_storage.free_slots.push_back(handle.index);
 		}
 
-		const T& get(Handle handle) const noexcept
+		const V& get(Handle handle) const noexcept
 		{
 			core::verify(handle.index < m_storage.slots.size() and
 				m_storage.slots[handle.index].generation == handle.generation and
@@ -97,9 +97,9 @@ namespace bm
 			return m_storage.slots[handle.index].asset.value();
 		}
 
-		T& get(Handle handle) noexcept
+		V& get(Handle handle) noexcept
 		{
-			return const_cast<T&>(static_cast<const HandleStorage*>(this)->get(handle));
+			return const_cast<V&>(static_cast<const HandleStorage*>(this)->get(handle));
 		}
 
 		ConstOptionalRef tryGet(Handle handle) const noexcept
@@ -116,7 +116,7 @@ namespace bm
 			auto result = static_cast<const HandleStorage*>(this)->tryGet(handle);
 			if (!result)
 				return std::nullopt;
-			return std::ref(const_cast<T&>(result->get()));
+			return std::ref(const_cast<V&>(result->get()));
 		}
 
 	private:
