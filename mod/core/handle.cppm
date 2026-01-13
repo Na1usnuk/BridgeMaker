@@ -12,12 +12,16 @@ namespace bm
 	export template<class T>
 		struct [[nodiscard]] Handle
 	{
+		using Index = std::uint32_t;
+		using Generation = std::uint32_t;
+
 		constexpr Handle() noexcept = default;
-		constexpr Handle(std::uint32_t index, std::uint32_t generation) noexcept
+		constexpr Handle(Index index, Generation generation) noexcept
 			: index(index), generation(generation)
 		{}
 
-		std::uint32_t index = 0, generation = 0;
+		Index index = 0;
+		Generation generation = 0;
 
 		constexpr bool operator==(const Handle<T>& oth) const noexcept { return index == oth.index and generation == oth.generation; }
 		constexpr bool operator!=(const Handle<T>& oth) const noexcept { return not(*this == oth); }
@@ -45,23 +49,30 @@ namespace bm
 	{
 	public:
 
-		using Handle = Handle<K>;
+		using Key = K;
+		using Value = V;
 
-		using OptionalRef = std::optional<std::reference_wrapper<V>>;
-		using ConstOptionalRef = std::optional<std::reference_wrapper<const V>>;
+		using Handle = Handle<Key>;
+		using HandleIndex = typename Handle::Index;
+		using HandleGeneration = typename Handle::Generation;
+
+		using OptionalRef = std::optional<std::reference_wrapper<Value>>;
+		using ConstOptionalRef = std::optional<std::reference_wrapper<const Value>>;
 
 	private:
 
+		using SlotIndex = HandleIndex;
+
 		struct Slot
 		{
-			std::optional<V> asset;
-			std::uint32_t generation = 1;
+			std::optional<Value> asset;
+			HandleGeneration generation = 1;
 		};
 
 		struct Storage
 		{
 			std::vector<Slot> slots;
-			std::vector<std::uint32_t> free_slots;
+			std::vector<SlotIndex> free_slots;
 		};
 
 	public:
@@ -77,13 +88,13 @@ namespace bm
 
 		// Load asset and return handle
 		template<typename... Args>
-			requires std::constructible_from<V, Args...>
+			requires std::constructible_from<Value, Args...>
 		Handle load(Args&&... args)
 		{
 			const auto slot = nextSlot();
 
 			if (slot == m_storage.slots.size())
-				m_storage.slots.emplace_back(Slot{ .asset = V(std::forward<Args>(args)...) });
+				m_storage.slots.emplace_back(Slot{ .asset = Value(std::forward<Args>(args)...) });
 			else
 				m_storage.slots[slot].asset.emplace(std::forward<Args>(args)...);
 
@@ -123,7 +134,7 @@ namespace bm
 		}
 
 		// Get asset by handle. Unsafe if handle is invalid, but faster than tryGet
-		const V& get(Handle handle) const noexcept
+		const Value& get(Handle handle) const noexcept
 		{
 			core::verify(handle.isValid(), "HandleStorage::get verify failed: invalid handle");
 			core::verify(m_storage.slots.size() > handle.index, "HandleStorage::get verify failed: out of range handle");
@@ -135,7 +146,7 @@ namespace bm
 			return m_storage.slots[handle.index].asset.value();
 		}
 
-		V& get(Handle handle) noexcept
+		Value& get(Handle handle) noexcept
 		{
 			return const_cast<V&>(static_cast<const HandleStorage*>(this)->get(handle));
 		}
@@ -155,7 +166,7 @@ namespace bm
 			auto result = static_cast<const HandleStorage*>(this)->tryGet(handle);
 			if (!result)
 				return std::nullopt;
-			return std::ref(const_cast<V&>(result->get()));
+			return std::ref(const_cast<Value&>(result->get()));
 		}
 
 		bool contains(Handle handle) const noexcept
@@ -166,7 +177,7 @@ namespace bm
 	private:
 
 		// Helper. Get next available slot index
-		std::uint32_t nextSlot() noexcept
+		SlotIndex nextSlot() noexcept
 		{
 			if (not m_storage.free_slots.empty())
 			{
