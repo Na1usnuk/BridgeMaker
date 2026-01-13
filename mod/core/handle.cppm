@@ -3,6 +3,7 @@ export module bm.core:handle;
 import std;
 
 import :verify;
+import :log;
 
 namespace bm
 {
@@ -11,16 +12,22 @@ namespace bm
 	export template<class T>
 		struct [[nodiscard]] Handle
 	{
+		constexpr Handle() noexcept = default;
+		constexpr Handle(std::uint32_t index, std::uint32_t generation) noexcept
+			: index(index), generation(generation)
+		{}
+
 		std::uint32_t index = 0, generation = 0;
 
-		bool operator==(const Handle<T>& oth) const noexcept { return index == oth.index and generation == oth.generation; }
-		bool operator!=(const Handle<T>& oth) const noexcept { return not(*this == oth); }
+		constexpr bool operator==(const Handle<T>& oth) const noexcept { return index == oth.index and generation == oth.generation; }
+		constexpr bool operator!=(const Handle<T>& oth) const noexcept { return not(*this == oth); }
 
-		void invalidate() noexcept { generation = index = 0; }
-		bool isValid() const noexcept { return generation not_eq 0; }
-		operator bool() const noexcept { return isValid(); }
+		constexpr void invalidate() noexcept { generation = index = 0; }
+		constexpr bool isValid() const noexcept { return generation not_eq 0; }
+		constexpr operator bool() const noexcept { return isValid(); }
 	};
 
+	// Hash for Handle to use in unordered containers
 	export struct HandleHash
 	{
 		template<class T>
@@ -30,9 +37,11 @@ namespace bm
 		}
 	};
 
+	// Storage for resources managed by Handle
 	export template<class K, class V = K>
+		// V must be movable because storage may relocate elements
 		requires std::is_object_v<V> and std::is_move_constructible_v<V>
-		class HandleStorage
+	class HandleStorage
 	{
 	public:
 
@@ -57,7 +66,18 @@ namespace bm
 
 	public:
 
+		HandleStorage() = default;
+		~HandleStorage() = default;
+
+		HandleStorage(const HandleStorage&) = delete;
+		HandleStorage& operator=(const HandleStorage&) = delete;
+
+		HandleStorage(HandleStorage&&) noexcept = default;
+		HandleStorage& operator=(HandleStorage&&) noexcept = default;
+
+		// Load asset and return handle
 		template<typename... Args>
+			requires std::constructible_from<V, Args...>
 		Handle load(Args&&... args)
 		{
 			const auto slot = nextSlot();
@@ -67,32 +87,50 @@ namespace bm
 			else
 				m_storage.slots[slot].asset.emplace(std::forward<Args>(args)...);
 
+			core::log::trace("HandleStorage::load: loaded resource {}", slot);
+
 			Handle handle{ slot, m_storage.slots[slot].generation };
 
 			return handle;
 		}
 
+		// Unload asset by handle
 		void unload(Handle handle) noexcept
 		{
+			core::verify(handle.isValid(), "HandleStorage::unload verify failed: invalid handle");
 			core::verify(m_storage.slots.size() > handle.index, "HandleStorage::unload verify failed: out of range handle");
-
-			if (m_storage.slots[handle.index].generation != handle.generation)
-			{
-				core::log::warning("HandleStorage::unload ignored: stale handle {}", handle.index);
-				return;
-			}
+			core::verify(m_storage.slots[handle.index].generation == handle.generation, 
+				"HandleStorage::unload verify failed: stale handle {}", handle.index);
 
 			m_storage.slots[handle.index].asset.reset();
 			m_storage.slots[handle.index].generation++;
 			m_storage.free_slots.push_back(handle.index);
+
+			core::log::trace("HandleStorage::unload: unloaded handle {}", handle.index);
 		}
 
+		// Unload all assets
+		// Note: invalidates all existing handles
+		void unload() noexcept
+		{
+			m_storage.slots.clear();
+			m_storage.free_slots.clear();
+
+			//m_storage.slots.shrink_to_fit();
+			//m_storage.free_slots.shrink_to_fit();
+
+			core::log::trace("HandleStorage::unload: unloaded all resources");
+		}
+
+		// Get asset by handle. Unsafe if handle is invalid, but faster than tryGet
 		const V& get(Handle handle) const noexcept
 		{
-			core::verify(handle.index < m_storage.slots.size() and
-				m_storage.slots[handle.index].generation == handle.generation and
-				m_storage.slots[handle.index].asset.has_value(),
-				"HandleStorage::get verify failed: cannot get resource by handle {}", handle.index);
+			core::verify(handle.isValid(), "HandleStorage::get verify failed: invalid handle");
+			core::verify(m_storage.slots.size() > handle.index, "HandleStorage::get verify failed: out of range handle");
+			core::verify(m_storage.slots[handle.index].generation == handle.generation,
+				"HandleStorage::get verify failed: stale handle {}", handle.index);
+			core::verify(m_storage.slots[handle.index].asset.has_value(),
+				"HandleStorage::get verify failed: empty slot {}", handle.index);
 
 			return m_storage.slots[handle.index].asset.value();
 		}
@@ -102,11 +140,12 @@ namespace bm
 			return const_cast<V&>(static_cast<const HandleStorage*>(this)->get(handle));
 		}
 
+		// Try get asset by handle. Return nullopt if handle is invalid
 		ConstOptionalRef tryGet(Handle handle) const noexcept
 		{
 			if (handle.index >= m_storage.slots.size() or
 				m_storage.slots[handle.index].generation != handle.generation or
-				!m_storage.slots[handle.index].asset)
+				not m_storage.slots[handle.index].asset.has_value())
 				return std::nullopt;
 			return std::cref(m_storage.slots[handle.index].asset.value());
 		}
@@ -119,8 +158,14 @@ namespace bm
 			return std::ref(const_cast<V&>(result->get()));
 		}
 
+		bool contains(Handle handle) const noexcept
+		{
+			return tryGet(handle).has_value();
+		}
+
 	private:
 
+		// Helper. Get next available slot index
 		std::uint32_t nextSlot() noexcept
 		{
 			if (not m_storage.free_slots.empty())
@@ -139,6 +184,7 @@ namespace bm
 
 
 	// Handle RAII wrapper to automatically unload asset
+	// To raw to use now. TODO: make smart haldle system usable and safe
 	export template<class T>
 		class [[nodiscard]] SmartHandle
 	{
