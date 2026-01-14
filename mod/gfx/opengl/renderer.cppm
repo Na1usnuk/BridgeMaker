@@ -5,9 +5,16 @@ import std;
 import :utility;
 
 import :buffer;
+import :texture;
+import :shader;
+import :mesh;
+import :material;
+import :object;
 
 import :camera;
 import :scene;
+
+import :manager;
 
 namespace bm::gfx
 {
@@ -31,6 +38,7 @@ namespace bm::gfx
 
 		void addVertexBuffer(const VertexBuffer& vbo, const VertexLayout& layout);
 		void setIndexBuffer(const IndexBuffer& ibo);
+		void unsetIndexBuffer();
 
 	private:
 
@@ -49,9 +57,14 @@ namespace bm::gfx
 	{
 	private:
 
+		template<class K, class V, class H = HandleHash>
+		using HandleMap = std::unordered_map<Handle<K>, V, H>;
+
 		// Shape of object
 		struct Shape
 		{
+			Mesh::Version version;
+
 			VertexArray vao;
 			VertexBuffer vbo;
 			std::optional<IndexBuffer> ibo;
@@ -62,7 +75,7 @@ namespace bm::gfx
 		// Helpers to map shaders to program
 		struct ShaderProgramKey
 		{
-			std::array<Handler<ShaderSource>, 2> sources; 
+			std::array<Handle<ShaderSource>, 2> sources; 
 			bool operator==(const ShaderProgramKey& other) const { return sources == other.sources; }
 		};
 		struct ShaderProgramKeyHash
@@ -70,40 +83,62 @@ namespace bm::gfx
 			std::size_t operator()(const ShaderProgramKey& key) const noexcept;
 		};
 
-		template<class K, class V>
-		using HandlerMap = std::unordered_map<Handler<K>, V, HandlerHash>;
-
-		struct Data
-		{
-			HandlerMap<Mesh, Shape> shapes;
-			HandlerMap<ShaderSource, Shader> shaders;
-			std::unordered_map<ShaderProgramKey, ShaderProgram, ShaderProgramKeyHash, std::equal_to<ShaderProgramKey>> programs;
-		};
 
 	public:
 	
-		Renderer();
-		~Renderer();
+		Renderer(ResourceManager& resource_manager) 
+			: m_manager(resource_manager)
+		{}
+
+		Renderer() = delete;
+		~Renderer() = default;
+		Renderer(const Renderer&) = delete;
+		Renderer& operator=(const Renderer&) = delete;
+		Renderer(Renderer&&) = delete;
+		Renderer& operator=(Renderer&&) = delete;
 	
 		void clearColor(std::array<float, 4> color);
 		void setViewportSize(int width, int height);
 
 		// Slow operation that allocate GPU resources. 
 		void prepare(const Scene& scene);
-		// Main draw command. Use prepare, or first frame will be extremly slow
+		void prepare(const Handle<Object> object_handle);
+		void prepare(const Handle<Mesh> mesh_handle);
+		void prepare(const Handle<ShaderSource> shader_source_handle);
+		void prepare(const Handle<Material> material_handle);
+		void prepare(const Handle<Image> image_handle);
+
+		// Deallocate GPU resources.
+		void destroy(Handle<Object> object_handle);
+		void destroy(Handle<Mesh> mesh_handle);
+		void destroy(Handle<ShaderSource> shader_source_handle);
+		void destroy(Handle<Material> material_handle);
+		void destroy(Handle<Image> image_handle);
+
+		// Destroy all allocated GPU resources.
+		void destroy();
+
+		// Main draw command. Use prepare beforehand to allocate resources.
 		void draw(const Scene& scene, Camera& camera);
-		// Deallocate all GPU resources.
-		void clear();
 
 	private:
 
-		void makeShape(Handler<Mesh> handler);
-		void makeShader(Handler<ShaderSource> handler, Shader::Stage stage);
-		void makeShaderProgram(Handler<ShaderSource> vertex, Handler<ShaderSource> fragment);
+		void allocate(const Handle<Mesh> mesh_handle);
+		void update(const Handle<Mesh> mesh_handle);
+
+		void allocate(Handle<ShaderSource> source_handle, Shader::Stage stage);
+		void allocate(Handle<ShaderSource> vertex_handle, Handle<ShaderSource> fragment_handle);
+
+		void allocate(Handle<Image> image_handle);
 	
 	private:
-	
-		Data m_data;
+
+		ResourceManager& m_manager;
+
+		HandleMap<Mesh, Shape> m_shapes;
+		HandleMap<Image, Texture> m_textures;
+		HandleMap<ShaderSource, Shader> m_shaders;
+		std::unordered_map<ShaderProgramKey, ShaderProgram, ShaderProgramKeyHash> m_programs;
 	
 	};
 

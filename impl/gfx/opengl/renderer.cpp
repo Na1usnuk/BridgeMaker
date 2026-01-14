@@ -170,6 +170,7 @@ namespace bm::gfx
 		vbo.bind();
 
 		std::size_t offset = 0;
+		m_attrib_count = 0;
 
 		for (const auto& attrib : layout.attributes)
 		{
@@ -190,9 +191,15 @@ namespace bm::gfx
 		GL_VERIFY(glVertexArrayElementBuffer, m_id, ibo.getId());
 	}
 
+	void VertexArray::unsetIndexBuffer()
+	{
+		VERIFY(m_id, "Invalid VertexArray");
+		GL_VERIFY(glVertexArrayElementBuffer, m_id, 0);
+	}
+
 	std::size_t Renderer::ShaderProgramKeyHash::operator()(const Renderer::ShaderProgramKey& key) const noexcept
 	{
-		HandlerHash hasher;
+		HandleHash hasher;
 		std::size_t result = 0;
 		for (const auto& shader : key.sources)
 		{
@@ -203,16 +210,6 @@ namespace bm::gfx
 	}
 	
 
-
-	Renderer::Renderer()
-	{
-
-	}
-
-	Renderer::~Renderer()
-	{
-
-	}
 
 	void Renderer::clearColor(std::array<float, 4> color)
 	{
@@ -226,323 +223,263 @@ namespace bm::gfx
 
 	void Renderer::prepare(const Scene& scene)
 	{
-		auto objects = scene.getObjects();
+		const auto object_handles = scene.getObjects();
 
-		for (auto handler : objects)
-		{
-			auto optobj = ResourceManager::get(handler);
-			VERIFY(optobj.has_value(), "Invalid Object");
-			auto& object = optobj->get();
-
-			if (not m_data.shapes.contains(object.getMesh()))
-				makeShape(object.getMesh());
-
-			// Ignoring material error check
-			auto& material = ResourceManager::get(object.getMaterial())->get();
-
-			auto vertex = material.getVertexShaderSource();
-			auto fragment = material.getFragmentShaderSource();
-
-			ShaderProgramKey program_key{ { vertex, fragment } };
-			if (not m_data.programs.contains(program_key))
-				makeShaderProgram(vertex, fragment);
-		}
+		for (const auto object_handle : object_handles)
+			prepare(object_handle);
 	}
 
-	void Renderer::draw(const Scene& scene, Camera& camera)
+	void Renderer::prepare(const Handle<Object> object_handle)
 	{
-		auto objects = scene.getObjects();
-
-		// Micro cache, to avoid rebind
-		GLuint program_id = 0;
-
-		for (auto handler : objects)
-		{
-			// If object handler is present, but object is not, scene is ill formed
-			auto optobj = ResourceManager::get(handler);
-			VERIFY(optobj.has_value(), "Invalid Object");
-			auto& object = optobj->get();
-
-			// Dou you know what visibility means?
-			if (not object.isVisible()) continue;
-
-			if (not m_data.shapes.contains(object.getMesh()))
-				makeShape(object.getMesh());
-
-			// Ignoring material error check
-			auto& material = ResourceManager::get(object.getMaterial())->get(); 
-			
-			auto vertex = material.getVertexShaderSource();
-			auto fragment = material.getFragmentShaderSource();
-
-			ShaderProgramKey program_key{ { vertex, fragment } };
-			if (not m_data.programs.contains(program_key))
-				makeShaderProgram(vertex, fragment);
-
-			auto& program = m_data.programs.at(program_key);
-			if(program.getId() not_eq program_id)
-				program.bind();
-			program_id = program.getId();
-			program.setUniform("u_view_projection", camera.getViewProjection());
-			program.setUniform("u_model", object.transform.getModel());
-
-			// TODO: apply material
-
-			auto& shape = m_data.shapes.at(object.getMesh());
-			shape.vao.bind();
-
-			// Actual draw
-			if (shape.ibo.has_value()) [[likely]] // I think most meshes have index buffer
-			{
-				shape.ibo->bind();
-				GL_VERIFY(glDrawElements, shape.mode, shape.ibo->getCount(), GL_UNSIGNED_INT, (void*)0);
-			}
-			else
-				GL_VERIFY(glDrawArrays, shape.mode, 0, shape.vbo.getSize());
-		}
+		const auto optobj = m_manager.objects.tryGet(object_handle);
+		VERIFY(optobj.has_value(), "Invalid Object");
+		const auto& object = optobj->get();
+		prepare(object.getMesh());
+		prepare(object.getMaterial());
 	}
 
-	void Renderer::makeShape(Handler<Mesh> handler)
+	void Renderer::prepare(const Handle<Mesh> mesh_handle)
 	{
-		// Create vbo and ibo. Get layout
-		auto& mesh = ResourceManager::get(handler)->get();
+		const auto optmesh = m_manager.meshes.tryGet(mesh_handle);
+		VERIFY(optmesh.has_value(), "Invalid Mesh");
+		const auto& mesh = optmesh->get();
 
+		if (not m_shapes.contains(mesh_handle))
+			allocate(mesh_handle);
+
+		auto& shape = m_shapes.at(mesh_handle);
+
+		if (shape.version not_eq mesh.getVersion())
+			update(mesh_handle);
+	}
+
+	void Renderer::prepare(const Handle<Material> material_handle)
+	{
+		const auto optmat = m_manager.materials.tryGet(material_handle);
+		VERIFY(optmat.has_value(), "Invalid Material");
+		const auto& material = optmat->get();
+
+		const auto vertex_source = material.getVertexShaderSource();
+		if (not m_shaders.contains(vertex_source))
+			allocate(vertex_source, Shader::Stage::Vertex);
+
+		const auto fragment_source = material.getFragmentShaderSource();
+		if (not m_shaders.contains(fragment_source))
+			allocate(fragment_source, Shader::Stage::Fragment);
+
+		if(not m_programs.contains(ShaderProgramKey{ { vertex_source, fragment_source } }))
+			allocate(vertex_source, fragment_source);
+
+		prepare(material.getDiffuseImage());
+		prepare(material.getNormalImage());
+	}
+
+	void Renderer::prepare(const Handle<Image> image_handle)
+	{
+		if (not m_textures.contains(image_handle))
+			allocate(image_handle);
+	}
+
+	void Renderer::destroy(Handle<Object> object_handle)
+	{
+		// Nothing to do for now
+	}
+
+	void Renderer::destroy(Handle<Mesh> mesh_handle)
+	{
+		m_shapes.erase(mesh_handle);
+	}
+
+	void Renderer::destroy(Handle<ShaderSource> shader_source_handle)
+	{
+		m_shaders.erase(shader_source_handle);
+		// Also erase programs that use this shader
+		// Or not?
+		//for (auto it = m_programs.begin(); it != m_programs.end(); )
+		//{
+		//	const auto& key = it->first;
+		//	if (core::contains(key.sources, shader_source_handle))
+		//		it = m_programs.erase(it);
+		//	else
+		//		++it;
+		//}
+	}
+
+	void Renderer::destroy(Handle<Material> material_handle)
+	{
+		// Nothing to do for now
+	}
+
+	void Renderer::destroy(Handle<Image> image_handle)
+	{
+		m_textures.erase(image_handle);
+	}
+
+	void Renderer::destroy()
+	{
+		m_shapes.clear();
+		m_textures.clear();
+		m_shaders.clear();
+		m_programs.clear();
+	}
+
+	void Renderer::allocate(const Handle<Mesh> mesh_handle)
+	{
+		// Prepare already checked for mesh existence, so no need to check again
+		const auto& mesh = m_manager.meshes.get(mesh_handle);
+
+		// Create buffers
 		VertexBuffer vbo(mesh.getVertexData(), mesh.getVertexUsage());
-		std::optional<IndexBuffer> ibo;
 
+		std::optional<IndexBuffer> ibo;
 		if (auto index_data = mesh.getIndexData())
 			ibo.emplace(index_data.value(), mesh.getIndexUsage());
 
-		auto layout = ResourceManager::get(mesh.getVertexLayout());
-		VERIFY(layout.has_value(), "Invalid layout");
+		// Layout must be managed by ResourceManager
+		const auto& layout = m_manager.vertex_layouts.get(mesh.getVertexLayout());
 
-		// Set vao
+		// Create VAO
 		VertexArray vao;
-		vao.addVertexBuffer(vbo, layout.value());
+		vao.addVertexBuffer(vbo, layout);
 		if (ibo)
 			vao.setIndexBuffer(ibo.value());
 
-		GLenum mode = topologyToGLMode(mesh.getTopology());
+		int mode = topologyToGLMode(mesh.getTopology());
+
+		Shape shape =
+		{
+			.version = mesh.getVersion(),
+			.vao = std::move(vao),
+			.vbo = std::move(vbo),
+			.ibo = std::move(ibo),
+			.mode = mode
+		};
 
 		// Save it
-		m_data.shapes.emplace(handler, Shape(std::move(vao), std::move(vbo), std::move(ibo), mode));
+		m_shapes.emplace(mesh_handle, std::move(shape));
 	}
 
-	void Renderer::makeShader(Handler<ShaderSource> handler, Shader::Stage stage)
+	void Renderer::allocate(Handle<ShaderSource> handler, Shader::Stage stage)
 	{
-		auto optsrc = ResourceManager::get(handler);
+		auto optsrc = m_manager.shader_sources.tryGet(handler);
 		VERIFY(optsrc.has_value(), "Invalid shader source");
 		auto& src = optsrc->get();
 
 		Shader shader(src, stage);
 
-		m_data.shaders.emplace(handler, std::move(shader));
+		m_shaders.emplace(handler, std::move(shader));
 	}
 
-	void Renderer::makeShaderProgram(Handler<ShaderSource> vertex, Handler<ShaderSource> fragment)
+	void Renderer::allocate(Handle<ShaderSource> vertex_handle, Handle<ShaderSource> fragment_handle)
 	{
-		if (not m_data.shaders.contains(vertex))
-			makeShader(vertex, Shader::Stage::Vertex);
-		if (not m_data.shaders.contains(fragment))
-			makeShader(fragment, Shader::Stage::Fragment);
-
-		auto& vertex_shader = m_data.shaders.at(vertex);
-		auto& fragment_shader = m_data.shaders.at(fragment);
-
-		ShaderProgramKey key{ { vertex, fragment } };
+		// At this point, shaders must be already allocated
+		auto& vertex_shader = m_shaders.at(vertex_handle);
+		auto& fragment_shader = m_shaders.at(fragment_handle);
+		
+		ShaderProgramKey key{ { vertex_handle, fragment_handle } };
+	
 		ShaderProgram program(vertex_shader, fragment_shader);
-
-		m_data.programs.emplace(std::move(key), std::move(program));
+		
+		m_programs.emplace(std::move(key), std::move(program));
 	}
+
+	void Renderer::allocate(Handle<Image> image_handle)
+	{
+		const auto optimg = m_manager.images.tryGet(image_handle);
+		VERIFY(optimg.has_value(), "Invalid Image");
+		const auto& image = optimg->get();
+
+		Texture texture(image);
+
+		m_textures.emplace(image_handle, std::move(texture));
+	}
+
+	void Renderer::update(const Handle<Mesh> mesh_handle)
+	{
+		// Prepare already checked for mesh existence, so no need to check again
+		const auto& mesh = m_manager.meshes.get(mesh_handle);
+		// Shape must be already allocated
+		auto& shape = m_shapes.at(mesh_handle);
+
+		// Update buffers if needed
+		if (mesh.getVersion().vertex not_eq shape.version.vertex)
+			shape.vbo.setData(mesh.getVertexData());
+
+		// Update index buffer
+		if (mesh.getVersion().index not_eq shape.version.index)
+		{
+			if (auto index_data = mesh.getIndexData())
+				shape.ibo->setData(index_data.value());
+			else
+			{
+				shape.ibo.reset();
+				shape.vao.unsetIndexBuffer(); // Unset ibo
+			}
+		}
+
+		// Update layout
+		if (mesh.getVersion().layout not_eq shape.version.layout)
+		{
+			const auto& layout = m_manager.vertex_layouts.get(mesh.getVertexLayout());
+			shape.vao.bind();
+			shape.vao.addVertexBuffer(shape.vbo, layout);
+		}
+
+		shape.version = mesh.getVersion();
+	}
+
+	void Renderer::draw(const Scene& scene, Camera& camera)
+	{
+		//auto objects = scene.getObjects();
+
+		//// Micro cache, to avoid rebind
+		//GLuint program_id = 0;
+
+		//for (auto handler : objects)
+		//{
+		//	// If object handler is present, but object is not, scene is ill formed
+		//	auto optobj = ResourceManager::get(handler);
+		//	VERIFY(optobj.has_value(), "Invalid Object");
+		//	auto& object = optobj->get();
+
+		//	// Dou you know what visibility means?
+		//	if (not object.isVisible()) continue;
+
+		//	if (not m_data.shapes.contains(object.getMesh()))
+		//		makeShape(object.getMesh());
+
+		//	// Ignoring material error check
+		//	auto& material = ResourceManager::get(object.getMaterial())->get(); 
+		//	
+		//	auto vertex = material.getVertexShaderSource();
+		//	auto fragment = material.getFragmentShaderSource();
+
+		//	ShaderProgramKey program_key{ { vertex, fragment } };
+		//	if (not m_data.programs.contains(program_key))
+		//		makeShaderProgram(vertex, fragment);
+
+		//	auto& program = m_data.programs.at(program_key);
+		//	if(program.getId() not_eq program_id)
+		//		program.bind();
+		//	program_id = program.getId();
+		//	program.setUniform("u_view_projection", camera.getViewProjection());
+		//	program.setUniform("u_model", object.transform.getModel());
+
+		//	// TODO: apply material
+
+		//	auto& shape = m_data.shapes.at(object.getMesh());
+		//	shape.vao.bind();
+
+		//	// Actual draw
+		//	if (shape.ibo.has_value()) [[likely]] // I think most meshes have index buffer
+		//	{
+		//		shape.ibo->bind();
+		//		GL_VERIFY(glDrawElements, shape.mode, shape.ibo->getCount(), GL_UNSIGNED_INT, (void*)0);
+		//	}
+		//	else
+		//		GL_VERIFY(glDrawArrays, shape.mode, 0, shape.vbo.getSize());
+		//}
+	}
+
 
 }
-
-//
-//
-//	static constexpr std::string_view vertex2d_src =
-//		R"(
-//			#version 330 core
-//
-//			layout(location = 0) in vec3 a_pos;
-//			layout(location = 1) in vec2 a_tex;
-//			layout(location = 2) in vec4 a_color;
-//			layout(location = 3) in float a_slot;
-//
-//			uniform mat4 u_projection;
-//			uniform mat4 u_view;
-//
-//			out vec2 f_tex;
-//			out vec4 f_color;
-//			flat out int f_slot;
-//
-//			void main() 
-//			{
-//			    gl_Position = u_projection * u_view * vec4(a_pos, 1.0);
-//				f_tex = a_tex;
-//				f_color = a_color;
-//				f_slot = int(a_slot);
-//			}	
-//		)";
-//
-//	static constexpr std::string_view fragment2d_src =
-//		R"(
-//			#version 330 core
-//
-//			in  vec2 f_tex;
-//			in  vec4 f_color;
-//			flat in int f_slot;
-//
-//			out vec4 o_color;
-//
-//			uniform sampler2D u_sampler[32];
-//
-//			void main() 
-//			{
-//				o_color = texture(u_sampler[f_slot], f_tex) * f_color;
-//			}
-//		)";
-//
-//	Quad::Quad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, Traits<Texture>::KSPtrRef texture) :
-//		m_pos(position),
-//		m_size(size),
-//		m_color(color),
-//		m_tex(texture)
-//	{
-//		if (m_tex == nullptr)
-//			m_tex = Manager::get().loadTexture("nothing");
-//	}
-//	Quad::Quad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, Traits<Texture>::KSPtrRef texture) :
-//		Quad(glm::vec3(position.x, position.y, 1.f), size, color, texture)
-//	{
-//	}
-//
-//	std::array<unsigned int, ScreenRenderer::Data::max_indices> ScreenRenderer::Data::makeIndices()
-//	{
-//		// Static indices for every quad
-//		std::array<unsigned int, max_indices> indices;
-//		std::size_t offset = 0;
-//		for (std::size_t i = 0; i < indices.size(); i += 6)
-//		{
-//			// First triangle
-//			indices[i + 0] = offset + 0;
-//			indices[i + 1] = offset + 1;
-//			indices[i + 2] = offset + 2;
-//			// Second triangle
-//			indices[i + 3] = offset + 0;
-//			indices[i + 4] = offset + 2;
-//			indices[i + 5] = offset + 3;
-//
-//			offset += 4;
-//		}
-//		return indices;
-//	}
-//
-//	ScreenRenderer::Data::Data() :
-//		vao(VertexBuffer(max_vertices * sizeof(QuadVertex), Usage::Stream), IndexBuffer(makeIndices())),
-//		shader(Shader::make(vertex2d_src, fragment2d_src)),
-//		vertices()
-//	{
-//		// Bind shader and set texture samplers
-//		shader->bind();
-//
-//		int samplers[32];
-//		for (int i = 0; i < 32; i++)
-//			samplers[i] = i;
-//
-//		shader->setUniform("u_sampler", samplers, 32);
-//
-//		
-//		// Why you read this comment? Dont know what it is? 
-//		vao.setLayout
-//		({
-//			{Shader::Type::Float3, "a_pos"},
-//			{Shader::Type::Float2, "a_tex"},
-//			{Shader::Type::Float4, "a_color"},
-//			{Shader::Type::Float,  "a_slot"}
-//		});
-//	}
-//
-//	void ScreenRenderer::submit(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, Traits<Texture>::KSPtrRef texture)
-//	{
-//		// Flush if we exceed batch limits
-//		if ((m_data.quad_count >= m_data.max_quads) or (texture && m_data.texture_slot_index >= m_data.max_texture_slots))
-//			draw();
-//
-//		// Texture slot management
-//		float texture_index = 0.0f; // 0 = white texture
-//		if (texture)
-//		{
-//			bool found = false;
-//			for (std::size_t i = 1; i < m_data.texture_slot_index; i++)
-//			{
-//				if (m_data.texture_slots[i] == texture)
-//				{
-//					texture_index = static_cast<float>(i);
-//					found = true;
-//					break;
-//				}
-//			}
-//			if (!found)
-//			{
-//				texture_index = static_cast<float>(m_data.texture_slot_index);
-//				m_data.texture_slots[m_data.texture_slot_index] = texture;
-//				m_data.texture_slot_index++;
-//				texture->bind(static_cast<std::uint32_t>(texture_index));
-//			}
-//		}
-//
-//		// Define vertices for quad
-//		auto count = m_data.quad_count * 4;
-//
-//		m_data.vertices[count + 0] =
-//		{
-//			position,
-//			{0.0f, 0.0f},
-//			color,
-//			texture_index
-//		};
-//		m_data.vertices[count + 1] =
-//		{
-//			{ position.x + size.x, position.y, position.z },
-//			{1.0f, 0.0f},
-//			color,
-//			texture_index
-//		};
-//		m_data.vertices[count + 2] =
-//		{
-//			{ position.x + size.x, position.y + size.y, position.z},
-//			{1.0f, 1.0f},
-//			color,
-//			texture_index
-//		};
-//		m_data.vertices[count + 3] =
-//		{
-//			{ position.x, position.y + size.y, position.z},
-//			{0.0f, 1.0f},
-//			color,
-//			texture_index
-//		};
-//
-//		m_data.quad_count++;
-//
-//	}
-//
-//	void ScreenRenderer::draw()
-//	{
-//		m_data.vao.bind();
-//		m_data.shader->bind();
-//
-//		// Camera needs to be set at this point 
-//		VERIFY(bool(m_camera), "Camera not set for ScreenRenderer. Please call ScreenRenderer::setCamera");
-//
-//		m_data.shader->setUniform("u_view", m_camera->getView());
-//		m_data.shader->setUniform("u_projection", m_camera->getProjection());
-//
-//		m_data.vao.getVertexBuffer().setData(m_data.vertices.data(), sizeof(QuadVertex) * 4 * m_data.quad_count);
-//		GL_VERIFY(glDrawElements, GL_TRIANGLES, m_data.quad_count * 6, GL_UNSIGNED_INT, nullptr);
-//		m_data.quad_count = 0;
-//		m_data.texture_slot_index = 1;
-//	}
-//
-//}
-//
