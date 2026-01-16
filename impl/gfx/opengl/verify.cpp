@@ -4,6 +4,7 @@ module;
 
 module bm.gfx:verify;
 
+import bm.config;
 import bm.core;
 
 import std;

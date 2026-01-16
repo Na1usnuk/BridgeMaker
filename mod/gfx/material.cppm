@@ -29,19 +29,22 @@ namespace bm::gfx
 	public:
 
 		Material() = default;
-		Material(Handler<ShaderSource> vertex_shader_source, Handler<ShaderSource> fragment_shader_source) :
+		Material(Handle<ShaderSource> vertex_shader_source, Handle<ShaderSource> fragment_shader_source) :
 			m_vertex(vertex_shader_source),
 			m_fragment(fragment_shader_source)
 		{}
 
-		Handler<ShaderSource> getVertexShaderSource() const noexcept { return m_vertex; }
-		Handler<ShaderSource> getFragmentShaderSource() const noexcept { return m_fragment; }
+		Handle<ShaderSource> getVertexShaderSource() const noexcept { return m_vertex; }
+		Handle<ShaderSource> getFragmentShaderSource() const noexcept { return m_fragment; }
 
-		void setVertexShaderSource(Handler<ShaderSource> handler) noexcept { m_vertex = handler; }
-		void setFragmentShaderSource(Handler<ShaderSource> handler) noexcept { m_fragment = handler; }
+		void setVertexShaderSource(Handle<ShaderSource> handler) noexcept { m_vertex = handler; }
+		void setFragmentShaderSource(Handle<ShaderSource> handler) noexcept { m_fragment = handler; }
 
-		void setDiffuseImage(Handler<Image> diffuse) noexcept { m_diffuse = diffuse; }
-		void setNormalImage(Handler<Image> normal) noexcept { m_normal = normal; }
+		void setDiffuseImage(Handle<Image> diffuse) noexcept { m_diffuse = diffuse; }
+		void setNormalImage(Handle<Image> normal) noexcept { m_normal = normal; }
+
+		Handle<Image> getDiffuseImage() const noexcept { return m_diffuse; }
+		Handle<Image> getNormalImage() const noexcept { return m_normal; }
 
 	public:
 
@@ -49,11 +52,11 @@ namespace bm::gfx
 
 	private:
 
-		Handler<ShaderSource> m_vertex;
-		Handler<ShaderSource> m_fragment;
+		Handle<ShaderSource> m_vertex;
+		Handle<ShaderSource> m_fragment;
 
-		Handler<Image> m_diffuse;
-		Handler<Image> m_normal;
+		Handle<Image> m_diffuse;
+		Handle<Image> m_normal;
 
 	};
 

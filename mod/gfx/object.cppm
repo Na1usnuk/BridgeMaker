@@ -16,27 +16,27 @@ namespace bm::gfx
 	public:
 
 		Object(std::string_view name = "Object") : m_name(name) {}
-		Object(Handler<Mesh> mesh, Handler<Material> material, std::string_view name = "Object") :
+		Object(Handle<Mesh> mesh, Handle<Material> material, std::string_view name = "Object") :
 			m_mesh(mesh), m_material(material), m_name(name) {
 		}
 
+		~Object() = default;
 		Object(const Object&) = delete;
 		Object& operator=(const Object&) = delete;
-		Object(Object&&) = default;
-		Object& operator=(Object&&) = default;
-		~Object() = default;
+		Object(Object&&) noexcept = default;
+		Object& operator=(Object&&) noexcept = default;
 
 		const std::string& getName() const { return m_name; }
 		void setName(std::string_view name) { m_name = name; }
 
-		bool isVisible() const { return m_visible; }
-		void setVisibility(bool visible) { m_visible = visible; }
+		bool isVisible() const noexcept { return m_visible; }
+		void setVisibility(bool visible) noexcept { m_visible = visible; }
 
-		void setMaterial(Handler<Material> material) { m_material = material; }
-		Handler<Material> getMaterial() { return m_material; }
+		void setMaterial(Handle<Material> material) noexcept { m_material = material; }
+		Handle<Material> getMaterial() const noexcept { return m_material; }
 
-		void setMesh(Handler<Mesh> mesh) { m_mesh = mesh; }
-		Handler<Mesh> getMesh() { return m_mesh; }
+		void setMesh(Handle<Mesh> mesh) noexcept { m_mesh = mesh; }
+		Handle<Mesh> getMesh() const noexcept { return m_mesh; }
 
 	public:
 
@@ -47,8 +47,8 @@ namespace bm::gfx
 		std::string m_name;
 		bool m_visible = true;
 
-		Handler<Material> m_material;
-		Handler<Mesh> m_mesh;
+		Handle<Material> m_material;
+		Handle<Mesh> m_mesh;
 
 	};
 

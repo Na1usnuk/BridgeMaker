@@ -1,28 +1,27 @@
-module bm.core:layer;
+module bm.app:layer;
 import :layer;
-import :traits;
 
 import std;
 
 namespace bm
 {
-	Traits<Layer>::OPtr LayerStack::pushLayer(Traits<Layer>::Ptr layer)
+	/*LayerStack::LayerHandle LayerStack::pushLayer(Layer&& layer)
 	{
-		auto* raw = layer.get();
-		layer->onAttach();
+		layer.onAttach();
+		LayerHandle handle(m_insert_index);
 		m_layers.emplace(m_layers.begin() + m_insert_index++, std::move(layer));
-		return { raw };
+		return handle;
 	}
 
-	Traits<Layer>::OPtr LayerStack::pushOverlay(Traits<Layer>::Ptr overlay)
+	LayerStack::LayerHandle LayerStack::pushOverlay(Layer&& overlay)
 	{
-		auto* raw = overlay.get();
-		overlay->onAttach();
+		overlay.onAttach();
+		LayerHandle handle(m_layers.size());
 		m_layers.emplace_back(std::move(overlay));
-		return { raw };
+		return handle;
 	}
 
-	void LayerStack::popOverlay(Traits<Layer>::OPtr overlay)
+	void LayerStack::popOverlay(LayerHandle overlay)
 	{
 		auto it = findOverlayByPtr(overlay);
 		if (it != m_layers.end())
@@ -30,6 +29,7 @@ namespace bm
 			(*it)->onDetach();
 			m_layers.erase(it);
 		}
+
 	}
 
 	void LayerStack::popOverlay(std::string_view name)
@@ -94,5 +94,5 @@ namespace bm
 	std::vector<Traits<Layer>::Ptr>::iterator LayerStack::findLayerByPtr(Traits<Layer>::OPtr layer)
 	{
 		return std::find_if(m_layers.begin(), m_layers.begin() + m_insert_index, [&layer](Traits<Layer>::Ptr& _) { return _.get() == layer.get(); });
-	}
+	}*/
 }

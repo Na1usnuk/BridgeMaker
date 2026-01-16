@@ -48,6 +48,8 @@ set(BM_GRAPHIC opengl)
 #                 Files Section                  #
 #------------------------------------------------#
 
+# Config group
+source_group(Config FILES mod/config/config.cppm)
 
 # Core group
 file(GLOB_RECURSE BM_CORE_MODS mod/core/*.cppm)
@@ -96,30 +98,41 @@ target_sources(BridgeMaker
 	PUBLIC 
 	FILE_SET bridge_maker TYPE CXX_MODULES BASE_DIRS mod FILES
 		mod/BridgeMaker.cppm
+
+	PRIVATE
+	FILE_SET config TYPE CXX_MODULES BASE_DIRS mod/config FILES
+		mod/config/config.cppm
+
 	PRIVATE
 	FILE_SET core TYPE CXX_MODULES BASE_DIRS mod/core impl/core FILES
 		${BM_CORE_MODS}
 		${BM_CORE_IMPLS}
+
 	PRIVATE
 	FILE_SET application TYPE CXX_MODULES BASE_DIRS mod/app impl/app FILES
 		${BM_APP_MODS}
 		${BM_APP_IMPLS}
+
 	PRIVATE 
 	FILE_SET graphic TYPE CXX_MODULES BASE_DIRS mod/gfx impl/gfx FILES
 		${BM_GFX_MODS}
 		${BM_GFX_IMPLS}
+
 	PRIVATE
 	FILE_SET platform TYPE CXX_MODULES BASE_DIRS mod/platform impl/platform FILES
 		${BM_PLATFORM_MODS}
 		${BM_PLATFORM_IMPLS}
+
 	PRIVATE
 	FILE_SET audio TYPE CXX_MODULES BASE_DIRS mod/audio impl/audio FILES
 		${BM_AUDIO_MODS}
 		${BM_AUDIO_IMPLS}
+
 	PRIVATE
 	FILE_SET ui TYPE CXX_MODULES BASE_DIRS mod/ui impl/ui FILES
 		${BM_UI_MODS}
 		${BM_UI_IMPLS}
+
 	PRIVATE
 	FILE_SET resources TYPE CXX_MODULES BASE_DIRS mod/res impl/res FILES
 		${BM_RES_MODS}

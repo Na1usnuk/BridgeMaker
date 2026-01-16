@@ -7,6 +7,7 @@ module bm.platform:window;
 import :window;
 import :input;
 
+import bm.config;
 import bm.core;
 
 namespace bm 

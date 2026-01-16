@@ -4,13 +4,10 @@ import bm.core;
 
 namespace bm
 {
-	Application::Application(std::string_view title, int width, int heigth, bool decorated, bool visible) :
-		m_window(title, width, heigth, decorated, visible),
-		m_ctx(m_window),
-		m_is_running(true),
-		m_return_code(0)
+	Application::Application(std::string_view title, int width, int height, bool decorated, bool visible) :
+		window(title, width, height, decorated, visible)
 	{
-		//m_window.setEventCallback([this](event::Event& e) { onEvent(e); });
+		event_system.setEventCallback([this](Event& e) { onEvent(e); });
 	}
 
 	int Application::run(int argc, char** argv)
@@ -25,23 +22,23 @@ namespace bm
 
 		while (m_is_running)
 		{
-			m_timestep.onUpdate();
+			//m_timestep.onUpdate();
 
-			//m_window.onUpdate(); // Poll events
-			onUpdate(m_timestep.getDeltaTime());
+			event_system.pollEvents();
+			//onUpdate(m_timestep.getDeltaTime());
 			onRender();
 
-			m_ctx.swapBuffers();
+			graphic_context.swapBuffers();
 		}
 
 		onShutdown();
 
-		return m_return_code;
+		return return_code;
 	}
 
-	//void Application::onEvent(event::Event& e)
-	//{
-	//	event::Dispatcher d(e);
-	//	d.dispatch<event::WindowClose>([this](event::WindowClose& c) {close(); return true; });
-	//}
+	void Application::onEvent(Event& e)
+	{
+		EventDispatcher d(e);
+		d.dispatch<WindowCloseEvent>([this](WindowCloseEvent& c) {close(); return true; });
+	}
 }

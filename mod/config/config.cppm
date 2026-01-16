@@ -1,4 +1,5 @@
-export module bm.core:config;
+export module bm.config;
+
 import std;
 
 // ============================================================================

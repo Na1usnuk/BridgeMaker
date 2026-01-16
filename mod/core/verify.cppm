@@ -1,6 +1,7 @@
 export module bm.core:verify;
 
-import :config;
+import bm.config;
+
 import :log;
 import :utility;
 import std;

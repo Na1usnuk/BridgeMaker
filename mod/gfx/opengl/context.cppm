@@ -1,6 +1,7 @@
 export module bm.gfx:context;
 
 import bm.platform;
+import bm.config;
 import bm.core;
 
 namespace bm::gfx
