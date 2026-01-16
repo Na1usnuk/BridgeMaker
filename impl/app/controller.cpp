@@ -5,7 +5,7 @@ import bm.platform;
 import bm.gfx;
 import bm.core;
 
-namespace bm
+namespace bm::app
 {
 
 	/*DebugCameraController::DebugCameraController(gfx::Camera& camera_to_control, float speed, float sensetivity)

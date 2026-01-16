@@ -3,7 +3,7 @@ import :layer;
 
 import std;
 
-namespace bm
+namespace bm::app
 {
 	/*LayerStack::LayerHandle LayerStack::pushLayer(Layer&& layer)
 	{

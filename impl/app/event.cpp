@@ -11,7 +11,7 @@ import bm.core;
 
 import std;
 
-namespace bm
+namespace bm::app
 {
 
 	EventSystem::EventSystem(const Window& window) noexcept :

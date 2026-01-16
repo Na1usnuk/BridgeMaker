@@ -2,7 +2,7 @@ module bm.app;
 
 import bm.core;
 
-namespace bm
+namespace bm::app
 {
 	Application::Application(std::string_view title, int width, int height, bool decorated, bool visible) :
 		window(title, width, height, decorated, visible)

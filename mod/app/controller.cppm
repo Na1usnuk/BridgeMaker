@@ -5,7 +5,7 @@ import bm.core;
 import bm.platform;
 import bm.gfx;
 
-namespace bm
+namespace bm::app
 {
 	//export class DebugCameraController : public Layer
 	//{

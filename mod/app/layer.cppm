@@ -5,7 +5,7 @@ import std;
 import bm.core;
 import :event;
 
-namespace bm 
+namespace bm::app
 {
 	
 	export class Layer

@@ -4,7 +4,7 @@ import bm.platform;
 
 import std;
 
-namespace bm
+namespace bm::app
 {
 
 	export class Event

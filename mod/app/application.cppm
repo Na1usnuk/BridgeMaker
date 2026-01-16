@@ -9,7 +9,7 @@ import bm.gfx;
 import bm.platform;
 import bm.core;
 
-namespace bm
+namespace bm::app
 {
 	export class Application
 	{
