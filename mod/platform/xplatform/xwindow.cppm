@@ -9,7 +9,7 @@ import std;
 
 import bm.core;
 
-namespace bm 
+namespace bm::platform
 {
 	
 	export class Window

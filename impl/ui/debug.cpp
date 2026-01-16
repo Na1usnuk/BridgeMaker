@@ -9,7 +9,7 @@ import bm.platform;
 
 namespace bm::ui
 {
-	ImGuiRenderer::ImGuiRenderer(const Window& window)
+	ImGuiRenderer::ImGuiRenderer(const platform::Window& window)
 	{
 		ImGui::CheckVersion();
 		ImGui::CreateContext();

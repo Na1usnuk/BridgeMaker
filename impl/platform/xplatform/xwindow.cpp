@@ -10,7 +10,7 @@ import :input;
 import bm.config;
 import bm.core;
 
-namespace bm 
+namespace bm::platform
 {
 
 	static bool s_isGLFWInitialized = false;

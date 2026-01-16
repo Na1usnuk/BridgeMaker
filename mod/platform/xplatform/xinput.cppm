@@ -5,7 +5,7 @@ import bm.core;
 
 import :window;
 
-namespace bm
+namespace bm::platform
 {
 
 	export class Input

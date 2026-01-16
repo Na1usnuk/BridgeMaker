@@ -10,8 +10,8 @@ namespace bm::gfx
 	{
 	public:
 
-		Context(bm::Window& window, Context& shared);
-		Context(bm::Window& window);
+		Context(platform::Window& window, Context& shared);
+		Context(platform::Window& window);
 
 		Version getVersion() const noexcept { return m_gl_version; }
 		void swapBuffers() noexcept;
@@ -25,16 +25,16 @@ namespace bm::gfx
 	private:
 
 		void init();
-		void init(bm::Window& window, Context& shared);
+		void init(platform::Window& window, Context& shared);
 		void destroy();
 		void infoPrint(); 
 		void recognizeVersion();
-		bm::Window& getWindow() const;
+		platform::Window& getWindow() const;
 		void setVersion(Version version) { m_gl_version = version; }
 
 	private:
 
-		bm::Window* m_window;
+		platform::Window* m_window;
 		Version m_gl_version;
 		bool m_vsync = true;
 		static Context* s_current_ctx;

@@ -13,7 +13,7 @@ namespace bm::ui
 	{
 	public:
 
-		ImGuiRenderer(const Window& window);
+		ImGuiRenderer(const platform::Window& window);
 
 		~ImGuiRenderer();
 

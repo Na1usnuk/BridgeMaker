@@ -19,14 +19,14 @@ namespace bm::gfx
 
 	Context* Context::s_current_ctx = nullptr;
 
-	Context::Context(bm::Window& window)
+	Context::Context(platform::Window& window)
 		: m_window(&window)
 	{
 		makeCurrent();
 		init();
 	}
 
-	Context::Context(bm::Window& window, Context& shared)
+	Context::Context(platform::Window& window, Context& shared)
 		: m_window(&window)
 	{
 		makeCurrent();
@@ -45,11 +45,11 @@ namespace bm::gfx
 		m_vsync = enabled;
 	}
 
-	void Context::init(bm::Window& window, Context& shared)
+	void Context::init(platform::Window& window, Context& shared)
 	{
 		core::log::trace("Initializing shared context");
 
-		window = Window(
+		window = platform::Window(
 			window.getTitle(), 
 			window.getWidth(), 
 			window.getHeight(), 
@@ -100,7 +100,7 @@ namespace bm::gfx
 		core::log::info("GLSL version: {}", glsl_version);
 	}
 
-	bm::Window& Context::getWindow() const
+	platform::Window& Context::getWindow() const
 	{
 		core::verify(m_window, "Current context is invalid");
 		return *m_window;

@@ -5,7 +5,8 @@ import bm.core;
 namespace bm::app
 {
 	Application::Application(std::string_view title, int width, int height, bool decorated, bool visible) :
-		window(title, width, height, decorated, visible)
+		window(title, width, height, decorated, visible),
+		m_frame_timer(420)
 	{
 		event_system.setEventCallback([this](Event& e) { onEvent(e); });
 	}
@@ -22,13 +23,15 @@ namespace bm::app
 
 		while (m_is_running)
 		{
-			//m_timestep.onUpdate();
+			m_frame_timer.startFrame();
 
 			event_system.pollEvents();
-			//onUpdate(m_timestep.getDeltaTime());
+			onUpdate(m_frame_timer.getDeltaTime());
 			onRender();
 
 			graphic_context.swapBuffers();
+
+			m_frame_timer.endFrame();
 		}
 
 		onShutdown();

@@ -4,6 +4,7 @@ import std;
 
 export import :controller;
 export import :event;
+export import :frame;
 
 import bm.gfx;
 import bm.platform;
@@ -11,6 +12,7 @@ import bm.core;
 
 namespace bm::app
 {
+
 	export class Application
 	{
 	public:
@@ -35,7 +37,7 @@ namespace bm::app
 
 		virtual void onArguments(int argc, char** argv) {}
 		virtual void onStartup() {}
-		virtual void onUpdate(float delta_time) = 0;
+		virtual void onUpdate(DeltaTime delta_time) = 0;
 		virtual void onRender() {}
 		virtual void onEvent(Event& e);
 		virtual void onShutdown() {}
@@ -44,7 +46,7 @@ namespace bm::app
 
 	protected:
 
-		Window window;
+		platform::Window window;
 		gfx::Context graphic_context{ window };
 		EventSystem event_system{ window };
 
@@ -52,7 +54,7 @@ namespace bm::app
 
 	private:
 
-		//DeltaTime m_timestep;
+		FrameTimer m_frame_timer;
 
 		bool m_is_running = true;
 

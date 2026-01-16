@@ -71,12 +71,12 @@ namespace bm::app
 		using WindowMoveCallback = std::function<void(int, int)>;
 		using WindowCloseCallback = std::function<void(void)>;
 
-		using KeyPressCallback = std::function<void(Input::Key, unsigned int)>;
-		using KeyReleaseCallback = std::function<void(Input::Key)>;
+		using KeyPressCallback = std::function<void(platform::Input::Key, unsigned int)>;
+		using KeyReleaseCallback = std::function<void(platform::Input::Key)>;
 
 		using MouseMoveCallback = std::function<void(double, double)>;
-		using MouseButtonPressCallback = std::function<void(Input::Mouse)>;
-		using MouseButtonReleaseCallback = std::function<void(Input::Mouse)>;
+		using MouseButtonPressCallback = std::function<void(platform::Input::Mouse)>;
+		using MouseButtonReleaseCallback = std::function<void(platform::Input::Mouse)>;
 		using MouseScrollCallback = std::function<void(double, double)>;
 
 		
@@ -98,7 +98,7 @@ namespace bm::app
 
 			struct
 			{
-				Input::Key last;
+				platform::Input::Key last;
 				unsigned int repeat;
 
 				KeyPressCallback press;
@@ -116,7 +116,7 @@ namespace bm::app
 
 	public:
 
-		explicit EventSystem(const Window& window) noexcept;
+		explicit EventSystem(const platform::Window& window) noexcept;
 		~EventSystem();
 
 		EventSystem(const EventSystem&) = delete;
@@ -143,7 +143,7 @@ namespace bm::app
 
 	private:
 
-		const Window& m_window;
+		const platform::Window& m_window;
 
 		Callbacks m_callbacks;
 	};
@@ -348,15 +348,15 @@ namespace bm::app
 	{
 	public:
 
-		Input::Mouse getButton() const { return m_button; }
+		platform::Input::Mouse getButton() const { return m_button; }
 
 		int getCategoryFlags() const override { return Category::Mouse | Category::Input; }
 
 	protected:
 
-		MouseButtonEvent(::bm::Input::Mouse button) : m_button(button) {}
+		MouseButtonEvent(platform::Input::Mouse button) : m_button(button) {}
 
-		Input::Mouse m_button;
+		platform::Input::Mouse m_button;
 
 	};
 
@@ -365,7 +365,7 @@ namespace bm::app
 	{
 	public:
 
-		MouseButtonPressEvent(::bm::Input::Mouse button) :
+		MouseButtonPressEvent(platform::Input::Mouse button) :
 			MouseButtonEvent(button)
 		{
 		}
@@ -383,7 +383,7 @@ namespace bm::app
 	{
 	public:
 
-		MouseButtonReleaseEvent(Input::Mouse button) :
+		MouseButtonReleaseEvent(platform::Input::Mouse button) :
 			MouseButtonEvent(button)
 		{
 		}
@@ -401,15 +401,15 @@ namespace bm::app
 	{
 	public:
 
-		Input::Key getKey() const { return m_key; }
+		platform::Input::Key getKey() const { return m_key; }
 
 		int getCategoryFlags() const override { return Category::Keyboard | Category::Input; }
 
 	protected:
 
-		KeyEvent(Input::Key key) : m_key(key) {}
+		KeyEvent(platform::Input::Key key) : m_key(key) {}
 
-		Input::Key m_key;
+		platform::Input::Key m_key;
 
 	};
 
@@ -418,7 +418,7 @@ namespace bm::app
 	{
 	public:
 
-		KeyPressEvent(Input::Key key, int repeat_count) :
+		KeyPressEvent(platform::Input::Key key, int repeat_count) :
 			KeyEvent(key), m_repeat_count(repeat_count)
 		{
 		}
@@ -442,7 +442,7 @@ namespace bm::app
 	{
 	public:
 
-		KeyReleaseEvent(Input::Key key) :
+		KeyReleaseEvent(platform::Input::Key key) :
 			KeyEvent(key)
 		{
 		}

@@ -8,7 +8,7 @@ import :window;
 
 import std;
 
-namespace bm 
+namespace bm::platform
 {
 
 	Input::Input(const Window& window) noexcept : 

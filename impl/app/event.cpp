@@ -14,7 +14,7 @@ import std;
 namespace bm::app
 {
 
-	EventSystem::EventSystem(const Window& window) noexcept :
+	EventSystem::EventSystem(const platform::Window& window) noexcept :
 		m_window(window)
 	{
 		core::verify(glfwGetWindowUserPointer(m_window.getNative()) == nullptr,
@@ -54,14 +54,14 @@ namespace bm::app
 				{
 					case GLFW_PRESS:
 					{
-						callbacks.key.last = static_cast<Input::Key>(key);
+						callbacks.key.last = static_cast<platform::Input::Key>(key);
 						callbacks.key.repeat = 0;
 						callbacks.key.press(callbacks.key.last, 0);
 						break;
 					}
 					case GLFW_RELEASE:
 					{
-						callbacks.key.release(static_cast<Input::Key>(key));
+						callbacks.key.release(static_cast<platform::Input::Key>(key));
 						callbacks.key.repeat = 0;
 						break;
 					}
@@ -88,9 +88,9 @@ namespace bm::app
 				auto& callbacks = *static_cast<Callbacks*>(glfwGetWindowUserPointer(window));
 
 				if (action == GLFW_PRESS)
-					callbacks.mouse.press(static_cast<Input::Mouse>(button));
+					callbacks.mouse.press(static_cast<platform::Input::Mouse>(button));
 				else if (action == GLFW_RELEASE)
-					callbacks.mouse.release(static_cast<Input::Mouse>(button));
+					callbacks.mouse.release(static_cast<platform::Input::Mouse>(button));
 			});
 
 		glfwSetScrollCallback(m_window.getNative(),
@@ -142,12 +142,12 @@ namespace bm::app
 			};
 
 		// Key callbacks
-		key.press = [this](Input::Key k, unsigned int repeat) 
+		key.press = [this](platform::Input::Key k, unsigned int repeat)
 			{
 				KeyPressEvent e(k, repeat);
 				event(e);
 			};
-		key.release = [this](Input::Key k) 
+		key.release = [this](platform::Input::Key k)
 			{
 				KeyReleaseEvent e(k);
 				event(e);
@@ -159,12 +159,12 @@ namespace bm::app
 				MouseMoveEvent e(x, y);
 				event(e);
 			};
-		mouse.press = [this](Input::Mouse button) 
+		mouse.press = [this](platform::Input::Mouse button)
 			{
 				MouseButtonPressEvent e(button);
 				event(e);
 			};
-		mouse.release = [this](Input::Mouse button) 
+		mouse.release = [this](platform::Input::Mouse button)
 			{
 				MouseButtonReleaseEvent e(button);
 				event(e);

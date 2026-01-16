@@ -43,7 +43,7 @@ namespace bm::core
 
 		// Stop the timer and get elapsed time in specified duration type (default to timer precision)
 		template<ChronoDuration R = Duration>
-			requires std::is_convertible_v<Duration, R>
+			//requires std::is_convertible_v<Duration, R>
 		[[nodiscard]]
 		R stop() noexcept
 		{
@@ -66,7 +66,7 @@ namespace bm::core
 
 		// Restart the timer and get elapsed time in specified duration type (default to timer precision)
 		template<ChronoDuration R = Duration>
-			requires std::is_convertible_v<Duration, R>
+			//requires std::is_convertible_v<Duration, R>
 		[[nodiscard]]
 		R restart() noexcept
 		{
@@ -102,7 +102,7 @@ namespace bm::core
 
 		// Get elapsed time in specified duration type (default to timer precision)
 		template<ChronoDuration R = Duration>
-			requires std::is_convertible_v<Duration, R>
+			//requires std::is_convertible_v<Duration, R>
 		[[nodiscard]]
 		R getElapsed() const noexcept
 		{
