@@ -60,7 +60,7 @@ namespace bm::gfx
 
 
 	// Exception thrown on image loading errors
-	export struct ImageException : public Exception
+	export struct ImageException : public core::Exception
 	{
 		ImageException(std::string_view what, Image::MetaData meta) : Exception(what), metadata(meta) {}
 		Image::MetaData metadata;

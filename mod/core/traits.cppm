@@ -4,7 +4,7 @@ import :utility;
 
 import std;
 
-namespace bm
+namespace bm::core
 {
 
 	// K prefix = Konstant (const)

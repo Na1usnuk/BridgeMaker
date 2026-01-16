@@ -199,7 +199,7 @@ namespace bm::gfx
 
 	std::size_t Renderer::ShaderProgramKeyHash::operator()(const Renderer::ShaderProgramKey& key) const noexcept
 	{
-		HandleHash hasher;
+		core::HandleHash hasher;
 		std::size_t result = 0;
 		for (const auto& shader : key.sources)
 		{
@@ -229,7 +229,7 @@ namespace bm::gfx
 			prepare(object_handle);
 	}
 
-	void Renderer::prepare(const Handle<Object> object_handle)
+	void Renderer::prepare(const core::Handle<Object> object_handle)
 	{
 		const auto optobj = m_manager.objects.tryGet(object_handle);
 		VERIFY(optobj.has_value(), "Invalid Object");
@@ -238,7 +238,7 @@ namespace bm::gfx
 		prepare(object.getMaterial());
 	}
 
-	void Renderer::prepare(const Handle<Mesh> mesh_handle)
+	void Renderer::prepare(const core::Handle<Mesh> mesh_handle)
 	{
 		const auto optmesh = m_manager.meshes.tryGet(mesh_handle);
 		VERIFY(optmesh.has_value(), "Invalid Mesh");
@@ -253,7 +253,7 @@ namespace bm::gfx
 			update(mesh_handle);
 	}
 
-	void Renderer::prepare(const Handle<Material> material_handle)
+	void Renderer::prepare(const core::Handle<Material> material_handle)
 	{
 		const auto optmat = m_manager.materials.tryGet(material_handle);
 		VERIFY(optmat.has_value(), "Invalid Material");
@@ -274,23 +274,23 @@ namespace bm::gfx
 		prepare(material.getNormalImage());
 	}
 
-	void Renderer::prepare(const Handle<Image> image_handle)
+	void Renderer::prepare(const core::Handle<Image> image_handle)
 	{
 		if (not m_textures.contains(image_handle))
 			allocate(image_handle);
 	}
 
-	void Renderer::destroy(Handle<Object> object_handle)
+	void Renderer::destroy(core::Handle<Object> object_handle)
 	{
 		// Nothing to do for now
 	}
 
-	void Renderer::destroy(Handle<Mesh> mesh_handle)
+	void Renderer::destroy(core::Handle<Mesh> mesh_handle)
 	{
 		m_shapes.erase(mesh_handle);
 	}
 
-	void Renderer::destroy(Handle<ShaderSource> shader_source_handle)
+	void Renderer::destroy(core::Handle<ShaderSource> shader_source_handle)
 	{
 		m_shaders.erase(shader_source_handle);
 		// Also erase programs that use this shader
@@ -305,12 +305,12 @@ namespace bm::gfx
 		//}
 	}
 
-	void Renderer::destroy(Handle<Material> material_handle)
+	void Renderer::destroy(core::Handle<Material> material_handle)
 	{
 		// Nothing to do for now
 	}
 
-	void Renderer::destroy(Handle<Image> image_handle)
+	void Renderer::destroy(core::Handle<Image> image_handle)
 	{
 		m_textures.erase(image_handle);
 	}
@@ -323,7 +323,7 @@ namespace bm::gfx
 		m_programs.clear();
 	}
 
-	void Renderer::allocate(const Handle<Mesh> mesh_handle)
+	void Renderer::allocate(const core::Handle<Mesh> mesh_handle)
 	{
 		// Prepare already checked for mesh existence, so no need to check again
 		const auto& mesh = m_manager.meshes.get(mesh_handle);
@@ -359,7 +359,7 @@ namespace bm::gfx
 		m_shapes.emplace(mesh_handle, std::move(shape));
 	}
 
-	void Renderer::allocate(Handle<ShaderSource> handler, Shader::Stage stage)
+	void Renderer::allocate(core::Handle<ShaderSource> handler, Shader::Stage stage)
 	{
 		auto optsrc = m_manager.shader_sources.tryGet(handler);
 		VERIFY(optsrc.has_value(), "Invalid shader source");
@@ -370,7 +370,7 @@ namespace bm::gfx
 		m_shaders.emplace(handler, std::move(shader));
 	}
 
-	void Renderer::allocate(Handle<ShaderSource> vertex_handle, Handle<ShaderSource> fragment_handle)
+	void Renderer::allocate(core::Handle<ShaderSource> vertex_handle, core::Handle<ShaderSource> fragment_handle)
 	{
 		// At this point, shaders must be already allocated
 		auto& vertex_shader = m_shaders.at(vertex_handle);
@@ -383,7 +383,7 @@ namespace bm::gfx
 		m_programs.emplace(std::move(key), std::move(program));
 	}
 
-	void Renderer::allocate(Handle<Image> image_handle)
+	void Renderer::allocate(core::Handle<Image> image_handle)
 	{
 		const auto optimg = m_manager.images.tryGet(image_handle);
 		VERIFY(optimg.has_value(), "Invalid Image");
@@ -394,7 +394,7 @@ namespace bm::gfx
 		m_textures.emplace(image_handle, std::move(texture));
 	}
 
-	void Renderer::update(const Handle<Mesh> mesh_handle)
+	void Renderer::update(const core::Handle<Mesh> mesh_handle)
 	{
 		// Prepare already checked for mesh existence, so no need to check again
 		const auto& mesh = m_manager.meshes.get(mesh_handle);

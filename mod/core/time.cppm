@@ -4,7 +4,7 @@ import :verify;
 
 import std;
 
-namespace bm
+namespace bm::core
 {
 
 	// Helper concepts for chrono types

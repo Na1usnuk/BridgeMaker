@@ -27,12 +27,12 @@ namespace bm::gfx
 		return std::nullopt;
 	}
 
-	Handle<VertexLayout> Mesh::getVertexLayout() const noexcept
+	core::Handle<VertexLayout> Mesh::getVertexLayout() const noexcept
 	{
 		return m_vertex_layout;
 	}
 
-	void Mesh::setVertexLayout(const Handle<VertexLayout> handler) noexcept
+	void Mesh::setVertexLayout(const core::Handle<VertexLayout> handler) noexcept
 	{
 		m_vertex_layout = handler;
 		m_version.layout++;
@@ -49,13 +49,13 @@ namespace bm::gfx
 		m_index_data.reset();
 	}
 
-	bm::observer_ptr<std::byte> Mesh::dataVertex() noexcept
+	bm::core::observer_ptr<std::byte> Mesh::dataVertex() noexcept
 	{
 		m_version.vertex++; // Assuming user will modify data
 		return m_vertex_data.data();
 	}
 
-	bm::observer_ptr<unsigned int> Mesh::dataIndex() noexcept
+	bm::core::observer_ptr<unsigned int> Mesh::dataIndex() noexcept
 	{
 		if (m_index_data)
 		{

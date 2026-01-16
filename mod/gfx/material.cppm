@@ -29,22 +29,22 @@ namespace bm::gfx
 	public:
 
 		Material() = default;
-		Material(Handle<ShaderSource> vertex_shader_source, Handle<ShaderSource> fragment_shader_source) :
+		Material(core::Handle<ShaderSource> vertex_shader_source, core::Handle<ShaderSource> fragment_shader_source) :
 			m_vertex(vertex_shader_source),
 			m_fragment(fragment_shader_source)
 		{}
 
-		Handle<ShaderSource> getVertexShaderSource() const noexcept { return m_vertex; }
-		Handle<ShaderSource> getFragmentShaderSource() const noexcept { return m_fragment; }
+		core::Handle<ShaderSource> getVertexShaderSource() const noexcept { return m_vertex; }
+		core::Handle<ShaderSource> getFragmentShaderSource() const noexcept { return m_fragment; }
 
-		void setVertexShaderSource(Handle<ShaderSource> handler) noexcept { m_vertex = handler; }
-		void setFragmentShaderSource(Handle<ShaderSource> handler) noexcept { m_fragment = handler; }
+		void setVertexShaderSource(core::Handle<ShaderSource> handler) noexcept { m_vertex = handler; }
+		void setFragmentShaderSource(core::Handle<ShaderSource> handler) noexcept { m_fragment = handler; }
 
-		void setDiffuseImage(Handle<Image> diffuse) noexcept { m_diffuse = diffuse; }
-		void setNormalImage(Handle<Image> normal) noexcept { m_normal = normal; }
+		void setDiffuseImage(core::Handle<Image> diffuse) noexcept { m_diffuse = diffuse; }
+		void setNormalImage(core::Handle<Image> normal) noexcept { m_normal = normal; }
 
-		Handle<Image> getDiffuseImage() const noexcept { return m_diffuse; }
-		Handle<Image> getNormalImage() const noexcept { return m_normal; }
+		core::Handle<Image> getDiffuseImage() const noexcept { return m_diffuse; }
+		core::Handle<Image> getNormalImage() const noexcept { return m_normal; }
 
 	public:
 
@@ -52,11 +52,11 @@ namespace bm::gfx
 
 	private:
 
-		Handle<ShaderSource> m_vertex;
-		Handle<ShaderSource> m_fragment;
+		core::Handle<ShaderSource> m_vertex;
+		core::Handle<ShaderSource> m_fragment;
 
-		Handle<Image> m_diffuse;
-		Handle<Image> m_normal;
+		core::Handle<Image> m_diffuse;
+		core::Handle<Image> m_normal;
 
 	};
 

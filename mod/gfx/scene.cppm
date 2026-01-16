@@ -29,22 +29,22 @@ namespace bm::gfx
 		virtual void onUpdate(float deltaTime) {}
 		virtual void onRender() {}
 
-		void addObject(Handle<Object> handler) noexcept
+		void addObject(core::Handle<Object> handler) noexcept
 		{
 			m_objects.push_back(handler);
 		}
 
-		void addLight(Handle<Light> handler) noexcept
+		void addLight(core::Handle<Light> handler) noexcept
 		{
 			m_lights.push_back(handler);
 		}
 
-		std::span<const Handle<Object>> getObjects() const noexcept
+		std::span<const core::Handle<Object>> getObjects() const noexcept
 		{ 
 			return { m_objects };
 		}
 
-		std::span<const Handle<Light>> getLights() const noexcept
+		std::span<const core::Handle<Light>> getLights() const noexcept
 		{ 
 			return { m_lights };
 		}
@@ -52,8 +52,8 @@ namespace bm::gfx
 	private:
 
 		std::string m_name;
-		std::vector<Handle<Object>> m_objects;
-		std::vector<Handle<Light>> m_lights;
+		std::vector<core::Handle<Object>> m_objects;
+		std::vector<core::Handle<Light>> m_lights;
 
 	};
 

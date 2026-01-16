@@ -57,8 +57,8 @@ namespace bm::gfx
 	{
 	private:
 
-		template<class K, class V, class H = HandleHash>
-		using HandleMap = std::unordered_map<Handle<K>, V, H>;
+		template<class K, class V, class H = core::HandleHash>
+		using HandleMap = std::unordered_map<core::Handle<K>, V, H>;
 
 		// Shape of object
 		struct Shape
@@ -75,7 +75,7 @@ namespace bm::gfx
 		// Helpers to map shaders to program
 		struct ShaderProgramKey
 		{
-			std::array<Handle<ShaderSource>, 2> sources; 
+			std::array<core::Handle<ShaderSource>, 2> sources; 
 			bool operator==(const ShaderProgramKey& other) const { return sources == other.sources; }
 		};
 		struct ShaderProgramKeyHash
@@ -102,18 +102,18 @@ namespace bm::gfx
 
 		// Slow operation that allocate GPU resources. 
 		void prepare(const Scene& scene);
-		void prepare(const Handle<Object> object_handle);
-		void prepare(const Handle<Mesh> mesh_handle);
-		void prepare(const Handle<ShaderSource> shader_source_handle);
-		void prepare(const Handle<Material> material_handle);
-		void prepare(const Handle<Image> image_handle);
+		void prepare(const core::Handle<Object> object_handle);
+		void prepare(const core::Handle<Mesh> mesh_handle);
+		void prepare(const core::Handle<ShaderSource> shader_source_handle);
+		void prepare(const core::Handle<Material> material_handle);
+		void prepare(const core::Handle<Image> image_handle);
 
 		// Deallocate GPU resources.
-		void destroy(Handle<Object> object_handle);
-		void destroy(Handle<Mesh> mesh_handle);
-		void destroy(Handle<ShaderSource> shader_source_handle);
-		void destroy(Handle<Material> material_handle);
-		void destroy(Handle<Image> image_handle);
+		void destroy(core::Handle<Object> object_handle);
+		void destroy(core::Handle<Mesh> mesh_handle);
+		void destroy(core::Handle<ShaderSource> shader_source_handle);
+		void destroy(core::Handle<Material> material_handle);
+		void destroy(core::Handle<Image> image_handle);
 
 		// Destroy all allocated GPU resources.
 		void destroy();
@@ -123,13 +123,13 @@ namespace bm::gfx
 
 	private:
 
-		void allocate(const Handle<Mesh> mesh_handle);
-		void update(const Handle<Mesh> mesh_handle);
+		void allocate(const core::Handle<Mesh> mesh_handle);
+		void update(const core::Handle<Mesh> mesh_handle);
 
-		void allocate(Handle<ShaderSource> source_handle, Shader::Stage stage);
-		void allocate(Handle<ShaderSource> vertex_handle, Handle<ShaderSource> fragment_handle);
+		void allocate(core::Handle<ShaderSource> source_handle, Shader::Stage stage);
+		void allocate(core::Handle<ShaderSource> vertex_handle, core::Handle<ShaderSource> fragment_handle);
 
-		void allocate(Handle<Image> image_handle);
+		void allocate(core::Handle<Image> image_handle);
 	
 	private:
 

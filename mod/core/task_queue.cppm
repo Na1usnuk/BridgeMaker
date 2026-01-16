@@ -2,7 +2,7 @@ export module bm.taskqueue;
 
 import std;
 
-namespace bm
+namespace bm::core
 {
 
 export class TaskQueue

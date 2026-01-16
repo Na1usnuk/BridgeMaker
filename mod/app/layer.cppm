@@ -50,7 +50,7 @@ namespace bm::app
 	{
 	public:
 
-		using LayerHandle = Handle<Layer>;
+		using LayerHandle = core::Handle<Layer>;
 
 	private:
 

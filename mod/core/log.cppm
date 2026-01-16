@@ -7,7 +7,7 @@ export module bm.core:log;
 
 import std;
 
-namespace bm::log
+namespace bm::core::log
 {
 
 class Log
@@ -46,24 +46,24 @@ inline void fatal(std::string_view msg) { Log::getClientLogger()->critical(msg);
 
 }
 
-//Core loogging used by engine
-namespace bm::core::log
-{
-	export template<typename... ARGS>
-		inline void trace(fmt::format_string<ARGS...> fmt, ARGS&&... args) { ::bm::log::Log::getCoreLogger()->trace(fmt, std::forward<ARGS>(args)...); }
-	export template<typename... ARGS>
-		inline void info(fmt::format_string<ARGS...> fmt, ARGS&&... args) { ::bm::log::Log::getCoreLogger()->info(fmt, std::forward<ARGS>(args)...); }
-	export template<typename... ARGS>
-		inline void warning(fmt::format_string<ARGS...> fmt, ARGS&&... args) { ::bm::log::Log::getCoreLogger()->warn(fmt, std::forward<ARGS>(args)...); }
-	export template<typename... ARGS>
-		inline void error(fmt::format_string<ARGS...> fmt, ARGS&&... args) { ::bm::log::Log::getCoreLogger()->error(fmt, std::forward<ARGS>(args)...); }
-	export template<typename... ARGS>
-		inline void fatal(fmt::format_string<ARGS...> fmt, ARGS&&... args) { ::bm::log::Log::getCoreLogger()->critical(fmt, std::forward<ARGS>(args)...); }
-
-	inline void trace(std::string_view msg) { ::bm::log::Log::getCoreLogger()->trace(msg); }
-	inline void info(std::string_view msg) { ::bm::log::Log::getCoreLogger()->info(msg); }
-	inline void warning(std::string_view msg) { ::bm::log::Log::getCoreLogger()->warn(msg); }
-	inline void error(std::string_view msg) { ::bm::log::Log::getCoreLogger()->error(msg); }
-	inline void fatal(std::string_view msg) { ::bm::log::Log::getCoreLogger()->critical(msg); }
-}
+////Core loogging used by engine
+//namespace bm::core::log
+//{
+//	export template<typename... ARGS>
+//		inline void trace(fmt::format_string<ARGS...> fmt, ARGS&&... args) { Log::getCoreLogger()->trace(fmt, std::forward<ARGS>(args)...); }
+//	export template<typename... ARGS>
+//		inline void info(fmt::format_string<ARGS...> fmt, ARGS&&... args) { Log::getCoreLogger()->info(fmt, std::forward<ARGS>(args)...); }
+//	export template<typename... ARGS>
+//		inline void warning(fmt::format_string<ARGS...> fmt, ARGS&&... args) { Log::getCoreLogger()->warn(fmt, std::forward<ARGS>(args)...); }
+//	export template<typename... ARGS>
+//		inline void error(fmt::format_string<ARGS...> fmt, ARGS&&... args) { Log::getCoreLogger()->error(fmt, std::forward<ARGS>(args)...); }
+//	export template<typename... ARGS>
+//		inline void fatal(fmt::format_string<ARGS...> fmt, ARGS&&... args) { Log::getCoreLogger()->critical(fmt, std::forward<ARGS>(args)...); }
+//
+//	inline void trace(std::string_view msg) { Log::getCoreLogger()->trace(msg); }
+//	inline void info(std::string_view msg) { Log::getCoreLogger()->info(msg); }
+//	inline void warning(std::string_view msg) { Log::getCoreLogger()->warn(msg); }
+//	inline void error(std::string_view msg) { Log::getCoreLogger()->error(msg); }
+//	inline void fatal(std::string_view msg) { Log::getCoreLogger()->critical(msg); }
+//}
 

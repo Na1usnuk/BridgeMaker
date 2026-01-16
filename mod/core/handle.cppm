@@ -5,7 +5,7 @@ import std;
 import :verify;
 import :log;
 
-namespace bm
+namespace bm::core
 {
 
 	// Handle to resource. Generation 0 mean invalid

@@ -2,7 +2,7 @@ export module bm.core:utility;
 
 import std;
 
-namespace bm
+namespace bm::core
 {
 
 	export constexpr unsigned int bit(unsigned int n) { return 1 << n; }

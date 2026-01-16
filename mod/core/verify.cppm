@@ -6,7 +6,7 @@ import :log;
 import :utility;
 import std;
 
-namespace bm
+namespace bm::core
 {
     export inline void breakpoint()
     {
@@ -46,45 +46,11 @@ namespace bm
                 std::make_format_args(msg, loc_msg));
 
         if (is_core)
-            bm::log::Log::getCoreLogger()->log(spdlog::level::critical, full_message);
+            log::Log::getCoreLogger()->log(spdlog::level::critical, full_message);
         else
-            bm::log::Log::getClientLogger()->log(spdlog::level::critical, full_message);
+            log::Log::getClientLogger()->log(spdlog::level::critical, full_message);
     }
 
-
-namespace core
-{
-
-	export template<typename... Args>
-	void verify(std::source_location loc, const bool condition, std::string_view msg = {}, Args&&... args)
-	{
-        if constexpr (config::enable_verify)
-        {
-            if (condition) [[likely]]
-				return;
-            
-            std::string formatted_msg(msg);
-            if constexpr (sizeof...(args) > 0)
-                formatted_msg = std::vformat(msg, std::make_format_args(std::forward<Args>(args)...));
-
-            using namespace std;
-            if constexpr (config::is_debug)
-            {
-                logFailure(true, formatted_msg, loc);
-                breakpoint();
-            }
-			else
-                terminate();
-		}
-	}
-
-    export template<typename... Args>
-    void verify(const bool condition, std::string_view msg = {}, Args&&... args)
-    {
-        verify(std::source_location{}, condition, msg, std::forward<Args>(args)...);
-    }
-
-}
 
 	export template<typename... Args>
 	void verify(std::source_location loc, const bool condition, std::string_view msg = {}, Args&&... args)

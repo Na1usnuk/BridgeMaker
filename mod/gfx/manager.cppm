@@ -16,12 +16,12 @@ namespace bm::gfx
 	// Resource manager holding CPU assets
 	export struct ResourceManager
 	{
-		HandleStorage<Object> objects;
-		HandleStorage<Material> materials;
-		HandleStorage<Mesh> meshes;
-		HandleStorage<Image> images;
-		HandleStorage<ShaderSource> shader_sources;
-		HandleStorage<VertexLayout> vertex_layouts;
+		core::HandleStorage<Object> objects;
+		core::HandleStorage<Material> materials;
+		core::HandleStorage<Mesh> meshes;
+		core::HandleStorage<Image> images;
+		core::HandleStorage<ShaderSource> shader_sources;
+		core::HandleStorage<VertexLayout> vertex_layouts;
 	};
 
 }

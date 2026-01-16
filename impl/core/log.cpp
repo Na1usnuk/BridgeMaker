@@ -10,11 +10,11 @@ import :log;
 
 import std;
 
-std::shared_ptr<spdlog::logger> bm::log::Log::s_core_logger;
-std::shared_ptr<spdlog::logger> bm::log::Log::s_client_logger;
-std::once_flag bm::log::Log::s_once_flag;
+std::shared_ptr<spdlog::logger> bm::core::log::Log::s_core_logger;
+std::shared_ptr<spdlog::logger> bm::core::log::Log::s_client_logger;
+std::once_flag bm::core::log::Log::s_once_flag;
 
-void bm::log::Log::init()
+void bm::core::log::Log::init()
 {
 	std::call_once(s_once_flag, []()
 		{

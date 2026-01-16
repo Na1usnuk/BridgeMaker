@@ -16,7 +16,7 @@ namespace bm::gfx
 	public:
 
 		Object(std::string_view name = "Object") : m_name(name) {}
-		Object(Handle<Mesh> mesh, Handle<Material> material, std::string_view name = "Object") :
+		Object(core::Handle<Mesh> mesh, core::Handle<Material> material, std::string_view name = "Object") :
 			m_mesh(mesh), m_material(material), m_name(name) {
 		}
 
@@ -32,11 +32,11 @@ namespace bm::gfx
 		bool isVisible() const noexcept { return m_visible; }
 		void setVisibility(bool visible) noexcept { m_visible = visible; }
 
-		void setMaterial(Handle<Material> material) noexcept { m_material = material; }
-		Handle<Material> getMaterial() const noexcept { return m_material; }
+		void setMaterial(core::Handle<Material> material) noexcept { m_material = material; }
+		core::Handle<Material> getMaterial() const noexcept { return m_material; }
 
-		void setMesh(Handle<Mesh> mesh) noexcept { m_mesh = mesh; }
-		Handle<Mesh> getMesh() const noexcept { return m_mesh; }
+		void setMesh(core::Handle<Mesh> mesh) noexcept { m_mesh = mesh; }
+		core::Handle<Mesh> getMesh() const noexcept { return m_mesh; }
 
 	public:
 
@@ -47,8 +47,8 @@ namespace bm::gfx
 		std::string m_name;
 		bool m_visible = true;
 
-		Handle<Material> m_material;
-		Handle<Mesh> m_mesh;
+		core::Handle<Material> m_material;
+		core::Handle<Mesh> m_mesh;
 
 	};
 

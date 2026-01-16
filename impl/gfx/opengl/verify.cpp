@@ -43,7 +43,7 @@ namespace bm::gfx
 				auto function = std::string_view(loc.function_name());
 				auto line = loc.line();
 				bm::core::log::fatal("OpenGL function call failed [FILE: {}; FUNCTION: {}; LINE: {}] {}", file, function, line, error);
-				bm::breakpoint();
+				bm::core::breakpoint();
 			}
 	}
 

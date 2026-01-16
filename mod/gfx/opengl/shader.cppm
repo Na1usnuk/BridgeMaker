@@ -85,9 +85,9 @@ namespace bm::gfx
 		std::unordered_map<std::string, int> m_uniform_cache;
 	};
 
-	export struct ShaderException : public Exception
+	export struct ShaderException : public core::Exception
 	{
-		ShaderException(std::string_view what) : Exception(what) {}
+		ShaderException(std::string_view what) : core::Exception(what) {}
 	};
 
 }

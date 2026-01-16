@@ -63,15 +63,15 @@ namespace bm::gfx
 		std::span<const std::byte> getVertexData() const noexcept;
 		std::optional<std::span<const unsigned int>> getIndexData() const noexcept;
 
-		Handle<VertexLayout> getVertexLayout() const noexcept;
-		void setVertexLayout(const Handle<VertexLayout> handler) noexcept;
+		core::Handle<VertexLayout> getVertexLayout() const noexcept;
+		void setVertexLayout(const core::Handle<VertexLayout> handler) noexcept;
 
 		void clearVertexData() noexcept;
 		void clearIndexData() noexcept;
 
 		// (almost) Raw pointer getter
-		bm::observer_ptr<std::byte> dataVertex() noexcept;
-		bm::observer_ptr<unsigned int> dataIndex() noexcept;
+		bm::core::observer_ptr<std::byte> dataVertex() noexcept;
+		bm::core::observer_ptr<unsigned int> dataIndex() noexcept;
 
 		std::size_t sizeVertex() const noexcept;
 		std::optional<std::size_t> sizeIndex() const noexcept;
@@ -93,7 +93,7 @@ namespace bm::gfx
 		Version m_version;
 
 		std::vector<std::byte> m_vertex_data;
-		Handle<VertexLayout> m_vertex_layout;
+		core::Handle<VertexLayout> m_vertex_layout;
 		Usage m_vertex_usage;
 
 		std::optional<std::vector<unsigned int>> m_index_data;

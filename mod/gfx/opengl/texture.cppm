@@ -65,7 +65,7 @@ namespace bm::gfx
 		MetaData m_meta;
 	};
 
-	export struct TextureException : public Exception
+	export struct TextureException : public core::Exception
 	{
 		TextureException(std::string_view what, Texture::MetaData data = {}) : Exception(what), data(data) {}
 
