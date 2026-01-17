@@ -96,6 +96,11 @@ namespace bm::gfx
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer(Renderer&&) = delete;
 		Renderer& operator=(Renderer&&) = delete;
+
+		ResourceManager& getResourceManager() const noexcept // Renderer do not own resource manager, so it returns ref to it in const method
+		{
+			return m_manager;
+		}
 	
 		void clearColor(std::array<float, 4> color);
 		void setViewportSize(int width, int height);
@@ -126,7 +131,7 @@ namespace bm::gfx
 		void allocate(const core::Handle<Mesh> mesh_handle);
 		void update(const core::Handle<Mesh> mesh_handle);
 
-		void allocate(core::Handle<ShaderSource> source_handle, Shader::Stage stage);
+		void allocate(core::Handle<ShaderSource> source_handle, ShaderSource::Stage stage);
 		void allocate(core::Handle<ShaderSource> vertex_handle, core::Handle<ShaderSource> fragment_handle);
 
 		void allocate(core::Handle<Image> image_handle);

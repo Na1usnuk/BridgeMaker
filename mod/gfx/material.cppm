@@ -3,6 +3,7 @@ export module bm.gfx:material;
 import :source;
 import :image;
 import :utility;
+import :image;
 
 import glm;
 
@@ -15,48 +16,57 @@ namespace bm::gfx
 
 	export class Material
 	{
-	public:
+	private:
 
-		struct Description
+		struct ImageDescription
 		{
-			glm::vec4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
-			glm::vec3 ambient{ 0.2f, 0.2f, 0.2f };
-			glm::vec3 diffuse{ 1.0f, 1.0f, 1.0f };
-			glm::vec3 specular{ 0.5f, 0.5f, 0.5f };
-			float shininess{ 32.0f };
+			core::Handle<Image> image; // Image of texture 
+			std::string name; // Name of this texture in shader. 
 		};
 
 	public:
 
-		Material() = default;
-		Material(core::Handle<ShaderSource> vertex_shader_source, core::Handle<ShaderSource> fragment_shader_source) :
-			m_vertex(vertex_shader_source),
-			m_fragment(fragment_shader_source)
-		{}
-
-		core::Handle<ShaderSource> getVertexShaderSource() const noexcept { return m_vertex; }
-		core::Handle<ShaderSource> getFragmentShaderSource() const noexcept { return m_fragment; }
-
-		void setVertexShaderSource(core::Handle<ShaderSource> handler) noexcept { m_vertex = handler; }
-		void setFragmentShaderSource(core::Handle<ShaderSource> handler) noexcept { m_fragment = handler; }
-
-		void setDiffuseImage(core::Handle<Image> diffuse) noexcept { m_diffuse = diffuse; }
-		void setNormalImage(core::Handle<Image> normal) noexcept { m_normal = normal; }
-
-		core::Handle<Image> getDiffuseImage() const noexcept { return m_diffuse; }
-		core::Handle<Image> getNormalImage() const noexcept { return m_normal; }
+		//struct Description
+		//{
+		//	glm::vec4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		//	glm::vec3 ambient{ 0.2f, 0.2f, 0.2f };
+		//	glm::vec3 diffuse{ 1.0f, 1.0f, 1.0f };
+		//	glm::vec3 specular{ 0.5f, 0.5f, 0.5f };
+		//	float shininess{ 32.0f };
+		//};
 
 	public:
 
-		Description description;
+		//Material() = default;
+		//Material(core::Handle<ShaderSource> vertex_shader_source, core::Handle<ShaderSource> fragment_shader_source) :
+		//	m_vertex(vertex_shader_source),
+		//	m_fragment(fragment_shader_source)
+		//{}
+
+
+		void set(std::string_view name, core::Handle<Image> image)
+		{
+			//m_images.emplace_back(image, name);
+		}
+
+		void set(core::Handle<ShaderSource> shader_source)
+		{
+			m_sources.push_back(shader_source);
+		}
+
+		const std::vector<ImageDescription>& getImages() const noexcept
+		{
+			return m_images;
+		}
+
+	public:
+
+		//Description description;
 
 	private:
 
-		core::Handle<ShaderSource> m_vertex;
-		core::Handle<ShaderSource> m_fragment;
-
-		core::Handle<Image> m_diffuse;
-		core::Handle<Image> m_normal;
+		std::vector<core::Handle<ShaderSource>> m_sources;
+		std::vector<ImageDescription> m_images;
 
 	};
 

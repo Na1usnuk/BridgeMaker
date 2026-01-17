@@ -39,7 +39,7 @@ namespace bm::gfx
 
 	Image::Image(const std::span<const std::byte> data, int width, int height, Format format) :
 		m_meta{ width, height, format, "" },
-		m_data{ new std::byte[data.size()], [](void* p) { delete[](p); } },
+		m_data{ new std::byte[data.size()], [](void* p) noexcept { delete[](p); } },
 		m_size(data.size())
 	{
 		if (format == Format::None) 

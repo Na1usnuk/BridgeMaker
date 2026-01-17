@@ -37,6 +37,17 @@ namespace bm::gfx
 
 		struct Attribute { Type type; bool normalized = false; };
 
+		VertexLayout(std::initializer_list<Type> types)
+		{
+			attributes.reserve(types.size());
+			for (const auto type : types)
+				attributes.push_back(Attribute{ .type = type });
+		}
+
+		VertexLayout(std::initializer_list<Attribute> attribs) :
+			attributes(attribs)
+		{ }
+
 		std::vector<Attribute> attributes;
 	};
 

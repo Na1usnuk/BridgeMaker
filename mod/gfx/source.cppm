@@ -11,23 +11,29 @@ namespace bm::gfx
 	{
 	public:
 
-		static ShaderSource fromFile(const std::filesystem::path& filepath);
-		static ShaderSource fromString(std::string_view source) { return { source }; }
+		enum class Stage
+		{
+			Vertex,
+			Fragment
+		};
 
-		ShaderSource(std::string_view source) : m_source(source) {}
-		ShaderSource(std::string&& source) : m_source(std::move(source)) {}
+	public:
 
-		ShaderSource(ShaderSource&&) = default;
-		ShaderSource& operator=(ShaderSource&&) = default;
-		ShaderSource(const ShaderSource&) = delete;
-		ShaderSource& operator=(const ShaderSource&) = delete;
-		~ShaderSource() = default;
+		static ShaderSource fromFile(const std::filesystem::path& filepath, Stage stage);
+		static ShaderSource fromString(std::string source, Stage stage) { return { std::move(source), stage }; } // Just for convenience
 
-		const std::string& getSource() const { return m_source; }
+		ShaderSource(std::string source, Stage stage) : 
+			m_source(std::move(source)),
+			m_stage(stage)
+		{}
+
+		std::string_view getSource() const noexcept { return m_source; }
+		const Stage getStage() const noexcept { return m_stage; }
 
 	private:
 
 		std::string m_source;
+		Stage m_stage;
 
 	};
 }

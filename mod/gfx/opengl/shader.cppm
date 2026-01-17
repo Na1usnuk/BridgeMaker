@@ -15,15 +15,7 @@ namespace bm::gfx
 	{
 	public:
 
-		enum class Stage
-		{
-			Vertex,
-			Fragment
-		};
-
-	public:
-
-		Shader(const ShaderSource& source, Stage stage);
+		Shader(const ShaderSource& source);
 		~Shader();
 
 		Shader(Shader&& oth) noexcept;
@@ -33,7 +25,7 @@ namespace bm::gfx
 		Shader& operator=(const Shader&) = delete;
 
 		unsigned int getId() const noexcept { return m_id; }
-		Stage getStage() const noexcept { return m_stage; }
+		ShaderSource::Stage getStage() const noexcept { return m_stage; }
 
 	private:
 
@@ -42,7 +34,7 @@ namespace bm::gfx
 	private:
 
 		unsigned int m_id;
-		Stage m_stage;
+		ShaderSource::Stage m_stage;
 
 	};
 

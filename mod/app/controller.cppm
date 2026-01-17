@@ -17,14 +17,14 @@ namespace bm::app
 
 		DebugCameraController(gfx::Camera& camera_to_control, const platform::Input& input, float speed = 3.0f, float sensetivity = .5f);
 
-		//void onUpdate(DeltaTime delta_time);
-		//void onEvent(Event& e);
+		void onUpdate(DeltaTime delta_time);
+		void onEvent(Event& e);
 
-		//bool onMouseMove(MouseMoveEvent& e);
-		//bool onScroll(MouseScrollEvent& e);
-		//bool onMouseClick(MouseButtonPressEvent& e);
-		//bool onMouseRelease(MouseButtonReleaseEvent& e);
-		//
+		bool onMouseMove(MouseMoveEvent& e);
+		bool onScroll(MouseScrollEvent& e);
+		bool onMouseClick(MouseButtonPressEvent& e);
+		bool onMouseRelease(MouseButtonReleaseEvent& e);
+
 		//void setSpeed(float speed) { m_speed = speed; }
 		//float getSpeed() const { return m_speed; }
 		//void setSensetivity(float sensetivity) { m_sensetivity = sensetivity; }

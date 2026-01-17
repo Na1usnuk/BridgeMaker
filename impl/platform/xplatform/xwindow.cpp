@@ -128,6 +128,11 @@ namespace bm::platform
 		return { x, y };
 	}
 
+	Window::NativeWindow Window::getNative() const noexcept
+	{
+		return m_window;
+	}
+
 	std::string_view Window::getTitle() const noexcept
 	{ 
 		return glfwGetWindowTitle(m_window);

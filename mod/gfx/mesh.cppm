@@ -54,9 +54,24 @@ namespace bm::gfx
 
 		~Mesh() = default;
 	
-		template<std::ranges::contiguous_range R>
-			requires std::is_trivially_copyable_v<std::ranges::range_value_t<R>>
-		void setVertexData(const R& data, Usage usage = Usage::Const);
+		template<typename T>
+			requires std::is_trivially_copyable_v<T>
+		void setVertexData(std::span<const T> data, Usage usage = Usage::Const)
+		{
+			std::size_t data_size = data.size_bytes();
+			m_vertex_data.resize(data_size);
+			std::memcpy(m_vertex_data.data(), data.data(), data_size);
+
+			m_vertex_usage = usage;
+			m_version.vertex++;
+		}
+
+		template<typename T>
+			requires std::is_trivially_copyable_v<T>
+		void setVertexData(std::initializer_list<const T> data, Usage usage = Usage::Const)
+		{
+			setVertexData(std::span<const T>{data}, usage);
+		}
 		// TODO: variadic index type
 		void setIndexData(std::span<unsigned int> data, Usage usage = Usage::Const);
 
@@ -102,16 +117,6 @@ namespace bm::gfx
 	};
 	
 
-	template<std::ranges::contiguous_range R>
-		requires std::is_trivially_copyable_v<std::ranges::range_value_t<R>>
-	void Mesh::setVertexData(const R& data, Usage usage)
-	{
-		std::size_t data_size = std::ranges::size(data) * sizeof(std::ranges::range_value_t<R>);
-		m_vertex_data.resize(data_size);
-		std::memcpy(m_vertex_data.data(), std::ranges::data(data), data_size);
 
-		m_vertex_usage = usage;
-		m_version.vertex++;
-	}
 	
 }

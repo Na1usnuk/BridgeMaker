@@ -259,7 +259,7 @@ namespace bm::gfx
 		VERIFY(optmat.has_value(), "Invalid Material");
 		const auto& material = optmat->get();
 
-		const auto vertex_source = material.getVertexShaderSource();
+		/*const auto vertex_source = material.getVertexShaderSource();
 		if (not m_shaders.contains(vertex_source))
 			allocate(vertex_source, Shader::Stage::Vertex);
 
@@ -271,7 +271,7 @@ namespace bm::gfx
 			allocate(vertex_source, fragment_source);
 
 		prepare(material.getDiffuseImage());
-		prepare(material.getNormalImage());
+		prepare(material.getNormalImage());*/
 	}
 
 	void Renderer::prepare(const core::Handle<Image> image_handle)
@@ -359,13 +359,13 @@ namespace bm::gfx
 		m_shapes.emplace(mesh_handle, std::move(shape));
 	}
 
-	void Renderer::allocate(core::Handle<ShaderSource> handler, Shader::Stage stage)
+	void Renderer::allocate(core::Handle<ShaderSource> handler, ShaderSource::Stage stage)
 	{
 		auto optsrc = m_manager.shader_sources.tryGet(handler);
 		VERIFY(optsrc.has_value(), "Invalid shader source");
 		auto& src = optsrc->get();
 
-		Shader shader(src, stage);
+		Shader shader(src);
 
 		m_shaders.emplace(handler, std::move(shader));
 	}

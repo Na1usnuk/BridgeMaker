@@ -46,7 +46,7 @@ namespace bm::gfx
 		int getHeight() const noexcept { return m_meta.height; }
 		std::size_t getSize() const noexcept { return m_size; }
 		Format getFormat() const noexcept { return m_meta.format; }
-		int getChannelsCount() const noexcept { return static_cast<int>(m_meta.format); }
+		auto getChannelsCount() const noexcept { return std::to_underlying(m_meta.format); }
 
 		void flipVertically() noexcept;
 		void flipHorizontally() noexcept;
@@ -54,7 +54,8 @@ namespace bm::gfx
 	private:
 
 		MetaData m_meta;
-		std::unique_ptr<std::byte, void(*)(void*)> m_data; // stbi_image_free or delete[]
+		// There is some questinable design here. It was made to avoid copying from stb. It is safe (FOR CURRENT IMPLEMENTATION)
+		std::unique_ptr<std::byte, void(*)(void*) noexcept> m_data; // stbi_image_free or delete[]
 		std::size_t m_size;
 	};
 

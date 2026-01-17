@@ -7,9 +7,11 @@ module;
 module bm.gfx:shader;
 
 import :shader;
-
 import :verify;
+
+import bm.config;
 import bm.core;
+
 import glm;
 import std;
 
@@ -33,39 +35,43 @@ namespace bm::gfx
 		return std::nullopt;
 	}
 
-	static std::string stageToString(Shader::Stage stage)
+	static std::string stageToString(ShaderSource::Stage stage)
 	{
 		switch (stage)
 		{
-		case Shader::Stage::Vertex: return "Vertex";
-		case Shader::Stage::Fragment: return "Fragment";
+		case ShaderSource::Stage::Vertex: return "Vertex";
+		case ShaderSource::Stage::Fragment: return "Fragment";
 		}
 		std::unreachable();
 	}
 
-	static GLenum stageToGL(Shader::Stage stage)
+	static GLenum stageToGL(ShaderSource::Stage stage)
 	{
 		switch (stage)
 		{
-		case Shader::Stage::Vertex: return GL_VERTEX_SHADER;
-		case Shader::Stage::Fragment: return GL_FRAGMENT_SHADER;
+		case ShaderSource::Stage::Vertex: return GL_VERTEX_SHADER;
+		case ShaderSource::Stage::Fragment: return GL_FRAGMENT_SHADER;
 		}
 		std::unreachable();
 	}
 
-	Shader::Shader(const ShaderSource& source, Stage stage) :
+	Shader::Shader(const ShaderSource& source) :
 		m_id(0),
-		m_stage(stage)
+		m_stage(source.getStage())
 	{
-		m_id = GL_VERIFY(glCreateShader, stageToGL(stage));
-		auto c_source = source.getSource().c_str();
-		GL_VERIFY(glShaderSource, m_id, 1, &c_source, nullptr);
+		m_id = GL_VERIFY(glCreateShader, stageToGL(m_stage));
+
+		const std::string_view src = source.getSource();
+		const GLchar* c_source = src.data();
+		const GLint c_size = src.size();
+		GL_VERIFY(glShaderSource, m_id, 1, &c_source, &c_size);
 		GL_VERIFY(glCompileShader, m_id);
 
 		if(auto compilation_status = checkShaderCompilationStatus(m_id); compilation_status.has_value())
 		{
 			destroy();
-			throw ShaderException(std::format("Failed to compile {} shader. {}", stageToString(stage), compilation_status.value()));
+			core::log::fatal("Failed to compile {} shader. {}", stageToString(m_stage), compilation_status.value());
+			throw ShaderException(std::format("Failed to compile {} shader. {}", stageToString(m_stage), compilation_status.value()));
 		}
 
 		core::log::trace("Shader {} {} created", stageToString(m_stage), m_id);
@@ -107,8 +113,8 @@ namespace bm::gfx
 	ShaderProgram::ShaderProgram(const Shader& vertex_shader, const Shader& fragment_shader) :
 		m_id(0)
 	{
-		core::verify(vertex_shader.getStage() == Shader::Stage::Vertex, "Incorect shader stage passed in ShaderProgram ctor");
-		core::verify(fragment_shader.getStage() == Shader::Stage::Fragment, "Incorect shader stage passed in ShaderProgram ctor");
+		core::verify(vertex_shader.getStage() == ShaderSource::Stage::Vertex, "Incorect shader stage passed in ShaderProgram ctor");
+		core::verify(fragment_shader.getStage() == ShaderSource::Stage::Fragment, "Incorect shader stage passed in ShaderProgram ctor");
 
 		m_id = GL_VERIFY(glCreateProgram);
 		GL_VERIFY(glAttachShader, m_id, vertex_shader.getId());
@@ -125,13 +131,18 @@ namespace bm::gfx
 			std::string log(length, '\0');
 			GL_VERIFY(glGetProgramInfoLog, m_id, length, &length, log.data());
 			log.resize(length);
+			GL_VERIFY(glDetachShader, m_id, vertex_shader.getId());
+			GL_VERIFY(glDetachShader, m_id, fragment_shader.getId());
 			glDeleteProgram(m_id);
 			throw ShaderException(std::format("Failed to link shader program: {}", log));
 		}
 
-		GL_VERIFY(glGetProgramiv, m_id, GL_VALIDATE_STATUS, &status);
-		if (status == GL_FALSE)
-			core::log::warning("ShaderProgram {} validation failed. Draw command can generate error!", m_id);
+		if constexpr (config::is_debug)
+		{
+			GL_VERIFY(glGetProgramiv, m_id, GL_VALIDATE_STATUS, &status);
+			if (status == GL_FALSE)
+				core::log::warning("ShaderProgram {} validation failed. Draw command can generate error!", m_id);
+		}
 
 		GL_VERIFY(glDetachShader, m_id, vertex_shader.getId());
 		GL_VERIFY(glDetachShader, m_id, fragment_shader.getId());

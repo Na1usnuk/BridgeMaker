@@ -20,7 +20,7 @@ namespace bm::app
 		int run(int argc, char** argv);
 		int run();
 
-		//float getFPS() const { return m_timestep.getFPS(); }
+		float getFPS() const { return m_frame_timer.getFrameDuration().count() * 1000.f; }
 		//void setTargetFPS(unsigned short fps_limit) noexcept { m_timestep.setFPSLimit(fps_limit); }
 		bool isOpen() const noexcept { return m_is_running; }
 

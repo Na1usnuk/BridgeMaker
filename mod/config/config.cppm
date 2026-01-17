@@ -106,7 +106,7 @@ namespace bm::config
 	// ------------------------------------------------------------------------
 	// Platform Detection
 	// ------------------------------------------------------------------------
-	consteval Platform detect_platform()
+	consteval Platform detectPlatform()
 	{
 #if defined(_WIN32)
 		return Platform::Windows;
@@ -122,7 +122,7 @@ namespace bm::config
 	// ------------------------------------------------------------------------
 	// Build Type Detection
 	// ------------------------------------------------------------------------
-	consteval BuildType detect_build_type()
+	consteval BuildType detectBuildType()
 	{
 #if defined(NDEBUG)
 #if defined(SHIPPING)
@@ -138,7 +138,7 @@ namespace bm::config
 	// ------------------------------------------------------------------------
 	// Compiler Detection
 	// ------------------------------------------------------------------------
-	consteval Compiler detect_compiler()
+	consteval Compiler detectCompiler()
 	{
 #if defined(_MSC_VER)
 		return Compiler::MSVC;
@@ -155,9 +155,9 @@ namespace bm::config
 	// ------------------------------------------------------------------------
 	// Detected Configuration (Auto-detected, do not modify)
 	// ------------------------------------------------------------------------
-	export constexpr Platform  platform   = detect_platform();
-	export constexpr BuildType build_type = detect_build_type();
-	export constexpr Compiler  compiler   = detect_compiler();
+	export constexpr Platform  platform   = detectPlatform();
+	export constexpr BuildType build_type = detectBuildType();
+	export constexpr Compiler  compiler   = detectCompiler();
 
 	// ------------------------------------------------------------------------
 	// Platform Convenience Flags

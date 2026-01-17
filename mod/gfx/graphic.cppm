@@ -4,6 +4,7 @@ export import :utility;
 
 export import :source;
 export import :image;
+export import :buffer;
 export import :mesh;
 export import :material;
 export import :scene;
