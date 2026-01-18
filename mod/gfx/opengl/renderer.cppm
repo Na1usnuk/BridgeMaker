@@ -60,7 +60,7 @@ namespace bm::gfx
 		template<class K, class V, class H = core::HandleHash>
 		using HandleMap = std::unordered_map<core::Handle<K>, V, H>;
 
-		// Shape of object
+		// Shape of object | or GPU representation of Mesh
 		struct Shape
 		{
 			Mesh::Version version;
@@ -83,6 +83,23 @@ namespace bm::gfx
 			std::size_t operator()(const ShaderProgramKey& key) const noexcept;
 		};
 
+		// Appearance of object | or GPU representation of Material
+		struct Appearance
+		{
+		private:
+
+			struct UniformCache
+			{
+				Material::UniformValue value; 
+				std::uint32_t version = 0;
+			};
+
+		public:
+
+			Material::Version version;
+			std::unordered_map<std::string, UniformCache> uniforms;
+		};
+
 
 	public:
 	
@@ -97,10 +114,8 @@ namespace bm::gfx
 		Renderer(Renderer&&) = delete;
 		Renderer& operator=(Renderer&&) = delete;
 
-		ResourceManager& getResourceManager() const noexcept // Renderer do not own resource manager, so it returns ref to it in const method
-		{
-			return m_manager;
-		}
+		// Renderer do not own resource manager
+		ResourceManager& getResourceManager() const noexcept { return m_manager; }
 	
 		void clearColor(std::array<float, 4> color);
 		void setViewportSize(int width, int height);
@@ -141,6 +156,7 @@ namespace bm::gfx
 		ResourceManager& m_manager;
 
 		HandleMap<Mesh, Shape> m_shapes;
+		HandleMap<Material, Appearance> m_appearances;
 		HandleMap<Image, Texture> m_textures;
 		HandleMap<ShaderSource, Shader> m_shaders;
 		std::unordered_map<ShaderProgramKey, ShaderProgram, ShaderProgramKeyHash> m_programs;

@@ -1,5 +1,7 @@
 export module bm.gfx:source;
 
+import :utility;
+
 import std;
 
 

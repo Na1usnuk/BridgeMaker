@@ -25,25 +25,39 @@ namespace bm::gfx
 			
 			std::uint64_t images = 0;
 			std::uint64_t uniforms = 0;
-		};
 
-	private:
+			constexpr bool operator==(const Version& oth) const noexcept
+			{
+				return vertex_source == oth.vertex_source
+					and fragment_source == oth.fragment_source
+					and images == oth.images
+					and uniforms == oth.uniforms;
+			}
+			constexpr bool operator!=(const Version& oth) const noexcept
+			{
+				return not(*this == oth);
+			}
+
+		};
 
 		using UniformValue = std::variant
 			<
 				float,
 				int,
-				glm::vec2,
+				//glm::vec2,
 				glm::vec3,
 				glm::vec4,
-				glm::mat3,
+				//glm::mat3,
 				glm::mat4
 			>;
+
+	private:
 
 		struct UniformDesc
 		{
 			std::string name;
 			UniformValue value;
+			std::uint32_t version;
 		};
 
 		struct ImageDesc
@@ -72,9 +86,12 @@ namespace bm::gfx
 		{
 			auto it = std::ranges::find(m_uniforms, name, &UniformDesc::name);
 			if (it not_eq m_uniforms.end())
+			{
 				it->value = value;
+				it->version++;
+			}
 			else
-				m_uniforms.emplace_back({ std::move(name), {value} });
+				m_uniforms.emplace_back({ std::move(name), {value}, 0 });
 			m_version.uniforms++;
 		}
 		// Very not DRY

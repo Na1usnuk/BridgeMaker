@@ -3,6 +3,7 @@ export module bm.gfx:buffer;
 import bm.core;
 
 import :shader;
+import :source;
 import :utility;
 
 import std;
@@ -15,29 +16,9 @@ namespace bm::gfx
 
 	export struct VertexLayout
 	{
-		enum class Type
-		{
-			Float,
-			Float2,
-			Float3,
-			Float4,
+		struct Attribute { ShaderType type; bool normalized = false; };
 
-			Int,
-			Int2,
-			Int3,
-			Int4,
-
-			UInt,
-			UInt2,
-			UInt3,
-			UInt4,
-
-			Bool,
-		};
-
-		struct Attribute { Type type; bool normalized = false; };
-
-		VertexLayout(std::initializer_list<Type> types)
+		VertexLayout(std::initializer_list<ShaderType> types)
 		{
 			attributes.reserve(types.size());
 			for (const auto type : types)
