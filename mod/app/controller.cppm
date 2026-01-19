@@ -15,7 +15,7 @@ namespace bm::app
 	{
 	public:
 
-		DebugCameraController(gfx::Camera& camera_to_control, const platform::Input& input, float speed = 3.0f, float sensetivity = .5f);
+		DebugCameraController(gfx::Camera& camera_to_control, const platform::Window& window, float speed = 3.0f, float sensitivity = .5f);
 
 		void onUpdate(DeltaTime delta_time);
 		void onEvent(Event& e);
@@ -25,20 +25,18 @@ namespace bm::app
 		bool onMouseClick(MouseButtonPressEvent& e);
 		bool onMouseRelease(MouseButtonReleaseEvent& e);
 
-		//void setSpeed(float speed) { m_speed = speed; }
-		//float getSpeed() const { return m_speed; }
-		//void setSensetivity(float sensetivity) { m_sensetivity = sensetivity; }
-		//float getSensetivity() { return m_sensetivity; }
-
-		//void setCamera(Traits<gfx::Camera>::OPtr camera_to_control) { m_camera = camera_to_control; }
+		void setSpeed(float speed) noexcept { m_speed = speed; }
+		float getSpeed() const noexcept { return m_speed; }
+		void setSensitivity(float sensitivity) noexcept { m_sensitivity = sensitivity; }
+		float getSensetivity() noexcept { return m_sensitivity; }
 
 	private:
 
 		gfx::Camera* m_camera;
-		const platform::Input& m_input;
+		platform::Input m_input;
 
 		float m_speed;
-		float m_sensetivity;
+		float m_sensitivity;
 
 		std::pair<float, float> m_last_mouse_pos;
 

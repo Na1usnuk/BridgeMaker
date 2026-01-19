@@ -9,12 +9,12 @@ import bm.core;
 namespace bm::app
 {
 
-	DebugCameraController::DebugCameraController(gfx::Camera& camera_to_control, const platform::Input& input, float speed, float sensetivity) :
+	DebugCameraController::DebugCameraController(gfx::Camera& camera_to_control, const platform::Window& window, float speed, float sensitivity) :
 		m_camera(&camera_to_control),
-		m_input(input),
+		m_input(window),
 		m_speed(speed),
-		m_sensetivity(sensetivity),
-		m_last_mouse_pos(input.getMousePosition())
+		m_sensitivity(sensitivity),
+		m_last_mouse_pos(m_input.getMousePosition())
 	{}
 
 	void DebugCameraController::onEvent(Event& e)
@@ -70,8 +70,8 @@ namespace bm::app
 			m_first_mouse_event = false;
 		}
 
-		float delta_x = (e.getX() - m_last_mouse_pos.first) * m_sensetivity;
-		float delta_y = (m_last_mouse_pos.second - e.getY()) * m_sensetivity;
+		float delta_x = (e.getX() - m_last_mouse_pos.first) * m_sensitivity;
+		float delta_y = (m_last_mouse_pos.second - e.getY()) * m_sensitivity;
 		m_last_mouse_pos = { e.getX(), e.getY() };
 
 		auto yaw = m_camera->getYaw() + delta_x;
