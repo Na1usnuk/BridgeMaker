@@ -33,11 +33,6 @@ namespace bm::gfx
 					and index == oth.index
 					and layout == oth.layout;
 			}
-
-			bool operator!=(const Version& oth) const noexcept
-			{
-				return not(*this == oth);
-			}
 		};
 
 	public:

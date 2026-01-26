@@ -11,13 +11,14 @@ namespace bm::gfx
 
 	// Camera
 
-	Camera::Camera(const glm::vec3& position, float fov, float aspect_ration)
+	Camera::Camera(const glm::vec3& position, float fov, float aspect_ratio)
 		: m_pos(position),
-		m_projection(1.0f),
+		m_projection(1.f),
+		m_view(1.f),
 		m_yaw(90.f),
 		m_pitch(0.f),
 		m_fov(fov),
-		m_aspect_ratio(aspect_ration)
+		m_aspect_ratio(aspect_ratio)
 	{
 		recalculateViewProjection();
 	}
@@ -45,7 +46,7 @@ namespace bm::gfx
 
 	const glm::mat4& Camera::getViewProjection()
 	{
-		if (m_view_projection_dirty)
+		if (m_view_projection_dirty or m_view_dirty or m_projection_dirty)
 			recalculateViewProjection();
 		return m_view_proj;
 	}

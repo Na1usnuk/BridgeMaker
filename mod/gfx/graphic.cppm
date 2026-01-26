@@ -1,7 +1,7 @@
 export module bm.gfx;
 
 export import :utility;
-
+export import :uniform;
 export import :source;
 export import :image;
 export import :buffer;

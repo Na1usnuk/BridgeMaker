@@ -2,7 +2,7 @@ export module bm.gfx:material;
 
 import :source;
 import :image;
-import :utility;
+import :uniform;
 import :image;
 
 import glm;
@@ -20,51 +20,22 @@ namespace bm::gfx
 
 		struct Version
 		{
-			std::uint64_t vertex_source = 0;
-			std::uint64_t fragment_source = 0;
+			std::uint64_t vertex_source = 1;
+			std::uint64_t fragment_source = 1;
 			
-			std::uint64_t images = 0;
-			std::uint64_t uniforms = 0;
+			std::uint64_t images = 1;
+			std::uint64_t uniforms = 1;
 
-			constexpr bool operator==(const Version& oth) const noexcept
-			{
-				return vertex_source == oth.vertex_source
-					and fragment_source == oth.fragment_source
-					and images == oth.images
-					and uniforms == oth.uniforms;
-			}
-			constexpr bool operator!=(const Version& oth) const noexcept
-			{
-				return not(*this == oth);
-			}
-
+			constexpr bool operator==(const Version& oth) const noexcept = default;
 		};
-
-		using UniformValue = std::variant
-			<
-				float,
-				int,
-				//glm::vec2,
-				glm::vec3,
-				glm::vec4,
-				//glm::mat3,
-				glm::mat4
-			>;
 
 	private:
 
-		struct UniformDesc
-		{
-			std::string name;
-			UniformValue value;
-			std::uint32_t version;
-		};
-
-		struct ImageDesc
-		{
-			std::string name; 
-			core::Handle<Image> image; 
-		};
+		//struct ImageDesc
+		//{
+		//	std::string name; 
+		//	core::Handle<Image> image; 
+		//};
 
 	public:
 
@@ -80,35 +51,11 @@ namespace bm::gfx
 		core::Handle<ShaderSource> getVertexShaderSource() const noexcept { return m_vertex; }
 		core::Handle<ShaderSource> getFragmentShaderSource() const noexcept { return m_fragment; }
 
-		// Not DRY
-		template<typename T>
-		void set(std::string name, const T& value)
-		{
-			auto it = std::ranges::find(m_uniforms, name, &UniformDesc::name);
-			if (it not_eq m_uniforms.end())
-			{
-				it->value = value;
-				it->version++;
-			}
-			else
-				m_uniforms.emplace_back({ std::move(name), {value}, 0 });
-			m_version.uniforms++;
-		}
-		// Very not DRY
-		void set(std::string name, core::Handle<Image> image)
-		{
-			auto it = std::ranges::find(m_images, name, &ImageDesc::name);
-			if (it not_eq m_images.end())
-				it->image = image;
-			else
-				m_images.emplace_back(std::move(name), image);
-			m_version.images++;
-		}
-
-		std::span<const ImageDesc> getImages() const noexcept { return { m_images }; }
-		std::span<const UniformDesc> getUniforms() const noexcept { return { m_uniforms }; }
-
 		const Version& getVersion() const noexcept { return m_version; }
+
+	public:
+
+		Bindings bindings;
 
 	private:
 
@@ -118,9 +65,6 @@ namespace bm::gfx
 		// Other types of shader will be added as optionals
 		//std::optional<core::Handle<ShaderSource>> m_compute;
 		//std::optional<core::Handle<ShaderSource>> m_geometry;
-
-		std::vector<ImageDesc> m_images;
-		std::vector<UniformDesc> m_uniforms;
 		
 		Version m_version;
 	};

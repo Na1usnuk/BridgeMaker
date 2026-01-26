@@ -6,16 +6,7 @@ import std;
 namespace bm::gfx
 {
 
-	// Used to specify the expected usage pattern of the data store
-	export enum class Usage
-	{
-		Const,	 // For immutable data
-		Static,  // Data changes rarelly
-		Dynamic, // Data can change sometimes
-		Stream,  // Data changes frequently 
-	};
-
-	export enum class ShaderType
+	export enum class DataType
 	{
 		Float,
 		Vec2,
@@ -41,6 +32,15 @@ namespace bm::gfx
 		BVec2,
 		BVec3,
 		BVec4,
+	};
+
+	// Used to specify the expected usage pattern of the data store
+	export enum class Usage
+	{
+		Const,	 // For immutable data
+		Static,  // Data changes rarelly
+		Dynamic, // Data can change sometimes
+		Stream,  // Data changes frequently 
 	};
 	
 }

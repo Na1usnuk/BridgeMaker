@@ -82,153 +82,156 @@ namespace bm::gfx
 
 	// Helper functions to map attribute type to OpenGL
 
-	GLint attribSize(ShaderType type)
+	GLint attribSize(DataType type)
 	{
 		switch (type)
 		{
-		case ShaderType::Float:
-		case ShaderType::Double:
-		case ShaderType::Int:
-		case ShaderType::UInt:
-		case ShaderType::Bool:
+		case DataType::Float:
+		case DataType::Double:
+		case DataType::Int:
+		case DataType::UInt:
+		case DataType::Bool:
 			return 1;
 
-		case ShaderType::Vec2:
-		case ShaderType::DVec2:
-		case ShaderType::IVec2:
-		case ShaderType::UVec2:
-		case ShaderType::BVec2:
+		case DataType::Vec2:
+		case DataType::DVec2:
+		case DataType::IVec2:
+		case DataType::UVec2:
+		case DataType::BVec2:
 			return 2;
 
-		case ShaderType::Vec3:
-		case ShaderType::DVec3:
-		case ShaderType::IVec3:
-		case ShaderType::UVec3:
-		case ShaderType::BVec3:
+		case DataType::Vec3:
+		case DataType::DVec3:
+		case DataType::IVec3:
+		case DataType::UVec3:
+		case DataType::BVec3:
 			return 3;
 
-		case ShaderType::Vec4:
-		case ShaderType::DVec4:
-		case ShaderType::IVec4:
-		case ShaderType::UVec4:
-		case ShaderType::BVec4:
+		case DataType::Vec4:
+		case DataType::DVec4:
+		case DataType::IVec4:
+		case DataType::UVec4:
+		case DataType::BVec4:
 			return 4;
 		}
 
 		std::unreachable();
 	}
 
-	size_t attribByteSize(ShaderType type)
+	size_t attribByteSize(DataType type)
 	{
 		switch (type)
 		{
 			// float
-		case ShaderType::Float:  return sizeof(GLfloat) * 1;
-		case ShaderType::Vec2:   return sizeof(GLfloat) * 2;
-		case ShaderType::Vec3:   return sizeof(GLfloat) * 3;
-		case ShaderType::Vec4:   return sizeof(GLfloat) * 4;
+		case DataType::Float:  return sizeof(GLfloat) * 1;
+		case DataType::Vec2:   return sizeof(GLfloat) * 2;
+		case DataType::Vec3:   return sizeof(GLfloat) * 3;
+		case DataType::Vec4:   return sizeof(GLfloat) * 4;
 
 			// double
-		case ShaderType::Double: return sizeof(GLdouble) * 1;
-		case ShaderType::DVec2:  return sizeof(GLdouble) * 2;
-		case ShaderType::DVec3:  return sizeof(GLdouble) * 3;
-		case ShaderType::DVec4:  return sizeof(GLdouble) * 4;
+		case DataType::Double: return sizeof(GLdouble) * 1;
+		case DataType::DVec2:  return sizeof(GLdouble) * 2;
+		case DataType::DVec3:  return sizeof(GLdouble) * 3;
+		case DataType::DVec4:  return sizeof(GLdouble) * 4;
 
 			// signed int
-		case ShaderType::Int:    return sizeof(GLint) * 1;
-		case ShaderType::IVec2:  return sizeof(GLint) * 2;
-		case ShaderType::IVec3:  return sizeof(GLint) * 3;
-		case ShaderType::IVec4:  return sizeof(GLint) * 4;
+		case DataType::Int:    return sizeof(GLint) * 1;
+		case DataType::IVec2:  return sizeof(GLint) * 2;
+		case DataType::IVec3:  return sizeof(GLint) * 3;
+		case DataType::IVec4:  return sizeof(GLint) * 4;
 
 			// unsigned int
-		case ShaderType::UInt:   return sizeof(GLuint) * 1;
-		case ShaderType::UVec2:  return sizeof(GLuint) * 2;
-		case ShaderType::UVec3:  return sizeof(GLuint) * 3;
-		case ShaderType::UVec4:  return sizeof(GLuint) * 4;
+		case DataType::UInt:   return sizeof(GLuint) * 1;
+		case DataType::UVec2:  return sizeof(GLuint) * 2;
+		case DataType::UVec3:  return sizeof(GLuint) * 3;
+		case DataType::UVec4:  return sizeof(GLuint) * 4;
 
 			// bools
-		case ShaderType::Bool:   return sizeof(GLint) * 1;
-		case ShaderType::BVec2:  return sizeof(GLint) * 2;
-		case ShaderType::BVec3:  return sizeof(GLint) * 3;
-		case ShaderType::BVec4:  return sizeof(GLint) * 4;
+		case DataType::Bool:   return sizeof(GLint) * 1;
+		case DataType::BVec2:  return sizeof(GLint) * 2;
+		case DataType::BVec3:  return sizeof(GLint) * 3;
+		case DataType::BVec4:  return sizeof(GLint) * 4;
 		}
 
 		std::unreachable();
 	}
 
-	GLenum attribType(ShaderType type)
+	GLenum attribType(DataType type)
 	{
 		switch (type)
 		{
 			// float
-		case ShaderType::Float:
-		case ShaderType::Vec2:
-		case ShaderType::Vec3:
-		case ShaderType::Vec4:
+		case DataType::Float:
+		case DataType::Vec2:
+		case DataType::Vec3:
+		case DataType::Vec4:
 			return GL_FLOAT;
 
 			// double
-		case ShaderType::Double:
-		case ShaderType::DVec2:
-		case ShaderType::DVec3:
-		case ShaderType::DVec4:
+		case DataType::Double:
+		case DataType::DVec2:
+		case DataType::DVec3:
+		case DataType::DVec4:
 			return GL_DOUBLE;
 
 			// signed int
-		case ShaderType::Int:
-		case ShaderType::IVec2:
-		case ShaderType::IVec3:
-		case ShaderType::IVec4:
+		case DataType::Int:
+		case DataType::IVec2:
+		case DataType::IVec3:
+		case DataType::IVec4:
 			return GL_INT;
 
 			// unsigned int
-		case ShaderType::UInt:
-		case ShaderType::UVec2:
-		case ShaderType::UVec3:
-		case ShaderType::UVec4:
+		case DataType::UInt:
+		case DataType::UVec2:
+		case DataType::UVec3:
+		case DataType::UVec4:
 			return GL_UNSIGNED_INT;
 
 			// bools are integer attributes in OpenGL
-		case ShaderType::Bool:
-		case ShaderType::BVec2:
-		case ShaderType::BVec3:
-		case ShaderType::BVec4:
+		case DataType::Bool:
+		case DataType::BVec2:
+		case DataType::BVec3:
+		case DataType::BVec4:
 			return GL_BOOL;
 		}
 
 		std::unreachable();
 	}
 	
-	template<ShaderType>
+	template<DataType>
 	struct ShaderToCppType
 	{
-		static_assert(false, "Unsupported ShaderType");
+		static_assert(false, "Unsupported DataType");
 	};
 
-	template<> struct ShaderToCppType<ShaderType::Float> { using Type = float; };
-	template<> struct ShaderToCppType<ShaderType::Vec2> { using Type = glm::vec2; };
-	template<> struct ShaderToCppType<ShaderType::Vec3> { using Type = glm::vec3; };
-	template<> struct ShaderToCppType<ShaderType::Vec4> { using Type = glm::vec4; };
+	template<> struct ShaderToCppType<DataType::Float> { using Type = float; };
+	template<> struct ShaderToCppType<DataType::Vec2> { using Type = glm::vec2; };
+	template<> struct ShaderToCppType<DataType::Vec3> { using Type = glm::vec3; };
+	template<> struct ShaderToCppType<DataType::Vec4> { using Type = glm::vec4; };
 
-	template<> struct ShaderToCppType<ShaderType::Double> { using Type = double; };
-	template<> struct ShaderToCppType<ShaderType::DVec2> { using Type = glm::dvec2; };
-	template<> struct ShaderToCppType<ShaderType::DVec3> { using Type = glm::dvec3; };
-	template<> struct ShaderToCppType<ShaderType::DVec4> { using Type = glm::dvec4; };
+	template<> struct ShaderToCppType<DataType::Double> { using Type = double; };
+	template<> struct ShaderToCppType<DataType::DVec2> { using Type = glm::dvec2; };
+	template<> struct ShaderToCppType<DataType::DVec3> { using Type = glm::dvec3; };
+	template<> struct ShaderToCppType<DataType::DVec4> { using Type = glm::dvec4; };
 
-	template<> struct ShaderToCppType<ShaderType::Int> { using Type = int; };
-	template<> struct ShaderToCppType<ShaderType::IVec2> { using Type = glm::ivec2; };
-	template<> struct ShaderToCppType<ShaderType::IVec3> { using Type = glm::ivec3; };
-	template<> struct ShaderToCppType<ShaderType::IVec4> { using Type = glm::ivec4; };
+	template<> struct ShaderToCppType<DataType::Int> { using Type = int; };
+	template<> struct ShaderToCppType<DataType::IVec2> { using Type = glm::ivec2; };
+	template<> struct ShaderToCppType<DataType::IVec3> { using Type = glm::ivec3; };
+	template<> struct ShaderToCppType<DataType::IVec4> { using Type = glm::ivec4; };
 
-	template<> struct ShaderToCppType<ShaderType::UInt> { using Type = unsigned int; };
-	template<> struct ShaderToCppType<ShaderType::UVec2> { using Type = glm::uvec2; };
-	template<> struct ShaderToCppType<ShaderType::UVec3> { using Type = glm::uvec3; };
-	template<> struct ShaderToCppType<ShaderType::UVec4> { using Type = glm::uvec4; };
+	template<> struct ShaderToCppType<DataType::UInt> { using Type = unsigned int; };
+	template<> struct ShaderToCppType<DataType::UVec2> { using Type = glm::uvec2; };
+	template<> struct ShaderToCppType<DataType::UVec3> { using Type = glm::uvec3; };
+	template<> struct ShaderToCppType<DataType::UVec4> { using Type = glm::uvec4; };
 
-	template<> struct ShaderToCppType<ShaderType::Bool> { using Type = int; };
-	template<> struct ShaderToCppType<ShaderType::BVec2> { using Type = glm::ivec2; };
-	template<> struct ShaderToCppType<ShaderType::BVec3> { using Type = glm::ivec3; };
-	template<> struct ShaderToCppType<ShaderType::BVec4> { using Type = glm::ivec4; };
+	template<> struct ShaderToCppType<DataType::Bool> { using Type = int; };
+	template<> struct ShaderToCppType<DataType::BVec2> { using Type = glm::ivec2; };
+	template<> struct ShaderToCppType<DataType::BVec3> { using Type = glm::ivec3; };
+	template<> struct ShaderToCppType<DataType::BVec4> { using Type = glm::ivec4; };
+
+	template<DataType T>
+	using ShaderCppType = typename ShaderToCppType<T>::Type;
 
 
 	GLenum topologyToGLMode(Mesh::Topology topology)
@@ -311,8 +314,15 @@ namespace bm::gfx
 		const auto optobj = m_manager.objects.tryGet(object_handle);
 		VERIFY(optobj.has_value(), "Invalid Object");
 		const auto& object = optobj->get();
-		prepare(object.getMesh());
-		prepare(object.getMaterial());
+		const auto& mesh = object.getMesh();
+		const auto& material = object.getMaterial();
+
+		if (not m_renderables.contains(object_handle))
+		{
+			m_renderables.emplace(object_handle, Renderable{ mesh, material, object.transform, object.isVisible() });
+			prepare(mesh);
+			prepare(material);
+		}
 	}
 
 	void Renderer::prepare(const core::Handle<Mesh> mesh_handle)
@@ -363,40 +373,20 @@ namespace bm::gfx
 		// Check shader program
 		ShaderProgramKey program_key{ vertex_source, fragment_source };
 		if(not m_programs.contains(program_key))
+		{
 			allocate(vertex_source, fragment_source);
+			appearance.program = program_key;
+		}
 		auto& program = m_programs.at(program_key);
 
 		// Check uniforms
-		if (cached_version.uniforms not_eq version.uniforms)
+		if (appearance.bindings.getVersion() not_eq material.bindings.getVersion())
 		{
-			bool program_bound = false;
-			auto bind_program = [&]()
-				{
-					if (!program_bound)
-					{
-						program.bind();
-						program_bound = true;
-					}
-				};
-			const auto& uniforms = material.getUniforms();
-			auto& cached_uniforms = appearance.uniforms;
-			for (const auto& uniform : uniforms)
-			{
-				if (auto& cached_uniform = cached_uniforms[uniform.name]; 
-					cached_uniform.version not_eq uniform.version)
-				{
-					cached_uniform.value = uniform.value;
-					cached_uniform.version = uniform.version;
-					bind_program(); // call bind only once
-
-					std::visit([&](const auto& value)
-					{
-						program.setUniform(uniform.name, value);
-					}, uniform.value);
-				}
-			}
+			// TODO: Optimize
+			appearance.bindings = material.bindings;
+			
 		}
-
+		cached_version = version;
 	}
 
 	void Renderer::prepare(const core::Handle<Image> image_handle)
@@ -556,55 +546,47 @@ namespace bm::gfx
 
 	void Renderer::draw(const Scene& scene, Camera& camera)
 	{
-		//auto objects = scene.getObjects();
+		FrameContext frame_ctx{ camera, {} };
+		m_on_frame(frame_ctx);
 
-		//// Micro cache, to avoid rebind
-		//GLuint program_id = 0;
+		auto objects = scene.getObjects();
 
-		//for (auto handler : objects)
-		//{
-		//	// If object handler is present, but object is not, scene is ill formed
-		//	auto optobj = ResourceManager::get(handler);
-		//	VERIFY(optobj.has_value(), "Invalid Object");
-		//	auto& object = optobj->get();
+		for (auto object : objects)
+		{
+			auto& renderable = m_renderables.at(object);
 
-		//	// Dou you know what visibility means?
-		//	if (not object.isVisible()) continue;
+			ObjectContext object_ctx{ renderable, {} };
+			m_on_object(object_ctx);
 
-		//	if (not m_data.shapes.contains(object.getMesh()))
-		//		makeShape(object.getMesh());
+			// Dou you know what visibility means?
+			if (not renderable.is_visible) continue;
 
-		//	// Ignoring material error check
-		//	auto& material = ResourceManager::get(object.getMaterial())->get(); 
-		//	
-		//	auto vertex = material.getVertexShaderSource();
-		//	auto fragment = material.getFragmentShaderSource();
+			auto& shape = m_shapes.at(renderable.mesh);
+			auto& appearance = m_appearances.at(renderable.material);
 
-		//	ShaderProgramKey program_key{ { vertex, fragment } };
-		//	if (not m_data.programs.contains(program_key))
-		//		makeShaderProgram(vertex, fragment);
+			// For now just dumb rendereing
+			auto& program = m_programs.at(appearance.program);
+			program.bind();
 
-		//	auto& program = m_data.programs.at(program_key);
-		//	if(program.getId() not_eq program_id)
-		//		program.bind();
-		//	program_id = program.getId();
-		//	program.setUniform("u_view_projection", camera.getViewProjection());
-		//	program.setUniform("u_model", object.transform.getModel());
+			auto bind_bindings = [&](const auto& bindings)
+				{
+					for (auto& binding : bindings.getBindings())
+						std::visit([&](const auto& data) { program.setUniform(binding.name, data); }, binding.data);
+				};
 
-		//	// TODO: apply material
-
-		//	auto& shape = m_data.shapes.at(object.getMesh());
-		//	shape.vao.bind();
-
-		//	// Actual draw
-		//	if (shape.ibo.has_value()) [[likely]] // I think most meshes have index buffer
-		//	{
-		//		shape.ibo->bind();
-		//		GL_VERIFY(glDrawElements, shape.mode, shape.ibo->getCount(), GL_UNSIGNED_INT, (void*)0);
-		//	}
-		//	else
-		//		GL_VERIFY(glDrawArrays, shape.mode, 0, shape.vbo.getSize());
-		//}
+			bind_bindings(frame_ctx.bindings);
+			bind_bindings(object_ctx.bindings);
+			bind_bindings(appearance.bindings);
+			
+			// Actual draw
+			if (shape.ibo.has_value()) [[likely]] // I think most meshes have index buffer
+			{
+				shape.ibo->bind();
+				GL_VERIFY(glDrawElements, shape.mode, shape.ibo->getCount(), GL_UNSIGNED_INT, (void*)0);
+			}
+			else
+				GL_VERIFY(glDrawArrays, shape.mode, 0, shape.vbo.getSize());
+		}
 	}
 
 

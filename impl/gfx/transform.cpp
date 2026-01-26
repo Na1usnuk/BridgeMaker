@@ -15,8 +15,6 @@ namespace bm::gfx
 		m_model = glm::rotate(m_model, glm::radians(m_rotation.x), glm::vec3(1.f, 0.f, 0.f));
 		m_model = glm::scale(m_model, m_scale);
 
-		m_normal_matrix = glm::mat3(glm::transpose(glm::inverse(m_model)));
-
 		m_dirty = false;
 	}
 
@@ -25,13 +23,6 @@ namespace bm::gfx
 		if (m_dirty)
 			apply();
 		return m_model;
-	}
-
-	const glm::mat3& Transform::getNormalMatrix()
-	{
-		if (m_dirty)
-			apply();
-		return m_normal_matrix;
 	}
 
 	const glm::vec3& Transform::getPosition() const

@@ -9,7 +9,6 @@ namespace bm::gfx
 	public:
 
 		const glm::mat4& getModel();
-		const glm::mat3& getNormalMatrix();
 
 		const glm::vec3& getPosition() const;
 		const glm::vec3& getScale() const;
@@ -30,7 +29,6 @@ namespace bm::gfx
 	private:
 
 		glm::mat4 m_model = glm::mat4(1.f);
-		glm::mat3 m_normal_matrix = glm::mat3(1.f);
 
 		glm::vec3 m_rotation = glm::vec3(0.f);
 		glm::vec3 m_scale = glm::vec3(1.f);

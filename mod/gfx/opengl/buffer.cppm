@@ -16,9 +16,9 @@ namespace bm::gfx
 
 	export struct VertexLayout
 	{
-		struct Attribute { ShaderType type; bool normalized = false; };
+		struct Attribute { DataType type; bool normalized = false; };
 
-		VertexLayout(std::initializer_list<ShaderType> types)
+		VertexLayout(std::initializer_list<DataType> types)
 		{
 			attributes.reserve(types.size());
 			for (const auto type : types)

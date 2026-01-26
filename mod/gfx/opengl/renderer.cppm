@@ -10,6 +10,7 @@ import :shader;
 import :mesh;
 import :material;
 import :object;
+import :uniform;
 
 import :camera;
 import :scene;
@@ -88,18 +89,39 @@ namespace bm::gfx
 		{
 		private:
 
-			struct UniformCache
-			{
-				Material::UniformValue value; 
-				std::uint32_t version = 0;
-			};
-
 		public:
 
-			Material::Version version;
-			std::unordered_map<std::string, UniformCache> uniforms;
+			Material::Version version{ 0,0,0,0 };
+			Bindings bindings;
+			ShaderProgramKey program;
 		};
 
+		struct Renderable
+		{
+			//Shape shape;
+			//Appearance appearance;
+			core::Handle<Mesh> mesh;
+			core::Handle<Material> material;
+			Transform transform;
+			bool is_visible;
+		};
+
+	public:
+
+		struct FrameContext
+		{
+			Camera& camera;
+			Bindings bindings;
+		};
+
+		struct ObjectContext
+		{
+			Renderable& object;
+			Bindings bindings;
+		};
+
+		using OnFrameFunction = void(*)(FrameContext&);
+		using OnObjectFunction = void(*)(ObjectContext&);
 
 	public:
 	
@@ -119,6 +141,9 @@ namespace bm::gfx
 	
 		void clearColor(std::array<float, 4> color);
 		void setViewportSize(int width, int height);
+
+		void onFrame(OnFrameFunction func) noexcept { m_on_frame = func; }
+		void onObject(OnObjectFunction func) noexcept { m_on_object = func; }
 
 		// Slow operation that allocate GPU resources. 
 		void prepare(const Scene& scene);
@@ -155,6 +180,10 @@ namespace bm::gfx
 
 		ResourceManager& m_manager;
 
+		OnFrameFunction m_on_frame = [](FrameContext&) {};
+		OnObjectFunction m_on_object = [](ObjectContext&) {};
+
+		HandleMap<Object, Renderable> m_renderables;
 		HandleMap<Mesh, Shape> m_shapes;
 		HandleMap<Material, Appearance> m_appearances;
 		HandleMap<Image, Texture> m_textures;

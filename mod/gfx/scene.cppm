@@ -28,6 +28,8 @@ namespace bm::gfx
 		// Optional overrides
 		virtual void onUpdate(float deltaTime) {}
 		virtual void onRender() {}
+		virtual void onStartup() = 0;
+		virtual void onShutdown() = 0;
 
 		void addObject(core::Handle<Object> handler) noexcept
 		{
